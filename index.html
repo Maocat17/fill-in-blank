@@ -308,10 +308,10 @@ function drawEdit(newIds=[],enter){view='edit';E.sel=null;
  setView(`<div class=wrap><div class=top><div class="row tb1 fit">${B('back','back')}<span class=grow></span><button class=sec data-act=add>${I('plus',16)}<span class=bt>新增</span></button><button class=sec data-act=selb>${I('select',16)}<span class=bt>選取</span></button><button class=sec data-act=mix>${I('mix',16)}<span class=bt>混編</span></button><button class=pri data-act=saveDeck>儲存</button></div>
  <div class="row tb2"><span id=sc style="color:var(--fg)">已選 0 項</span><span class=grow></span><button class=sec data-act=sall>全選</button><button class=sec data-act=sdel style="color:var(--r)">${I('trash',16)}刪除</button><button class=sec data-act=scan>取消</button></div></div>
  <input class=ti id=ti type=text placeholder="題庫標題" value="${esc(E.title)}">
- <details class=bulk><summary class=sm><span class=tri>${I('right',16)}</span>${I('spark',16)}<span>自動生成題庫</span></summary>
- <label>每行一題，可直接貼原始文本，例如：The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）。AI 需要連網。</label>
+ <details class=bulk><summary class=sm><span class=tri>${I('right',16)}</span>${I('spark',16)}<span>Gemini 2.5 Flash 自動生成題庫</span></summary>
+ <label>每行一題，可直接貼原始文本，例如：The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）。</label>
  <textarea id=bulk rows=5 ${NOSUG}></textarea>
- <div class=row style="margin:8px 0 0"><button class=pri data-act=ai>${I('spark',16)}AI 分析並加入</button><button class=sec data-act=local>本機規則判定</button></div><div id=st>${navigator.onLine?'':'目前偵測不到網際網路，AI 分析無法使用'}</div></details>
+ <div class=row style="margin:8px 0 0"><button class=pri data-act=ai>${I('spark',16)}Gemini 2.5 Flash 分析並加入</button><button class=sec data-act=local>本機規則判定</button></div><div id=st>${navigator.onLine?'':'目前偵測不到網際網路，AI 分析無法使用'}</div></details>
  <div id=emp class=center style="padding:30px 0;${E.cards.length?'display:none':''}">還沒有題目，按「新增」開始，或使用 AI 分析、混編。</div>
  <div id=list>${E.cards.map((c,i)=>rowHTML(c,i,newIds.includes(c.id))).join('')}</div></div>`,enter)}
 const rowOf=t=>t.closest('.er'),cardOf=r=>E.cards.find(c=>c.id==r.dataset.cid);
@@ -359,23 +359,54 @@ function localParse(line){let L=line.trim();if(!L||L[0]=='#')return null;
  let en=left.replace(/[_＿]{2,}|…{2,}|\.{4,}/g,()=>{found=true;const w=ws[k++];return w?`[${w}]`:'____'});
  if(!found&&ws.length)ws.forEach(w=>{en=en.replace(new RegExp('(^|[^\\p{L}\\[])('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?![\\p{L}\\]])','iu'),'$1[$2]')});
  return{id:uid(),en,zh,phrase,phraseZh,note:'',star:false}}
-async function bulk(mode){const txt=$('#bulk').value.trim(),st=$('#st');if(!txt)return;let out=[];
+
+async function gemini25FlashAnalyze(linesText) {
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  const prompt = `你是英文題庫整理助手。下面每一行是一張單字填空卡（可能含底線空格、中文翻譯、答案與註解，格式不固定），請逐行分析並轉成 JSON 陣列（行數與順序一致），每個元素有 en、zh、phrase、phraseZh、note 五個字串欄位。
+規則：en 是完整英文句子，被挖空（答案）的單字或片語用 [ ] 框起來（連續的片語可整段框在一個 [ ] 內，如 [An accidental wrong turn]；不連續的分開框，如 Kyle [was] deeply [upset about]）；若原文已有 [ ] 就保留；若沒有標示答案，請判斷最值得練習的單字或片語。zh 是中文句子；phrase 是該單字/片語原形（如 keep... awake）；phraseZh 是其中文意思；note 是補充說明，沒有就空字串，或是生成使用文法注意事項。
+只輸出 JSON 陣列，絕對不要包含任何 markdown 語法 (例如 \`\`\`json) 或其他說明文字。
+
+內容：
+${linesText}`;
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
+  if (!res.ok) throw new Error("Gemini API 回應錯誤：" + res.status);
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const a = text.indexOf('['), b = text.lastIndexOf(']');
+  if (a !== -1 && b !== -1) {
+    return JSON.parse(text.slice(a, b + 1));
+  }
+  throw new Error("無法解析 Gemini 的 JSON 回應");
+}
+
+async function bulk(mode){
+ const txt=$('#bulk').value.trim(),st=$('#st');if(!txt)return;let out=[];
  if(mode=='ai'){
   if(!navigator.onLine){st.textContent='偵測不到網際網路連線。AI 分析需要連網，請連線後再試，或改用「本機規則判定」。';return}
-  let sample=null;try{sample=window.claude&&await claude.use('sample')}catch(e){}
-  if(!sample){st.textContent='此環境無法使用 AI（請在 Claude 內開啟本頁並同意授權），可改用「本機規則判定」。';return}
   const lines=txt.split(/\n/).map(x=>x.trim()).filter(Boolean),CH=10,n=Math.ceil(lines.length/CH);
-  for(let k=0;k<n;k++){st.textContent=`AI 分析中 ${k+1}/${n}…`;
-   try{const r=await sample(`你是英文題庫整理助手。下面每一行是一張單字填空卡（可能含底線空格、中文翻譯、答案與註解，格式不固定），請逐行分析並轉成 JSON 陣列（行數與順序一致），每個元素有 en、zh、phrase、phraseZh、note 五個字串欄位。
-規則：en 是完整英文句子，被挖空（答案）的單字或片語用 [ ] 框起來（連續的片語可整段框在一個 [ ] 內，如 [An accidental wrong turn]；不連續的分開框，如 Kyle [was] deeply [upset about]）；若原文已有 [ ] 就保留；若沒有標示答案，請判斷最值得練習的單字或片語。zh 是中文句子；phrase 是該單字/片語原形（如 keep... awake）；phraseZh 是其中文意思；note 是補充說明，沒有就空字串。只輸出 JSON 陣列，不要其他文字或 markdown。
-內容：
-${lines.slice(k*CH,k*CH+CH).join('\n')}`,{cache:false});
-    const t=r.text,a=t.indexOf('['),b=t.lastIndexOf(']');out.push(...JSON.parse(t.slice(a,b+1)))}
-   catch(e){st.textContent=!navigator.onLine?'網路中斷，AI 分析失敗。':'AI 分析失敗：'+(e&&e.code=='not_granted'?'未授權':e&&e.code=='rate_limited'?'請求太頻繁，請稍後再試':'回應格式有誤或服務忙碌，請稍後再試')+(out.length?`（已完成前 ${out.length} 題）`:'');if(!out.length)return;break}}}
- else out=txt.split(/\n/).map(localParse).filter(Boolean);
+  for(let k=0;k<n;k++){
+   st.textContent=`Gemini 2.5 Flash 分析中 ${k+1}/${n}…`;
+   try{
+    const parsed = await gemini25FlashAnalyze(lines.slice(k*CH,k*CH+CH).join('\n'));
+    out.push(...parsed);
+   } catch(e){
+    st.textContent=!navigator.onLine?'網路中斷，AI 分析失敗。':'Gemini 2.5 Flash 分析失敗：'+(e.message||'連線失敗，請改用本機規則判定');
+    if(!out.length)return;break;
+   }
+  }
+ } else {
+  out=txt.split(/\n/).map(localParse).filter(Boolean);
+ }
  out=out.filter(c=>c&&c.en).map(c=>({id:uid(),en:c.en||'',zh:c.zh||'',phrase:c.phrase||'',phraseZh:c.phraseZh||'',note:c.note||'',star:!!c.star}));
  E.cards=E.cards.filter(c=>c.en.trim()||c.zh.trim()).concat(out);E.open=-1;drawEdit(out.map(c=>c.id));toast(`已加入 ${out.length} 題，請檢查`)}
-/* ===== 匯入／匯出 ===== */
+
 const cell=x=>(x||'').replace(/\t/g,' ').replace(/\r?\n/g,'\\n');
 const toTxt=ds=>ds.map(d=>'#題庫 '+d.title+'\n'+d.cards.map(c=>[c.en,c.zh,c.phrase,c.phraseZh,c.note,c.star?'1':''].map(cell).join('\t')).join('\n')).join('\n\n')+'\n';
 function importTxt(text,name){let cur=null,n=0;const add=t=>{cur={id:uid(),title:t,folder:null,cards:[]};S.decks.push(cur)};
@@ -385,13 +416,37 @@ function importTxt(text,name){let cur=null,n=0;const add=t=>{cur={id:uid(),title
 let IOB=home;
 function io(back){view='io';IOB=back||home;
  setView(`<div class=wrap><div class=top><div class=row>${B('iback','back')}<h3 class=lt>匯入／匯出</h3></div></div>
- <div class=card style="padding:16px 18px"><label style="margin-top:0">匯出題庫 TXT（可多選）</label><div>${S.decks.map(d=>`<label class=ck><input type=checkbox value=${d.id} checked>${esc(d.title)} (${d.cards.length})</label>`).join('')||'<small>目前沒有題庫</small>'}</div>
+ <div class=card style="padding:16px 18px"><label style="margin-top:0">匯出題庫</label><div>${S.decks.map(d=>`<label class=ck><input type=checkbox value=${d.id} checked>${esc(d.title)} (${d.cards.length})</label>`).join('')||'<small>目前沒有題庫</small>'}</div>
  <div class=row style="margin-top:8px"><button class=sec id=e1>匯出選取題庫</button><button class=sec id=e2>匯出學習記錄</button></div><div id=exo></div></div>
- <div class=card style="padding:16px 18px;margin-top:14px"><label style="margin-top:0">匯入（TXT 題庫，或學習記錄 JSON）</label><div class=row style="margin-bottom:8px"><label class="sec fbtn" for=fl>選擇檔案</label><span id=fn style="font-size:13px;color:var(--sub)">尚未選擇檔案</span></div>
+ <div class=card style="padding:16px 18px;margin-top:14px"><label style="margin-top:0">匯入題庫 或 學習記錄</label><div class=row style="margin-bottom:8px"><label class="sec fbtn" for=fl>選擇檔案</label><span id=fn style="font-size:13px;color:var(--sub)">尚未選擇檔案</span></div>
  <input type=file id=fl hidden accept=".txt,.json,text/plain,application/json" multiple><textarea id=pt rows=4 placeholder="或直接貼上內容"></textarea><div style="display:flex;justify-content:flex-end;margin-top:12px"><button class=pri id=im>匯入</button></div></div></div>`,true);
- const q=s=>app.querySelector(s),show=(fn,text)=>{q('#exo').innerHTML=`<label>${fn}</label><textarea rows=4 readonly id=out>${esc(text)}</textarea><div class=row style="margin:6px 0 0"><button class=pri id=dl>下載</button><button class=sec id=cp>複製</button></div>`;
-  q('#dl').onclick=async()=>{try{const d=window.claude&&await claude.use('downloads');if(!d)throw 0;await d.save({filename:fn,data:text})}catch(e){if(!e||e.code!='declined')toast('無法直接下載，請改用「複製」')}};
-  q('#cp').onclick=async()=>{try{await navigator.clipboard.writeText(text);toast('已複製')}catch(e){q('#out').select();toast('請手動複製')}}};
+ const q=s=>app.querySelector(s),show=(fn,text)=>{q('#exo').innerHTML=`<label>${fn}</label><textarea rows=4 readonly id=out>${esc(text)}</textarea><div class=row style="margin:6px 0 0"><button class=pri id=dl>下載檔案</button><button class=sec id=cp>複製內容</button></div>`;
+  q('#dl').onclick=()=>{
+    try {
+      const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fn;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('已成功下載！');
+    } catch(e) {
+      toast('無法直接下載，請改用「複製內容」');
+    }
+  };
+  q('#cp').onclick=()=>{
+    const txtArea = q('#out');
+    txtArea.select();
+    try {
+      document.execCommand('copy');
+      toast('已複製到剪貼簿！');
+    } catch(e) {
+      toast('請手動選取文字複製');
+    }
+  }};
  q('#fl').onchange=()=>{const f=q('#fl').files;q('#fn').textContent=f.length?(f.length==1?f[0].name:`已選 ${f.length} 個檔案`):'尚未選擇檔案'};
  q('#e1').onclick=()=>{const ids=[...app.querySelectorAll('.ck input:checked')].map(i=>i.value);if(!ids.length)return toast('請先勾選題庫');show('題庫.txt',toTxt(S.decks.filter(d=>ids.includes(d.id))))};
  q('#e2').onclick=()=>show('學習記錄_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({app:'fillblank',v:3,decks:S.decks,folders:S.folders,prog:S.prog,reps:S.reps,reports:S.reports,cs:S.cs,total:S.total,cfg:S.cfg}));
@@ -401,7 +456,7 @@ function io(back){view='io';IOB=back||home;
     return yes('匯入學習記錄會取代目前所有題庫、進度與報告，確定嗎？',()=>{S={...S,decks:j.decks,folders:j.folders||[],prog:j.prog||{},reps:j.reps||{},reports:j.reports||[],cs:j.cs,total:j.total,cfg:{...S.cfg,...(j.cfg||{})},seeded:1};fix();applyTheme();save();home();toast('學習記錄已還原')})}
    n+=importTxt(t,name)}
   fix();save();toast(`已匯入 ${n} 題`);IOB()}}
-/* ===== 多題庫練習 ===== */
+
 let MS=new Set(),MQ='';
 function multi(){view='multi';MS=new Set();MQ='';
  setView(`<div class=wrap><div class=top><div class=row>${B('home','back')}<h3 class=lt>多題庫練習</h3></div><input class=ti id=mq type=text placeholder="搜尋題庫" ${NOSUG} style="margin-top:8px"></div>
@@ -433,7 +488,7 @@ app.addEventListener('click',e=>{if(lpDone){lpDone=false;return}const b=e.target
  else if(a=='mix')mix();else if(a=='selb')selMode(true);
  else if(a=='add'){const c=newCard();touch(c.id);E.cards.push(c);E.open=E.cards.length-1;app.querySelectorAll('.er.open').forEach(x=>x.classList.remove('open'));
   $('#list').insertAdjacentHTML('beforeend',rowHTML(c,E.cards.length-1,true));const r=$('#list').lastElementChild;r.classList.add('open');emp();r.scrollIntoView({behavior:'smooth',block:'center'})}
- else if(a=='rm'){const r=rowOf(b),c=cardOf(r),go=()=>fadeOut(r,()=>flip($('#list'),()=>{E.cards=E.cards.filter(x=>x!==c);if(E.cur==c.id)E.cur=null;r.remove();renum();emp()}));c.en||c.zh?yes('刪除這一題？',go):go()}
+ else if(a=='rm'){const r=rowOf(b),c=cardOf(r),go=()=>fadeOut(r,()=>flip($('#list'),()=>{E.cards=E.cards.filter(c=>!x.includes?x!==c:true);if(E.cur==c.id)E.cur=null;r.remove();renum();emp()}));c.en||c.zh?yes('刪除這一題？',go):go()}
  else if(a=='ai')bulk('ai');else if(a=='local')bulk('local');
  else if(a=='saveDeck'){if(saveDeck()){home();toast('已儲存')}}});
 home();
