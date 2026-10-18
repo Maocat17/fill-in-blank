@@ -9,6 +9,7 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#1d1a18;--card:#2a2624;--fg:#8fc3c7;--sub:#b9b4d0;--blank:#34475a;--info:#3a3522;--line:#443c37;--g:#7fb6e6;--r:#f09a9a;--pri:#8fc3c7;--priT:#12201f;--tx:#eee}}
 :root[data-theme=dark]{--bg:#1d1a18;--card:#2a2624;--fg:#8fc3c7;--sub:#b9b4d0;--blank:#34475a;--info:#3a3522;--line:#443c37;--g:#7fb6e6;--r:#f09a9a;--pri:#8fc3c7;--priT:#12201f;--tx:#eee}
 *{box-sizing:border-box}
+html,body,#app{overflow-anchor:none}
 html,body{margin:0;background:var(--bg);color:var(--tx);font-family:"Noto Serif TC","PingFang TC",system-ui,sans-serif;-webkit-text-size-adjust:100%}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
 @keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
@@ -38,7 +39,7 @@ button{font:inherit;cursor:pointer;transition:transform .12s,opacity .2s,backgro
 .bk input{width:100%;height:100%;border:0;background:transparent;font:inherit;color:var(--fg);text-align:center;outline:0;padding:0 .2em;border-radius:.55em}
 .bk:focus-within{box-shadow:0 0 0 2px var(--fg)}
 .bk .ov{opacity:0;position:absolute;left:50%;top:0;bottom:0;min-width:100%;padding:0 .3em;transform:translateX(-50%);background:var(--blank);border-radius:.55em;display:flex;align-items:center;justify-content:center;pointer-events:none;white-space:pre;transition:opacity .2s}
-.bk.bad .ov{opacity:1}.ov b{font-weight:400}.ov .g{color:var(--g)}.ov .r{color:var(--r)}.ov .x{text-decoration:line-through}
+.bk.bad .ov{opacity:1}.ov b{font-weight:400}.ov .g{color:var(--g)}.ov .r{color:var(--r)}.ov .x{color:#9a9a9a;opacity:.5;text-decoration:none}
 .pg{display:flex;align-items:center;gap:10px;flex:1;max-width:62%}.pgb{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
 .pgb i{display:block;height:100%;background:var(--ok);border-radius:4px;transition:width .6s cubic-bezier(.2,.8,.2,1)}.pg b{font:600 14px system-ui;min-width:40px;text-align:right;font-variant-numeric:tabular-nums}
 .dots{display:flex;gap:5px;align-items:center}
@@ -83,7 +84,8 @@ input[type=search]::-webkit-search-cancel-button{display:none}
 .set input[type=checkbox],.ck input{width:20px;height:20px;accent-color:var(--pri);flex:none}
 .ck{display:flex;gap:8px;align-items:center;padding:5px 0;font-size:15px;color:var(--tx);margin:0}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.seg button{border:0;background:var(--card);color:var(--fg);padding:7px 10px;font-size:13px;display:flex;gap:4px;align-items:center}.seg button.on{background:var(--pri);color:var(--priT)}
-.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#333;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:30;animation:up .3s;max-width:90%}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#333;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:30;animation:toastin .3s;max-width:90%}
+@keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%)}}
 .center{text-align:center;padding:60px 10px;color:var(--fg)}
 .rr{position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:12px 6px 12px 16px;margin:10px 0;box-shadow:0 1px 6px #0001;user-select:none;-webkit-user-select:none}
 .rr .fill{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:color-mix(in srgb,var(--c) 17%,transparent);border-radius:14px;animation:grow .8s ease both}
@@ -93,6 +95,52 @@ input[type=search]::-webkit-search-cancel-button{display:none}
 .pm{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:0;border-radius:14px;padding:14px 16px;margin:8px 0;color:var(--tx);font-size:16px;box-shadow:0 1px 6px #0001}.pm span{flex:1}.pm svg{color:var(--fg)}
 .big{font:700 44px system-ui;color:var(--fg)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sy{margin:8px 0 10px;padding:9px 10px;border-radius:12px;background:var(--card);font-size:13px;color:var(--sub)}.sy .syt{display:flex;align-items:flex-start;gap:8px;line-height:1.5}.sy i{width:8px;height:8px;border-radius:50%;background:var(--sub);flex:none;margin-top:6px}.sy.ok i{background:#2e9d5b}.sy.err i{background:var(--r)}.sy a{color:inherit;text-decoration:underline}.sy .syb{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}.sy .syb button{padding:8px 2px;font-size:13px;white-space:nowrap;justify-content:center;min-width:0}
+
+.toast.out{animation:toastout .3s ease forwards}@keyframes toastout{from{opacity:1;transform:translateX(-50%)}to{opacity:0;transform:translateX(-50%) translateY(18px)}}
+b.u{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.sd{display:inline-block;flex:none;width:9px;height:9px;border-radius:50%;background:#9a9a9a;margin:0 4px 0 -6px;align-self:center}.sd.ok{background:#2e9d5b}.sd.err{background:var(--r)}.sd.ing{background:#e8a33d}
+.pk .top .ti{padding:8px 10px;font-size:14px;margin:0}.pk .ck{padding:9px 4px;border-bottom:1px solid var(--line)}
+
+/* ===== 統一自製控制項（不使用系統預設） ===== */
+*{-webkit-tap-highlight-color:transparent}
+button,input,textarea{-webkit-appearance:none;appearance:none}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=checkbox],input[type=radio]{width:20px;height:20px;flex:none;margin:0;border:2px solid var(--gray);background:var(--card);display:inline-grid;place-content:center;cursor:pointer;position:relative;transition:background .2s,border-color .2s}
+input[type=checkbox]{border-radius:6px}input[type=radio]{border-radius:50%}
+input[type=checkbox]::after{content:"";width:5px;height:10px;border:solid var(--priT);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) scale(0);margin-top:-2px;transition:transform .15s}
+input[type=radio]::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--priT);transform:scale(0);transition:transform .15s}
+input[type=checkbox]:checked,input[type=radio]:checked{background:var(--pri);border-color:var(--pri)}
+input[type=checkbox]:checked::after{transform:rotate(45deg) scale(1)}input[type=radio]:checked::after{transform:scale(1)}
+input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.set input[type=checkbox]{width:44px;height:26px;border-radius:13px;border:0;background:var(--line);display:block}
+.set input[type=checkbox]::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border:0;border-radius:50%;background:#fff;margin:0;transform:none;box-shadow:0 1px 3px #0003;transition:transform .2s}
+.set input[type=checkbox]:checked{background:var(--pri)}.set input[type=checkbox]:checked::after{transform:translateX(18px)}
+.cs,.sgw{position:relative;display:block}
+.csb{width:100%;justify-content:space-between;padding:8px 12px;font-size:15px}
+.csb .cl{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.csb svg{transition:transform .2s}.cs.open .csb svg{transform:rotate(180deg)}
+.cm{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:8;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 20px #0003;padding:4px;max-height:220px;overflow:auto;animation:down .18s}
+.cs.open .cm,.sgw.open .cm{display:block}
+.cm button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--tx);font-size:15px;padding:9px 10px;border-radius:8px}
+.cm button:hover,.cm button.on{background:color-mix(in srgb,var(--pri) 14%,transparent)}.cm button.on{color:var(--fg);font-weight:600}
+/* 製作題庫頁 */
+.pkf{background:var(--card);border-radius:14px;padding:2px 14px 12px;box-shadow:0 1px 6px #0001;margin:2px 0 8px}
+.pkf .ti{padding:7px 10px}
+.pkr{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px}.rt2{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--sub)}
+.pkb{display:flex;align-items:center;gap:8px;margin-top:6px}.pkb #cn{flex:1;min-width:0;font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hint{font-size:12px;color:var(--sub);margin-top:10px}
+/* 操作說明 */
+.gd p{font-size:15px;line-height:1.8;margin:8px 4px}.gd h4{margin:24px 4px 6px;font-size:16px;color:var(--fg)}
+.gs{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:14px;padding:12px 14px;margin:8px 0;box-shadow:0 1px 6px #0001}
+.gs .no{flex:none;width:26px;height:26px;border-radius:50%;background:var(--pri);color:var(--priT);font:600 14px system-ui;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.gs .tx{flex:1;min-width:0;font-size:15px;line-height:1.75}.gs .tx small{display:block;color:var(--sub);font-size:13px;line-height:1.6;margin-top:3px}.dmw{flex:none;min-width:92px;display:flex;align-items:center}
+.kb{color:var(--fg);font-weight:600;background:color-mix(in srgb,var(--pri) 12%,transparent);padding:0 .3em;border-radius:6px;white-space:nowrap}
+.gt{display:flex;gap:8px;align-items:flex-start;background:var(--info);border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.75;margin:12px 0}.gt svg{margin-top:3px;color:var(--fg)}
+.gc{margin:12px 0}.gch{display:flex;align-items:center;justify-content:space-between;margin:0 2px 6px;font-size:13px;color:var(--sub)}.cpb{padding:5px 10px;font-size:13px;border-radius:10px}
+.gc pre{margin:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:13px/1.7 ui-monospace,Menlo,Consolas,"Noto Sans TC",monospace;white-space:pre-wrap;word-break:break-word;color:var(--tx);max-height:360px;overflow:auto;tab-size:4}
+code{background:color-mix(in srgb,var(--pri) 10%,transparent);padding:1px 5px;border-radius:5px;font:.9em ui-monospace,Menlo,Consolas,monospace;word-break:break-word}
+.dm{display:inline-flex;font-family:"Alegreya",Georgia,serif;font-size:21px;background:var(--blank);border-radius:.55em;padding:2px 12px;white-space:pre}.dm b{font-weight:400}.dm .g{color:var(--g)}.dm .r{color:var(--r)}.dm .x{color:#9a9a9a;opacity:.5}.dm.ok{background:color-mix(in srgb,var(--ok) 22%,transparent);color:var(--fg)}
 </style></head><body>
 <div id="app"></div>
 <script>
@@ -111,7 +159,7 @@ select:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"
 note:'<path d="M6 3h9l4 4v14H6z"/><path d="M9 13h7M9 17h7"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
 xc:'<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/>',dice:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 8.5h.01M15.5 15.5h.01M12 12h.01"/>',
 swap:'<path d="M7 4v14M3 14l4 4 4-4M17 20V6M13 10l4-4 4 4"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
-mix:'<path d="M4 6h4l8 12h4M4 18h4l2-3M14 9l2-3h4M17 3l3 3-3 3M17 15l3 3-3 3"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>'};
+mix:'<path d="M4 6h4l8 12h4M4 18h4l2-3M14 9l2-3h4M17 3l3 3-3 3M17 15l3 3-3 3"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',book:'<path d="M4 4h6a3 3 0 0 1 2 1 3 3 0 0 1 2-1h6v15h-6a3 3 0 0 0-2 1 3 3 0 0 0-2-1H4z"/><path d="M12 5v15"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>'};
 const I=(n,s=20)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
 const B=(a,n,x='')=>`<button class=ic data-act=${a} ${x}>${I(n,22)}</button>`;
 const NOSUG='autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="next" data-lpignore="true" data-form-type="other"';
@@ -127,10 +175,16 @@ function fix(){S.folders=S.folders||[];S.prog=S.prog||{};S.reps=S.reps||{};S.rep
  if(!S.cs){S.cs={};let t=0;S.reports.forEach(r=>r.items.forEach(i=>{const k=S.cs[i.cid]||(S.cs[i.cid]={att:0,wrong:0});k.att+=i.att;k.wrong+=i.wrong;t+=i.att}));S.total=t}
  S.total=S.total||0}fix();
 const applyTheme=()=>{S.cfg.theme=='auto'?delete document.documentElement.dataset.theme:document.documentElement.dataset.theme=S.cfg.theme};applyTheme();
-const save=()=>{try{localStorage.setItem('lvfill1',JSON.stringify(S))}catch(e){}};
-function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),2800)}
-window.addEventListener('offline',()=>toast('網際網路已中斷（AI 分析需要連網）'));
-function setView(h,enter){app.innerHTML=h;app.firstChild.classList.toggle('enter',!!enter);fitBars()}
+const saveRaw=()=>{try{localStorage.setItem('lvfill1',JSON.stringify(S))}catch(e){}},save=()=>{S.ts=Date.now();saveRaw();syQueue()};
+function toast(m){document.querySelectorAll('.toast:not(.out)').forEach(x=>{x.classList.add('out');setTimeout(()=>x.remove(),320)});const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),320)},2800)}
+/* 頁面捲動：開新頁一律回到頂端；按返回時回到離開前的位置；同頁重繪（如搜尋、加題）維持原位 */
+const NAV=[];
+function setView(h,enter){const y=window.scrollY,top=NAV[NAV.length-1];if(top)top.y=y;let ty=0;
+ if(top&&top.v===view){if(!enter)ty=y}
+ else{let i=NAV.length-2;while(i>=0&&NAV[i].v!==view)i--;
+  if(i>=0){NAV.length=i+1;ty=NAV[i].y||0}else{NAV.push({v:view,y:0});if(NAV.length>40)NAV.shift()}}
+ app.innerHTML=h;app.firstChild.classList.toggle('enter',!!enter);fitBars();
+ window.scrollTo(0,ty);setTimeout(()=>window.scrollTo(0,ty),0)}
 function fitBars(){document.querySelectorAll('.top .row.fit').forEach(r=>{if(!r.offsetParent)return;const ts=[...r.querySelectorAll('.bt')];ts.forEach(t=>t.style.display='');
  const bs=[...r.querySelectorAll('button')].filter(b=>b.offsetParent),wr=()=>{if(bs.length<2)return false;const c=bs.map(b=>b.offsetTop+b.offsetHeight/2);return Math.max(...c)-Math.min(...c)>12};
  for(const t of ts){if(!wr())break;t.style.display='none'}})}
@@ -156,8 +210,8 @@ function ask(t,v,cb){const m=modal(`<h3>${t}</h3><input class=ti id=ai type=text
  i.addEventListener('keydown',e=>{if(e.key=='Enter'&&!e.isComposing&&e.keyCode!=229){e.preventDefault();go()}})}
 function yes(msg,cb){const m=modal(`<p>${msg}</p><div class=rt><button class=sec id=c>取消</button><button class=pri id=o>確定</button></div>`);m.querySelector('#c').onclick=()=>m.close();m.querySelector('#o').onclick=()=>{m.close();cb()}}
 function menu(t,items){const m=modal(`<h3>${t}</h3>`+items.map((x,i)=>`<button class="sec mi" data-i=${i}>${x[0]}</button>`).join(''));m.onclick=e=>{const b=e.target.closest('[data-i]');if(b){m.close();items[b.dataset.i][1]()}else if(e.target==m)m.close()}}
-const norm=s=>s.toLowerCase().replace(/[’‘]/g,"'").trim(),plain=s=>(s||'').replace(/[\[\]]/g,''),boldEn=s=>esc(s).replace(/\[([^\]]*)\]/g,'<b>$1</b>');
-const hasB=s=>/\[[^\]]+\]/.test(s),bad=c=>!c.en.trim()||!hasB(c.en);
+const norm=s=>s.toLowerCase().replace(/[’‘]/g,"'").trim(),plain=s=>(s||'').replace(/[\[\]]/g,''),boldEn=s=>esc(s).replace(/\[([^\]]*)\]/g,'<b class=u>$1</b>');
+const qkey=c=>norm(plain(c.en)).replace(/\s+/g,' '),dupsOf=c=>{const k=qkey(c);return k&&E?E.cards.filter(x=>x.id!==c.id&&qkey(x)==k):[]},hasB=s=>/\[[^\]]*\S[^\]]*\]/.test(s),probs=c=>{const p=[];if(!c.en.trim())p.push('未填英文句子');else if(!hasB(c.en))p.push('英文句子尚未用 [ ] 標示挖空');if(!c.zh.trim())p.push('未填中文句子');if(dupsOf(c).length)p.push('與同題庫其他題目重複');return p},bad=c=>probs(c).length>0;
 function parse(en){const T=[];en.split(/(\[[^\]]*\])/).forEach((p,i)=>{
  if(i%2==0){if(p)T.push({t:'t',s:p});return}
  p.slice(1,-1).trim().split(/\s+/).filter(Boolean).forEach((w,j)=>{
@@ -166,7 +220,7 @@ function parse(en){const T=[];en.split(/(\[[^\]]*\])/).forEach((p,i)=>{
   if(m[2])T.push({t:'b',a:m[2]});if(m[3])T.push({t:'t',s:m[3]})})});return T}
 function diff(a,v){const x=a.toLowerCase(),y=v.toLowerCase(),m=x.length,n=y.length,L=Array.from({length:m+2},()=>Array(n+2).fill(0));
  for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)L[i][j]=x[i]===y[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
- let i=0,j=0,o='';const R=c=>`<b class=r>${esc(c)}</b>`,X=c=>`<b class="r x">${esc(c)}</b>`;
+ let i=0,j=0,o='';const R=c=>`<b class=r>${esc(c)}</b>`,X=c=>`<b class=x>${esc(c)}</b>`;
  while(i<m||j<n){if(i>=m){o+=X(v[j++])}else if(j>=n){o+=R(a[i++])}
   else if(x[i]===y[j]){o+=`<b class=g>${esc(a[i])}</b>`;i++;j++}
   else if(L[i][j+1]>L[i+1][j])o+=X(v[j++]);else if(L[i+1][j]>L[i][j+1])o+=R(a[i++]);else{o+=R(a[i++]);j++}}return o}
@@ -178,10 +232,10 @@ function renderHL(){const q=HQ.trim().toLowerCase(),el=$('#hl');if(!el)return;
  if(q){const r=S.decks.filter(d=>d.title.toLowerCase().includes(q));el.innerHTML=r.map(d=>{const f=S.folders.find(f=>f.id==d.folder);return deckHTML(d,f?I('folder',13)+esc(f.name)+'・':'')}).join('')||'<div class=center>找不到符合的題庫</div>';return}
  el.innerHTML=S.folders.map(f=>`<div class="folder ${f.open!==false?'open':''}" data-k=f${f.id}><div class=fh data-act=tog data-id=${f.id}><span class=ar>${I('right',18)}</span><span class=fn>${I('folder',18)}${esc(f.name)} <small>(${inF(f.id).length})</small></span>${B('fmore','more','data-id='+f.id)}</div><div class=fb><div class=fbi>${inF(f.id).map(d=>deckHTML(d)).join('')||'<small style="color:var(--sub)">空的資料夾</small>'}</div></div></div>`).join('')+
  (inF(null).map(d=>deckHTML(d)).join('')||(S.folders.length?'':'<div class=center>還沒有題庫，點「題庫」開始</div>'))}
-function home(enter=true){view='home';P=null;if(S.decks.length<=3)HQ='';
- setView(`<div class=wrap><div class=top><div class="row fit"><button class=sec data-act=new>${I('plus',16)}<span class=bt>題庫</span></button><button class=sec data-act=nf>${I('folder',16)}<span class=bt>資料夾</span></button><button class=sec data-act=io>${I('swap',16)}<span class=bt>匯入／匯出</span></button><span class=grow></span>${B('prof','user')}${B('cfg','gear')}</div>
+function home(enter=true){view='home';P=null;if(SY.again){SY.again=false;setTimeout(sync,0)}if(S.decks.length<=3)HQ='';
+ setView(`<div class=wrap><div class=top><div class="row fit"><button class=sec data-act=new>${I('plus',16)}<span class=bt>題庫</span></button><button class=sec data-act=nf>${I('folder',16)}<span class=bt>資料夾</span></button><button class=sec data-act=io>${I('swap',16)}<span class=bt>匯入／匯出</span></button><span class=grow></span>${B('prof','user')}<i class=sd id=sd></i>${B('cfg','gear')}</div>
  <button class=sec data-act=multi style="width:100%;justify-content:center;margin-top:8px;padding:10px 14px">${I('list',16)}多題庫練習</button>
- ${S.decks.length>3?`<input class=ti id=hq type=search placeholder="搜尋題庫" ${NOSUG} value="${esc(HQ)}" style="margin-top:8px">`:''}</div><div id=hl></div></div>`,enter);renderHL()}
+ ${S.decks.length>3?`<input class=ti id=hq type=search placeholder="搜尋題庫" ${NOSUG} value="${esc(HQ)}" style="margin-top:8px">`:''}</div><div id=hl></div></div>`,enter);syUpd();renderHL()}
 function hlUpdate(mut){const el=$('#hl');if(!el||view!='home'){mut();return}if((S.decks.length>3)!=!!$('#hq')){mut();home(false);return}flip(el,()=>{mut();renderHL()})}
 function swap(arr,i,dir){const j=i+dir;if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]]}
 function moveDeck(id,dir){const d=S.decks.find(x=>x.id==id),sib=inF(d.folder||null),i=sib.indexOf(d),o=sib[i+dir];if(!o)return;
@@ -203,9 +257,10 @@ function cfg(){const T=[['auto','自動',''],['light','淺色','sun'],['dark','�
 function start(id){const d=S.decks.find(x=>x.id==id);if(!d||!d.cards.length)return toast('這個題庫沒有題目');startDlg(d)}
 function startDlg(d,prA){const hs=d.cards.some(c=>c.star);
  const m=modal(`<h3>開始練習</h3>${hs?`<label>練習範圍</label><label class=ck><input type=radio name=md value=all checked>練習所有題目</label><label class=ck><input type=radio name=md value=star>僅練習標註星號題目</label><label class=ck><input type=radio name=md value=unstar>僅練習未標註星號題目</label>`:''}
- <div class=set><span>打亂順序</span><input type=checkbox id=c1></div><div class=set><span>每題需答對次數</span><select id=c3 style="width:90px">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option ${n==2?'selected':''}>${n}</option>`).join('')}</select></div>
+ <div class=set><span>打亂順序</span><input type=checkbox id=c1></div><div class=set><span>每題需答對次數</span><span id=c3 style="width:84px"></span></div>
  <div class=rt><button class=sec id=c>取消</button><button class=pri id=o>開始</button></div>`);
  m.querySelector('#c').onclick=()=>m.close();
+ mkSel(m.querySelector('#c3'),Array.from({length:10},(_,i)=>[i+1,i+1]),2);
  m.querySelector('#o').onclick=()=>{const md=hs?m.querySelector('input[name=md]:checked').value:'all';begin(d,md,m.querySelector('#c1').checked,+m.querySelector('#c3').value,m,prA)}}
 function begin(d,md,shuf,reps,m,prA){const sel=d.cards.filter(c=>md=='all'||(md=='star')==!!c.star);if(!sel.length)return toast('這個範圍沒有題目');m.close();
  const pr=prA||S.prog[d.id]||(S.prog[d.id]={});(d.parts||[d]).forEach(x=>S.reps[x.id]=reps);let o=sel.filter(c=>(pr[c.id]||0)<reps).map(c=>c.id);
@@ -251,8 +306,8 @@ function complete(){P.fin=true;document.activeElement&&document.activeElement.bl
 document.addEventListener('keydown',e=>{if(e.key=='Enter'&&(view=='practice'||view=='profile')&&P&&P.fin&&!/INPUT|BUTTON/.test(e.target.tagName)){e.preventDefault();P.rand?profile(false):nextCard()}});
 /* ===== 報告 ===== */
 function finish(){const r=P.rep;if(r){r.fin=true;r.pct=100;save();showReport(r,true,home)}else home()}
-function rrHTML(x,att){const a=x.att,p=Math.round((a-x.wrong)/a*100),col=p<=50?'var(--r)':p<100?'#e8a33d':'var(--ok)',c=x.card,bw=Object.entries(x.bw||{}).sort((u,v)=>v[1]-u[1])[0];
- return `<div class=rr style="--w:${p}%;--c:${col}" ${x.act||''}><div class=fill></div><div class=rl><div class=t>${boldEn(c?c.en:x.en)}</div>${bw&&x.wrong?`<div class=w>最常答錯：<b>${esc(bw[0])}</b>（${bw[1]} 次）</div>`:''}${x.deck?`<div class=d>${esc(x.deck)}</div>`:''}</div><div class=pc style="color:${col}">${p}%<small>對 ${a-x.wrong}/${a} 次</small></div>${c&&x.did?`<button class="ic st ${c.star?'on':''}" data-act=rstar data-d=${x.did} data-c=${c.id}>${I('star',24)}</button>`:'<span style="width:40px"></span>'}</div>`}
+function rrHTML(x,att){const a=x.att,p=a?Math.round((a-x.wrong)/a*100):0,col=!a?'var(--sub)':p<=50?'var(--r)':p<100?'#e8a33d':'var(--ok)',c=x.card,bw=Object.entries(x.bw||{}).sort((u,v)=>v[1]-u[1])[0];
+ return `<div class=rr style="--w:${p}%;--c:${col}" ${x.act||''}><div class=fill></div><div class=rl><div class=t>${boldEn(c?c.en:x.en)}</div>${bw&&x.wrong?`<div class=w>最常答錯：<b>${esc(bw[0])}</b>（${bw[1]} 次）</div>`:''}${x.deck?`<div class=d>${esc(x.deck)}</div>`:''}</div><div class=pc style="color:${col}">${a?`${p}%<small>對 ${a-x.wrong}/${a} 次</small>`:'—<small>尚未練習</small>'}</div>${c&&x.did?`<button class="ic st ${c.star?'on':''}" data-act=rstar data-d=${x.did} data-c=${c.id}>${I('star',24)}</button>`:'<span style="width:40px"></span>'}</div>`}
 function showReport(r,fresh,back){view='report';RB=back||home;const d=S.decks.find(x=>x.id==r.deckId),
  it=r.items.filter(x=>x.att).sort((a,b)=>b.wrong/b.att-a.wrong/a.att||b.wrong-a.wrong||b.att-a.att),A=it.reduce((s,x)=>s+x.att,0),W=it.reduce((s,x)=>s+x.wrong,0);
  setView(`<div class=wrap><div class=top><div class=row>${B('rback','back')}<h3 class=lt>${fresh?'練習完成・':''}練習報告${r.fin===false?'（未完成 '+r.pct+'%）':''}</h3></div></div>
@@ -263,10 +318,10 @@ function showReport(r,fresh,back){view='report';RB=back||home;const d=S.decks.fi
 function profile(enter=true){view='profile';P=null;const all=S.decks.flatMap(d=>d.cards.filter(c=>hasB(c.en)).map(c=>({c,d}))),pk=all[Math.floor(Math.random()*all.length)];
  const PM=(a,n,t)=>`<button class=pm data-act=${a}>${I(n,22)}<span>${t}</span>${I('right',18)}</button>`;
  setView(`<div class=wrap><div class=top><div class=row>${B('home','back')}<h3 class=lt>個人檔案</h3></div></div>
- <div class=card style="text-align:center;padding:20px"><div class=big id=tot>${S.total}</div><div class=zh style="margin-top:2px">已練習題數</div></div>
- <div style="margin-top:18px">${PM('orec','list','檢視所有練習紀錄')}${PM('oerr','xc','檢視所有錯題')}${PM('io','swap','匯出／匯入學習紀錄')}</div>
+ <div class=card style="text-align:center;padding:20px"><div class=big id=tot>${S.total}</div><div class=zh style="margin-top:2px">已練習題數</div></div><div id=sy style="margin-top:14px"></div>
+ <div style="margin-top:18px">${PM('orec','list','檢視所有練習紀錄')}${PM('oerr','xc','檢視所有錯題')}${PM('ostar','star','檢視所有星號題目')}${PM('io','swap','匯出／匯入學習紀錄')}${PM('help','book','操作說明')}</div>
  <div>${pk?`<label style="margin-top:22px">隨機練習一題</label><div class=card>${starBtn(pk.c)}<div class=en id=en></div><div class=zh>${esc(pk.c.zh)}</div></div><div class=row2><span></span></div><div id=info></div><div id=act><button class=sec data-act=show>看答案</button><button class=pri data-act=chk>檢查</button></div>`:''}</div></div>`,enter);
- if(pk){P={rand:true,d:pk.d,pr:{},reps:1,stats:{},ids:[],q:[]};buildQ(pk.c,false)}}
+ syUpd();if(pk){P={rand:true,d:pk.d,pr:{},reps:1,stats:{},ids:[],q:[]};buildQ(pk.c,false)}}
 function records(){view='records';const L=[...S.reports].reverse();
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有練習紀錄</h3></div></div><div>${L.map(r=>{const p=r.pct??100,f=r.fin!==false;
   return `<div class=rr style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=orep data-id=${r.id}><div class=fill></div><div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(r.deckTitle)}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題</div></div><div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div><span style="width:14px"></span></div>`}).join('')||'<div class=center>還沒有練習紀錄</div>'}</div></div>`,true)}
@@ -274,54 +329,84 @@ function errList(){const o=[];S.decks.forEach(d=>d.cards.forEach(c=>{const k=S.c
 function errors(){view='errors';const L=errList();
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有錯題</h3><span class=grow></span><button class=sec data-act=emake>${I('plus',16)}製作錯題題庫</button></div></div><div>${L.map(x=>rrHTML({...x,did:x.deck.id,deck:x.deck.title,act:`data-act=edet data-cid=${x.card.id} style="cursor:pointer"`})).join('')||'<div class=center>目前沒有錯題</div>'}</div></div>`,true)}
 function errPick(pre){const L=errList();if(!L.length)return toast('目前沒有錯題');const dt=new Date();
- picker({title:'製作錯題題庫',pool:L.map(x=>({c:x.card,d:x.deck,rate:x.rate})),rate:true,pre,name:`錯題題庫 ${dt.getMonth()+1}/${dt.getDate()}`,btn:'建立題庫',cb:(items,name)=>{
+ picker({page:true,heading:'製作錯題題庫',back:errors,pool:L.map(x=>({c:x.card,d:x.deck,rate:x.rate})),rate:true,pre,name:`錯題題庫 ${dt.getMonth()+1}/${dt.getDate()}`,btn:'建立題庫',cb:(items,name)=>{
   S.decks.push({id:uid(),title:name.trim()||'錯題題庫',folder:null,cards:items.map(x=>({...x.c,id:uid()}))});save();toast(`已建立題庫，共 ${items.length} 題`)}})}
+/* 星號題目：答對率低→高；答對率相同時練習次數少的在前；尚未練習的排最後 */
+function starList(){const o=[];S.decks.forEach(d=>d.cards.forEach(c=>{if(!c.star)return;const k=S.cs[c.id]||{},a=k.att||0,w=k.wrong||0;o.push({card:c,deck:d,att:a,wrong:w,rate:a?(a-w)/a:null})}));
+ return o.sort((x,y)=>(x.rate==null)-(y.rate==null)||(x.rate||0)-(y.rate||0)||x.att-y.att)}
+function stars(){view='stars';const L=starList();
+ setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有星號題目</h3><span class=grow></span><button class=sec data-act=smake>${I('plus',16)}製作星號題庫</button></div></div><div>${L.map(x=>rrHTML({...x,did:x.deck.id,deck:x.deck.title,act:`data-act=edet data-cid=${x.card.id} style="cursor:pointer"`})).join('')||'<div class=center>目前沒有星號題目</div>'}</div></div>`,true)}
+function starPick(pre){const L=starList();if(!L.length)return toast('目前沒有星號題目');const dt=new Date();
+ picker({page:true,heading:'製作星號題庫',back:stars,noStar:true,pool:L.map(x=>({c:x.card,d:x.deck,rate:x.rate})),rate:true,pre,name:`星號題庫 ${dt.getMonth()+1}/${dt.getDate()}`,btn:'建立題庫',cb:(items,name)=>{
+  S.decks.push({id:uid(),title:name.trim()||'星號題庫',folder:null,cards:items.map(x=>({...x.c,id:uid(),star:false}))});save();toast(`已建立題庫，共 ${items.length} 題`)}})}
 function detail(id){let c=null;S.decks.some(d=>c=d.cards.find(x=>x.id==id));if(!c)return;const R=(l,v)=>v?`<label>${l}</label><div style="white-space:pre-wrap;font-size:15px">${v}</div>`:'';
  const m=modal(`<h3>題目內容</h3>${R('英文句子',`<span class=en style="font-size:19px">${boldEn(c.en)}</span>`)}${R('中文句子',esc(c.zh))}${R('單字/片語',esc(c.phrase))}${R('單字/片語 翻譯',esc(c.phraseZh))}${R('筆記',esc(c.note))}<div class=rt><button class=pri id=o>關閉</button></div>`);m.querySelector('#o').onclick=()=>m.close()}
 /* ===== 題目挑選器（混編／錯題） ===== */
-function picker(o){const sel=new Set(o.pre||[]),decks=[...new Map(o.pool.map(x=>[x.d.id,x.d])).values()];
- const m=modal(`<h3>${o.title}</h3>${o.name!=null?`<label>新題庫標題</label><input class=ti id=nm type=text value="${esc(o.name)}">`:''}
- <input class=ti id=q type=text ${NOSUG} placeholder="搜尋文字（英文／中文／單字）" style="margin-top:8px">
- <div class=row style="margin:8px 0 4px"><select id=dk style="flex:1"><option value="">所有題庫</option>${decks.map(d=>`<option value=${d.id}>${esc(d.title)}</option>`).join('')}</select><label class=ck><input type=checkbox id=sr>僅星號題目</label></div>
- ${o.rate?`<div class=row style="margin:0 0 4px"><span style="font-size:14px">答對率低於</span><input class=ti id=rt type=number min=1 max=100 placeholder="不限" style="width:90px"><span>%</span></div>`:''}
- <div class=row style="margin-bottom:6px"><button class=sec id=sa>${I('select',16)}全選目前篩選結果</button><span id=cn style="font-size:13px;color:var(--sub)"></span></div><div id=ml style="max-height:36vh;overflow:auto"></div>
- <div class=rt><button class=sec id=c>取消</button><button class=pri id=ad>${o.btn}</button></div>`,true);
- const q=s=>m.querySelector(s);let cur=[];const cn=()=>q('#cn').textContent=`篩選 ${cur.length} 題・已選 ${sel.size} 題`;
- const draw=()=>{const t=q('#q').value.trim().toLowerCase(),dk=q('#dk').value,sr=q('#sr').checked,rt=o.rate?+q('#rt').value:0;
-  cur=o.pool.filter(x=>(!dk||x.d.id==dk)&&(!sr||x.c.star)&&(!t||[x.c.en,x.c.zh,x.c.phrase,x.c.phraseZh].join(' ').toLowerCase().includes(t))&&(!rt||Math.round(x.rate*100)<rt));
-  q('#ml').innerHTML=cur.map(x=>`<label class=ck><input type=checkbox data-c=${x.c.id} ${sel.has(x.c.id)?'checked':''}><span style="font-size:14px">${boldEn(x.c.en)}<br><small style="color:var(--sub)">${esc(x.d.title)}${x.rate!=null?'・答對率 '+Math.round(x.rate*100)+'%':''}</small></span></label>`).join('')||'<small>沒有符合的題目</small>';cn()};
- ['#q','#dk','#sr','#rt'].forEach(s=>q(s)&&q(s).addEventListener('input',draw));
- q('#ml').addEventListener('change',e=>{const id=e.target.dataset.c;e.target.checked?sel.add(id):sel.delete(id);cn()});
+let PK=null;
+/* 自製下拉選單／建議清單 */
+function closeCs(){document.querySelectorAll('.cs.open,.sgw.open').forEach(x=>x.classList.remove('open'))}
+document.addEventListener('click',e=>{if(!e.target.closest('.cs'))document.querySelectorAll('.cs.open').forEach(x=>x.classList.remove('open'))});
+function mkSel(host,opts,val){host.classList.add('cs');host.innerHTML=`<button type=button class="sec csb"><span class=cl></span>${I('down',14)}</button><div class=cm>${opts.map(o=>`<button type=button data-v="${esc(o[0])}">${esc(o[1])}</button>`).join('')}</div>`;
+ const btn=host.firstChild,menu=host.lastChild,set=v=>{host.value=String(v);const o=opts.find(x=>String(x[0])==String(v));btn.querySelector('.cl').textContent=o?o[1]:'';menu.querySelectorAll('[data-v]').forEach(e=>e.classList.toggle('on',e.dataset.v==String(v)))};
+ btn.onclick=e=>{e.stopPropagation();const open=!host.classList.contains('open');closeCs();host.classList.toggle('open',open);if(open){const on=menu.querySelector('.on');on&&(menu.scrollTop=on.offsetTop-40)}};
+ menu.onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;e.stopPropagation();set(b.dataset.v);host.classList.remove('open');host.dispatchEvent(new Event('input',{bubbles:true}))};set(val)}
+function mkSug(sw,items){const inp=sw.querySelector('input'),menu=sw.querySelector('.cm');let skip=false;
+ const show=()=>{if(skip)return;const t=inp.value.trim().toLowerCase(),L=items.filter(x=>!t||x.toLowerCase().includes(t));menu.innerHTML=L.map(x=>`<button type=button data-v="${esc(x)}">${esc(x)}</button>`).join('');sw.classList.toggle('open',!!L.length&&!(L.length==1&&L[0].toLowerCase()==t))};
+ inp.addEventListener('focus',show);inp.addEventListener('input',show);inp.addEventListener('blur',()=>setTimeout(()=>sw.classList.remove('open'),150));
+ menu.addEventListener('mousedown',e=>e.preventDefault());
+ menu.addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;inp.value=b.dataset.v;skip=true;inp.dispatchEvent(new Event('input',{bubbles:true}));skip=false;sw.classList.remove('open')})}
+function picker(o){const page=!!o.page,sel=new Set(o.pre||[]),decks=[...new Map(o.pool.map(x=>[x.d.id,x.d])).values()];let root,m;
+ if(page){PK=o;view='pick';
+  setView(`<div class="wrap pk"><div class=top><div class=row style="flex-wrap:nowrap;gap:6px">${B('pkback','back')}<h3 class=lt>${o.heading||'製作題庫'}</h3><span class=grow></span><button class=pri id=ad style="padding:8px 16px;white-space:nowrap">${o.btn}</button></div>
+  <div class=pkb><span id=cn></span><button class=sec id=sa style="padding:5px 10px;font-size:13px;white-space:nowrap">${I('select',14)}全選篩選結果</button></div></div>
+  <div class=pkf><label>新題庫名稱</label><input class=ti id=nm type=text ${NOSUG} value="${esc(o.name)}">
+  <div class=g2><div><label>搜尋題目</label><input class=ti id=q type=text ${NOSUG} placeholder="題目文字"></div><div><label>篩選題庫</label><div class=sgw id=sw><input class=ti id=dk type=text ${NOSUG} placeholder="全部題庫"><div class=cm></div></div></div></div>
+  <div class=pkr>${o.rate?`<div class=rt2><span>答對率低於</span><input class=ti id=rt type=number min=1 max=100 placeholder="不限" style="width:96px"><span>%</span></div>`:''}${o.noStar?'':`<label class=ck style="margin:0;font-size:14px"><input type=checkbox id=sr>只看星號題目</label>`}</div>
+  <div class=hint>勾選要放進新題庫的題目，再按右上角「${o.btn}」。</div></div><div id=ml></div></div>`,true);root=app;
+ }else{
+  m=modal(`<h3>${o.title}</h3>${o.name!=null?`<label>新題庫標題</label><input class=ti id=nm type=text value="${esc(o.name)}">`:''}
+  <label>搜尋題目</label><input class=ti id=q type=text ${NOSUG} placeholder="英文、中文、單字">
+  <label>篩選題庫</label><div class=row style="margin:0 0 4px;flex-wrap:nowrap"><span id=dk style="flex:1;min-width:0"></span><label class=ck style="white-space:nowrap;margin:0"><input type=checkbox id=sr>僅星號題目</label></div>
+  ${o.rate?`<div class=row style="margin:0 0 4px"><span style="font-size:14px">答對率低於</span><input class=ti id=rt type=number min=1 max=100 placeholder="不限" style="width:90px"><span>%</span></div>`:''}
+  <div class=row style="margin:8px 0 4px"><button class=sec id=sa>${I('select',16)}全選目前篩選結果</button><span id=cn style="font-size:13px;color:var(--sub)"></span></div><div id=ml style="max-height:36vh;overflow:auto"></div>
+  <div class=rt><button class=sec id=c>取消</button><button class=pri id=ad>${o.btn}</button></div>`,true);root=m}
+ const q=s=>root.querySelector(s);let cur=[];const cn=()=>q('#cn').textContent=`篩選 ${cur.length} 題・已選 ${sel.size} 題`;
+ if(page)mkSug(q('#sw'),decks.map(d=>d.title));else mkSel(q('#dk'),[['','所有題庫'],...decks.map(d=>[d.id,d.title])],'');
+ const draw=()=>{const t=q('#q').value.trim().toLowerCase(),dv=q('#dk').value,dk=dv.trim().toLowerCase(),st=q('#sr')&&q('#sr').checked,rv=o.rate?+q('#rt').value:0;
+  cur=o.pool.filter(x=>(!dk||(page?x.d.title.toLowerCase().includes(dk):x.d.id==dv))&&(!st||x.c.star)&&(!rv||(x.rate!=null&&Math.round(x.rate*100)<rv))&&(!t||[x.c.en,x.c.zh,x.c.phrase,x.c.phraseZh].join(' ').toLowerCase().includes(t)));
+  q('#ml').innerHTML=cur.map(x=>`<label class=ck><input type=checkbox data-c=${x.c.id} ${sel.has(x.c.id)?'checked':''}><span style="font-size:14px">${boldEn(x.c.en)}<br><small style="color:var(--sub)">${esc(x.d.title)}${x.rate!=null?'・答對率 '+Math.round(x.rate*100)+'%':(o.rate?'・尚未練習':'')}</small></span></label>`).join('')||'<small>沒有符合的題目</small>';cn()};
+ ['#q','#dk','#sr','#rt'].forEach(k=>q(k)&&q(k).addEventListener('input',draw));
+ q('#ml').addEventListener('change',e=>{const id=e.target.dataset.c;if(!id)return;e.target.checked?sel.add(id):sel.delete(id);cn()});
  q('#sa').onclick=()=>{const all=cur.length&&cur.every(x=>sel.has(x.c.id));cur.forEach(x=>all?sel.delete(x.c.id):sel.add(x.c.id));draw()};
- q('#c').onclick=()=>m.close();
- q('#ad').onclick=()=>{const it=o.pool.filter(x=>sel.has(x.c.id));if(!it.length)return toast('請先選擇題目');m.close();o.cb(it,o.name!=null?q('#nm').value:'')};draw()}
+ if(!page)q('#c').onclick=()=>m.close();
+ q('#ad').onclick=()=>{const it=o.pool.filter(x=>sel.has(x.c.id));if(!it.length)return toast('請先選擇題目');if(page){o.cb(it,q('#nm').value);o.back()}else{m.close();o.cb(it,o.name!=null?q('#nm').value:'')}};draw()}
 /* ===== 編輯 ===== */
 const newCard=()=>({id:uid(),en:'',zh:'',phrase:'',phraseZh:'',note:'',star:false}),snap=()=>JSON.stringify([E.title,E.cards]),dirty=()=>E&&E.snap!==snap();
 function edit(id){const d=S.decks.find(x=>x.id==id);E=d?JSON.parse(JSON.stringify(d)):{id:uid(),title:'',folder:null,cards:[]};E.open=-1;E.sel=null;E.chk=new Set();E.cur=null;E.snap=snap();drawEdit([],true)}
-const flag=c=>bad(c)&&E.chk.has(c.id),WARN=`${I('warn',14)}尚未用 [ ] 標示挖空`;
-function rowHTML(c,i,isNew){return `<div class="er ${isNew?'new':''} ${flag(c)?'inv':''}" data-cid=${c.id} data-k=${c.id}><div class=eh data-act=tg><span class=sk>${I('check',14)}</span><span class=n>${i+1}</span><span class=pv>${flag(c)?I('warn',14):''}<span>${esc(c.en)||'（空白題目）'}</span></span><button class="ic st ${c.star?'on':''}" data-act=estar>${I('star',20)}</button><button class=ic data-act=rm>${I('trash',20)}</button></div>
+const flag=c=>bad(c)&&E.chk.has(c.id),WARN=c=>`${I('warn',14)}${probs(c).join('、')}`;
+function rowHTML(c,i,isNew){return `<div class="er ${isNew?'new':''} ${flag(c)?'inv':''}" data-cid=${c.id} data-k=${c.id}><div class=eh data-act=tg><span class=sk>${I('check',14)}</span><span class=n>${i+1}</span><span class=pv>${flag(c)?I('warn',14):''}<span>${boldEn(c.en)||'（空白題目）'}</span></span><button class="ic st ${c.star?'on':''}" data-act=estar>${I('star',20)}</button><button class=ic data-act=rm>${I('trash',20)}</button></div>
  <div class=eb><div class=ebi><label>英文句子（用 [ ] 框住要挖空的字）</label><textarea rows=2 data-k=en>${esc(c.en)}</textarea>
  <label>中文句子</label><textarea rows=2 data-k=zh>${esc(c.zh)}</textarea>
  <div class=g2><div><label>單字/片語（選填）</label><textarea rows=1 data-k=phrase>${esc(c.phrase)}</textarea></div><div><label>翻譯（選填）</label><textarea rows=1 data-k=phraseZh>${esc(c.phraseZh)}</textarea></div></div>
- <label>筆記（選填）</label><textarea rows=1 data-k=note>${esc(c.note)}</textarea><div class=warn>${flag(c)?WARN:''}</div></div></div></div>`}
+ <label>筆記（選填）</label><textarea rows=1 data-k=note>${esc(c.note)}</textarea><div class=warn>${flag(c)?WARN(c):''}</div></div></div></div>`}
 function drawEdit(newIds=[],enter){view='edit';E.sel=null;
  setView(`<div class=wrap><div class=top><div class="row tb1 fit">${B('back','back')}<span class=grow></span><button class=sec data-act=add>${I('plus',16)}<span class=bt>新增</span></button><button class=sec data-act=selb>${I('select',16)}<span class=bt>選取</span></button><button class=sec data-act=mix>${I('mix',16)}<span class=bt>混編</span></button><button class=pri data-act=saveDeck>儲存</button></div>
  <div class="row tb2"><span id=sc style="color:var(--fg)">已選 0 項</span><span class=grow></span><button class=sec data-act=sall>全選</button><button class=sec data-act=sdel style="color:var(--r)">${I('trash',16)}刪除</button><button class=sec data-act=scan>取消</button></div></div>
  <input class=ti id=ti type=text placeholder="題庫標題" value="${esc(E.title)}">
- <details class=bulk><summary class=sm><span class=tri>${I('right',16)}</span>${I('spark',16)}<span>Gemini 2.5 Flash 自動生成題庫</span></summary>
+ <details class=bulk><summary class=sm><span class=tri>${I('right',16)}</span>${I('spark',16)}<span>自動生成題庫</span></summary>
  <label>每行一題，可直接貼原始文本，例如：The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）。</label>
  <textarea id=bulk rows=5 ${NOSUG}></textarea>
- <div class=row style="margin:8px 0 0"><button class=pri data-act=ai>${I('spark',16)}Gemini 2.5 Flash 分析並加入</button><button class=sec data-act=local>本機規則判定</button></div><div id=st>${navigator.onLine?'':'目前偵測不到網際網路，AI 分析無法使用'}</div></details>
- <div id=emp class=center style="padding:30px 0;${E.cards.length?'display:none':''}">還沒有題目，按「新增」開始，或使用 AI 分析、混編。</div>
+ <div class=row style="margin:8px 0 0"><button class=pri data-act=local>${I('spark',16)}判定並加入</button></div><div id=st></div></details>
+ <div id=emp class=center style="padding:30px 0;${E.cards.length?'display:none':''}">還沒有題目，按「新增」開始，或使用自動生成、混編。</div>
  <div id=list>${E.cards.map((c,i)=>rowHTML(c,i,newIds.includes(c.id))).join('')}</div></div>`,enter)}
 const rowOf=t=>t.closest('.er'),cardOf=r=>E.cards.find(c=>c.id==r.dataset.cid);
 const renum=()=>app.querySelectorAll('.er .n').forEach((n,i)=>n.textContent=i+1),emp=()=>{$('#emp').style.display=E.cards.length?'none':''};
-function refreshRow(r){const c=cardOf(r);if(!c)return;const b=flag(c);r.classList.toggle('inv',b);r.querySelector('.pv').innerHTML=(b?I('warn',14):'')+`<span>${esc(c.en)||'（空白題目）'}</span>`;r.querySelector('.warn').innerHTML=b?WARN:''}
-function touch(cid){if(E.cur&&E.cur!=cid){E.chk.add(E.cur);const r=app.querySelector(`.er[data-cid="${E.cur}"]`);r&&refreshRow(r)}E.cur=cid}
+function refreshRow(r){const c=cardOf(r);if(!c)return;const b=flag(c);r.classList.toggle('inv',b);r.querySelector('.pv').innerHTML=(b?I('warn',14):'')+`<span>${boldEn(c.en)||'（空白題目）'}</span>`;r.querySelector('.warn').innerHTML=b?WARN(c):''}
+function touch(cid){if(E.cur&&E.cur!=cid){E.chk.add(E.cur);const c0=E.cards.find(x=>x.id==E.cur),ids=[E.cur].concat(c0?dupsOf(c0).map(x=>x.id):[]);ids.forEach(id=>{E.chk.add(id);const r=app.querySelector(`.er[data-cid="${id}"]`);r&&refreshRow(r)})}E.cur=cid}
 app.addEventListener('input',e=>{const t=e.target;if(view=='home'&&t.id=='hq'){HQ=t.value;renderHL();return}if(view=='multi'&&t.id=='mq'){MQ=t.value;mdraw();return}
  if(view!='edit')return;if(t.id=='ti'){E.title=t.value;return}
  const r=rowOf(t);if(!r||!t.dataset.k)return;touch(r.dataset.cid);cardOf(r)[t.dataset.k]=t.value;
- if(t.dataset.k=='en'){r.querySelector('.pv span:last-child').textContent=t.value||'（空白題目）';if(E.chk.has(r.dataset.cid))refreshRow(r)}});
+ if(t.dataset.k=='en')r.querySelector('.pv span:last-child').innerHTML=boldEn(t.value)||'（空白題目）';if(t.dataset.k=='en'||t.dataset.k=='zh')app.querySelectorAll('.er').forEach(x=>{if(E.chk.has(x.dataset.cid))refreshRow(x)})});
 /* 長按／選取 */
 let lpT=null,lpDone=false;
 function selUpdate(){$('#sc').textContent=`已選 ${E.sel.size} 項`}
@@ -330,6 +415,7 @@ function selMode(on,r){app.firstChild.classList.toggle('selmode',on);fitBars();i
 app.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;let h,fn;
  if(view=='edit'&&!E.sel&&(h=e.target.closest('.eh'))){const r=rowOf(h);fn=()=>selMode(true,r)}
  else if(view=='errors'&&(h=e.target.closest('.rr'))){const id=h.dataset.cid;fn=()=>errPick([id])}
+  else if(view=='stars'&&(h=e.target.closest('.rr'))){const id=h.dataset.cid;fn=()=>starPick([id])}
  if(!fn)return;clearTimeout(lpT);lpT=setTimeout(()=>{lpDone=true;setTimeout(()=>lpDone=false,700);navigator.vibrate&&navigator.vibrate(20);fn()},500)});
 ['pointerup','pointercancel','pointerleave'].forEach(n=>app.addEventListener(n,()=>clearTimeout(lpT)));
 app.addEventListener('pointermove',e=>{if(Math.abs(e.movementX)+Math.abs(e.movementY)>2)clearTimeout(lpT)});
@@ -337,7 +423,7 @@ app.addEventListener('contextmenu',e=>{if(e.target.closest('.eh,.rr'))e.preventD
 /* 離開／儲存 */
 function saveDeck(){E.cards=E.cards.filter(c=>c.en.trim()||c.zh.trim()||c.phrase.trim()||c.note.trim());
  if(!E.cards.length){toast('請至少輸入一題');return false}
- if(E.cards.some(bad)){E.cards.forEach(c=>E.chk.add(c.id));drawEdit();toast('有題目還沒用 [ ] 標示挖空（已標示）');return false}
+ if(E.cards.some(bad)){E.cards.forEach(c=>E.chk.add(c.id));drawEdit();toast('有題目不符合規則（內容不完整或重複），請依紅色提示修正');return false}
  const d={id:E.id,title:E.title.trim()||'未命名題庫',folder:E.folder||null,cards:E.cards},i=S.decks.findIndex(x=>x.id==E.id);i<0?S.decks.push(d):S.decks[i]=d;save();E.snap=snap();return true}
 function back(){if(!dirty())return home();const m=modal(`<h3>有尚未儲存的變更</h3><p>要儲存這些變更，還是不保存直接離開？</p><div class=rt><button class=sec id=a>繼續編輯</button><button class=sec id=b style="color:var(--r)">不保存離開</button><button class=pri id=c>儲存並離開</button></div>`);
  m.querySelector('#a').onclick=()=>m.close();m.querySelector('#b').onclick=()=>{m.close();home()};m.querySelector('#c').onclick=()=>{m.close();if(saveDeck()){home();toast('已儲存')}}}
@@ -359,94 +445,28 @@ function localParse(line){let L=line.trim();if(!L||L[0]=='#')return null;
  let en=left.replace(/[_＿]{2,}|…{2,}|\.{4,}/g,()=>{found=true;const w=ws[k++];return w?`[${w}]`:'____'});
  if(!found&&ws.length)ws.forEach(w=>{en=en.replace(new RegExp('(^|[^\\p{L}\\[])('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?![\\p{L}\\]])','iu'),'$1[$2]')});
  return{id:uid(),en,zh,phrase,phraseZh,note:'',star:false}}
-
-async function gemini25FlashAnalyze(linesText) {
-  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-  const prompt = `你是英文題庫整理助手。下面每一行是一張單字填空卡（可能含底線空格、中文翻譯、答案與註解，格式不固定），請逐行分析並轉成 JSON 陣列（行數與順序一致），每個元素有 en、zh、phrase、phraseZh、note 五個字串欄位。
-規則：en 是完整英文句子，被挖空（答案）的單字或片語用 [ ] 框起來（連續的片語可整段框在一個 [ ] 內，如 [An accidental wrong turn]；不連續的分開框，如 Kyle [was] deeply [upset about]）；若原文已有 [ ] 就保留；若沒有標示答案，請判斷最值得練習的單字或片語。zh 是中文句子；phrase 是該單字/片語原形（如 keep... awake）；phraseZh 是其中文意思；note 是補充說明，沒有就空字串，或是生成使用文法注意事項。
-只輸出 JSON 陣列，絕對不要包含任何 markdown 語法 (例如 \`\`\`json) 或其他說明文字。
-
-內容：
-${linesText}`;
-
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }]
-    })
-  });
-  if (!res.ok) throw new Error("Gemini API 回應錯誤：" + res.status);
-  const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  const a = text.indexOf('['), b = text.lastIndexOf(']');
-  if (a !== -1 && b !== -1) {
-    return JSON.parse(text.slice(a, b + 1));
-  }
-  throw new Error("無法解析 Gemini 的 JSON 回應");
-}
-
-async function bulk(mode){
- const txt=$('#bulk').value.trim(),st=$('#st');if(!txt)return;let out=[];
- if(mode=='ai'){
-  if(!navigator.onLine){st.textContent='偵測不到網際網路連線。AI 分析需要連網，請連線後再試，或改用「本機規則判定」。';return}
-  const lines=txt.split(/\n/).map(x=>x.trim()).filter(Boolean),CH=10,n=Math.ceil(lines.length/CH);
-  for(let k=0;k<n;k++){
-   st.textContent=`Gemini 2.5 Flash 分析中 ${k+1}/${n}…`;
-   try{
-    const parsed = await gemini25FlashAnalyze(lines.slice(k*CH,k*CH+CH).join('\n'));
-    out.push(...parsed);
-   } catch(e){
-    st.textContent=!navigator.onLine?'網路中斷，AI 分析失敗。':'Gemini 2.5 Flash 分析失敗：'+(e.message||'連線失敗，請改用本機規則判定');
-    if(!out.length)return;break;
-   }
-  }
- } else {
-  out=txt.split(/\n/).map(localParse).filter(Boolean);
- }
- out=out.filter(c=>c&&c.en).map(c=>({id:uid(),en:c.en||'',zh:c.zh||'',phrase:c.phrase||'',phraseZh:c.phraseZh||'',note:c.note||'',star:!!c.star}));
- E.cards=E.cards.filter(c=>c.en.trim()||c.zh.trim()).concat(out);E.open=-1;drawEdit(out.map(c=>c.id));toast(`已加入 ${out.length} 題，請檢查`)}
-
+function bulk(){const txt=$('#bulk').value.trim();if(!txt)return;let out=txt.split(/\n/).map(localParse).filter(Boolean);
+ const all=out.length;out=out.map(c=>({id:uid(),en:c.en||'',zh:c.zh||'',phrase:c.phrase||'',phraseZh:c.phraseZh||'',note:c.note||'',star:!!c.star})).filter(c=>!bad(c));{const seen=new Set();out=out.filter(c=>{const k=qkey(c);if(seen.has(k))return false;seen.add(k);return true})}const drop=all-out.length;
+ if(!out.length){$('#st').textContent=`沒有符合規則的題目（${drop} 題已刪除）。每題需有英文句子（含 [ ] 挖空）與中文句子，且不可與題庫內題目重複。`;return}
+ E.cards=E.cards.filter(c=>c.en.trim()||c.zh.trim()).concat(out);E.open=-1;drawEdit(out.map(c=>c.id));toast(`已加入 ${out.length} 題`+(drop?`，已自動刪除 ${drop} 題（不符合規則或重複）`:'，請檢查'))}
+/* ===== 匯入／匯出 ===== */
 const cell=x=>(x||'').replace(/\t/g,' ').replace(/\r?\n/g,'\\n');
 const toTxt=ds=>ds.map(d=>'#題庫 '+d.title+'\n'+d.cards.map(c=>[c.en,c.zh,c.phrase,c.phraseZh,c.note,c.star?'1':''].map(cell).join('\t')).join('\n')).join('\n\n')+'\n';
 function importTxt(text,name){let cur=null,n=0;const add=t=>{cur={id:uid(),title:t,folder:null,cards:[]};S.decks.push(cur)};
  text.split(/\r?\n/).forEach(l=>{if(/^#題庫/.test(l)){add(l.replace(/^#題庫\s*/,'').trim()||name);return}
   const c=localParse(l);if(!c||!c.en)return;if(!cur)add(name);cur.cards.push(c);n++});
  S.decks=S.decks.filter(d=>d.cards.length);return n}
+function saveFile(name,text,type){try{const blob=new Blob([text],{type:type||'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},1500);return true}catch(e){return false}}
 let IOB=home;
 function io(back){view='io';IOB=back||home;
  setView(`<div class=wrap><div class=top><div class=row>${B('iback','back')}<h3 class=lt>匯入／匯出</h3></div></div>
- <div class=card style="padding:16px 18px"><label style="margin-top:0">匯出題庫</label><div>${S.decks.map(d=>`<label class=ck><input type=checkbox value=${d.id} checked>${esc(d.title)} (${d.cards.length})</label>`).join('')||'<small>目前沒有題庫</small>'}</div>
+ <div class=card style="padding:16px 18px"><label style="margin-top:0">匯出題庫 TXT（可多選）</label><div>${S.decks.map(d=>`<label class=ck><input type=checkbox value=${d.id} checked>${esc(d.title)} (${d.cards.length})</label>`).join('')||'<small>目前沒有題庫</small>'}</div>
  <div class=row style="margin-top:8px"><button class=sec id=e1>匯出選取題庫</button><button class=sec id=e2>匯出學習記錄</button></div><div id=exo></div></div>
- <div class=card style="padding:16px 18px;margin-top:14px"><label style="margin-top:0">匯入題庫 或 學習記錄</label><div class=row style="margin-bottom:8px"><label class="sec fbtn" for=fl>選擇檔案</label><span id=fn style="font-size:13px;color:var(--sub)">尚未選擇檔案</span></div>
+ <div class=card style="padding:16px 18px;margin-top:14px"><label style="margin-top:0">匯入（TXT 題庫，或學習記錄 JSON）</label><div class=row style="margin-bottom:8px"><label class="sec fbtn" for=fl>選擇檔案</label><span id=fn style="font-size:13px;color:var(--sub)">尚未選擇檔案</span></div>
  <input type=file id=fl hidden accept=".txt,.json,text/plain,application/json" multiple><textarea id=pt rows=4 placeholder="或直接貼上內容"></textarea><div style="display:flex;justify-content:flex-end;margin-top:12px"><button class=pri id=im>匯入</button></div></div></div>`,true);
- const q=s=>app.querySelector(s),show=(fn,text)=>{q('#exo').innerHTML=`<label>${fn}</label><textarea rows=4 readonly id=out>${esc(text)}</textarea><div class=row style="margin:6px 0 0"><button class=pri id=dl>下載檔案</button><button class=sec id=cp>複製內容</button></div>`;
-  q('#dl').onclick=()=>{
-    try {
-      const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fn;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      toast('已成功下載！');
-    } catch(e) {
-      toast('無法直接下載，請改用「複製內容」');
-    }
-  };
-  q('#cp').onclick=()=>{
-    const txtArea = q('#out');
-    txtArea.select();
-    try {
-      document.execCommand('copy');
-      toast('已複製到剪貼簿！');
-    } catch(e) {
-      toast('請手動選取文字複製');
-    }
-  }};
+ const q=s=>app.querySelector(s),show=(fn,text)=>{q('#exo').innerHTML=`<label>${fn}</label><textarea rows=4 readonly id=out>${esc(text)}</textarea><div class=row style="margin:6px 0 0"><button class=pri id=dl>下載</button><button class=sec id=cp>複製</button></div>`;
+  q('#dl').onclick=()=>{saveFile(fn,text,/\.json$/i.test(fn)?'application/json;charset=utf-8':'text/plain;charset=utf-8')?toast('已開始下載'):toast('無法下載，請改用「複製」')};
+  q('#cp').onclick=async()=>{try{await navigator.clipboard.writeText(text);toast('已複製')}catch(e){q('#out').select();toast('請手動複製')}}};
  q('#fl').onchange=()=>{const f=q('#fl').files;q('#fn').textContent=f.length?(f.length==1?f[0].name:`已選 ${f.length} 個檔案`):'尚未選擇檔案'};
  q('#e1').onclick=()=>{const ids=[...app.querySelectorAll('.ck input:checked')].map(i=>i.value);if(!ids.length)return toast('請先勾選題庫');show('題庫.txt',toTxt(S.decks.filter(d=>ids.includes(d.id))))};
  q('#e2').onclick=()=>show('學習記錄_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({app:'fillblank',v:3,decks:S.decks,folders:S.folders,prog:S.prog,reps:S.reps,reports:S.reports,cs:S.cs,total:S.total,cfg:S.cfg}));
@@ -456,7 +476,7 @@ function io(back){view='io';IOB=back||home;
     return yes('匯入學習記錄會取代目前所有題庫、進度與報告，確定嗎？',()=>{S={...S,decks:j.decks,folders:j.folders||[],prog:j.prog||{},reps:j.reps||{},reports:j.reports||[],cs:j.cs,total:j.total,cfg:{...S.cfg,...(j.cfg||{})},seeded:1};fix();applyTheme();save();home();toast('學習記錄已還原')})}
    n+=importTxt(t,name)}
   fix();save();toast(`已匯入 ${n} 題`);IOB()}}
-
+/* ===== 多題庫練習 ===== */
 let MS=new Set(),MQ='';
 function multi(){view='multi';MS=new Set();MQ='';
  setView(`<div class=wrap><div class=top><div class=row>${B('home','back')}<h3 class=lt>多題庫練習</h3></div><input class=ti id=mq type=text placeholder="搜尋題庫" ${NOSUG} style="margin-top:8px"></div>
@@ -469,6 +489,121 @@ function msall(){const L=mlist(),all=L.length&&L.every(d=>MS.has(d.id));L.forEac
 function mgo(){const ds=S.decks.filter(d=>MS.has(d.id)&&d.cards.length);if(!ds.length)return toast('請先選擇題庫');const own={};ds.forEach(d=>d.cards.forEach(c=>own[c.id]=d.id));
  const pr=new Proxy({},{get:(t,k)=>(S.prog[own[k]]||{})[k],set:(t,k,v)=>{if(own[k])(S.prog[own[k]]||(S.prog[own[k]]={}))[k]=v;return true},deleteProperty:(t,k)=>{if(S.prog[own[k]])delete S.prog[own[k]][k];return true}});
  startDlg({id:'multi:'+ds.map(d=>d.id).sort().join(','),title:`多題庫練習（${ds.length} 個題庫）`,cards:ds.flatMap(d=>d.cards),parts:ds},pr)}
+/* ===== 操作說明 ===== */
+const fm=t=>esc(t).replace(/「([^」]+)」/g,'<span class=kb>「$1」</span>').replace(/`([^`]+)`/g,'<code>$1</code>');
+const gl=(t,c)=>[...t].map(ch=>`<b class=${c}>${esc(ch)}</b>`).join(''),dm=h=>`<span class=dm>${h}</span>`;
+let GC=[];
+const AIP=['你是「英文填空題庫」編輯員。請把我提供的資料（文字、PDF、Word 或圖片中的內容）整理成填空題，並嚴格依照下列格式輸出。','',
+'【輸出格式】','1. 只輸出一個純文字程式碼區塊，區塊外不要有任何說明、問候或總結。','2. 第一行寫：#題庫 題庫名稱（我沒指定時，請依內容自行命名）','3. 之後每行一題，不可空行、不可加編號或項目符號，格式固定為：',
+'英文句子（挖空處寫 ______）（中文翻譯）｜答案：字1 字2（片語原形 片語中文意思）','','格式範例：',
+'The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）','',
+'【規則】','1. 每個 ______（6 個底線）只對應一個英文單字；答案依挖空順序、以半形空格分開，例如兩個空格就寫 kept awake。','2. 每題挖 1～3 個重點字（單字、片語、文法重點皆可）。',
+'3. 「（中文翻譯）」緊接在英文句子後面，使用全形括號，整句翻譯要通順、不可省略。','4. 答案後面的「（片語原形 片語中文意思）」是選填，原形與中文意思之間用空格分開；沒有就整個省略。',
+'5. 英文句子裡不要出現全形括號、｜ 符號或換行。','6. 資料中若已有句子與翻譯就直接沿用；若只有單字或片語，請自行造一個簡單自然的例句。','7. 題目不可重複；看不清楚或無法確定的內容直接略過，不要自行猜測。',
+'8. 內容很多時，一次最多輸出 30 題，我回覆「繼續」再接著輸出。','','【我的資料】','（在這裡貼上文字，或直接上傳檔案／圖片）'].join('\n');
+const AIIN=['Lesson 3 Vocabulary','1. wonder if：想知道是否　Samuel wonders if he will lose weight after joining the swimming club.（Samuel 想知道他加入游泳社後是否能減重。）','2. be upset about：對……感到難過　Kyle was deeply upset about not winning first place.（Kyle 對於沒有贏得第一名感到非常難過。）','3. keep... awake：讓……睡不著　The loud music kept the whole family awake all night.'].join('\n');
+const AIOUT=['#題庫 Lesson 3 Vocabulary','Samuel ______ ______ he will lose weight after joining the swimming club.（Samuel 想知道他加入游泳社後是否能減重。）｜答案：wonders if（wonder if 想知道是否）','Kyle was deeply ______ ______ not winning first place.（Kyle 對於沒有贏得第一名感到非常難過。）｜答案：upset about（be upset about 對……感到難過）','The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）'].join('\n');
+const AIFIX=['你剛才的輸出不符合格式，請重新輸出：','1. 只輸出一個程式碼區塊，區塊外不要有任何文字。','2. 第一行是「#題庫 題庫名稱」，之後每行一題，不要空行、不要編號。','3. 每題格式：英文句子（挖空處寫 ______）（中文翻譯）｜答案：字1 字2（片語原形 片語中文意思）','4. 每個 ______ 只對應一個英文單字，答案依順序以半形空格分開。'].join('\n');
+const GD=[
+{t:'如何新增題庫',ic:'plus',d:'手動輸入、貼上文字自動生成、管理題庫',b:[
+['p','一個題庫由多道填空題組成。每題一定要有「英文句子（用 [ ] 標出挖空處）」和「中文句子」；單字/片語、翻譯與筆記是選填。'],
+['h','方法一：手動逐題新增'],
+['s',[['在首頁左上角按「題庫」，進入題庫編輯頁。'],['在最上方「題庫標題」欄輸入名稱。','沒填的話會存成「未命名題庫」。'],['按上方「新增」，會多出一題並自動展開。'],
+['在「英文句子」輸入完整句子，並用 `[ ]` 框住要挖空的字。','[ ] 裡如果有多個字，每個字會各自變成一個格子。'],['在「中文句子」輸入翻譯，作答時會顯示在英文句子下方。'],
+['選填：「單字/片語」與「翻譯」會在答對後顯示；「筆記」可寫文法提醒。'],['點題目那一列可展開／收合；列右側的星號可標註重點題、垃圾桶可刪除該題。'],['全部完成後，按右上角「儲存」。','有未儲存的變更時按返回箭頭，系統會詢問是否儲存。']]],
+['c','英文句子輸入範例（含 [ ] 挖空）','Kyle [was] deeply [upset about] not winning first place in the swimming race.'],
+['t','題目缺英文／中文、沒有 [ ] 挖空，或與同題庫的題目重複時，該題會以紅色標示，且無法儲存。依紅字提示修正即可。'],
+['h','方法二：貼上文字自動生成'],
+['s',[['在編輯頁按「自動生成題庫」展開輸入區。'],['每行貼上一題（格式見下方範例）。'],['按「判定並加入」。','不符合規則或重複的題目會自動刪除，並顯示刪除題數。'],['檢查新加入的題目無誤後，按「儲存」。']]],
+['c','自動生成輸入範例（每行一題）',['The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）','Kyle ______ deeply ______ ______ not winning first place.（Kyle 對於沒有贏得第一名感到非常難過。）｜答案：was upset about'].join('\n')],
+['p','如果手上有 PDF、Word 或圖片，可以請 AI 幫你整理成這個格式，詳見「使用AI提示詞來生成題庫」。'],
+['h','整理與管理'],
+['s',[['首頁題庫卡片右上角的「⋯」：上移、下移、移到資料夾、重置學習進度、刪除題庫、查看過往練習報告。'],['首頁「資料夾」可建立資料夾，把題庫分類收納。'],['題庫超過 3 個時，首頁會出現「搜尋題庫」欄。'],['編輯頁要一次刪除多題：按「選取」（或長按任一題），勾選後按「刪除」。']]]]},
+{t:'如何混編題目',ic:'mix',d:'把其他題庫的題目加進來，或多個題庫一起練習',b:[
+['p','有兩種做法：「混編」是把其他題庫的題目複製進目前的題庫；「多題庫練習」則不改動任何題庫，直接把幾個題庫混在一起練習。'],
+['h','做法 A：混編（複製題目到目前題庫）'],
+['s',[['在首頁點要加入題目的題庫「編輯」，或按「題庫」新增一個題庫。'],['在編輯頁按上方「混編」。','系統裡至少要有另一個題庫才能使用。'],['在視窗裡用「搜尋題目」輸入英文、中文或單字；「篩選題庫」選擇特定題庫；需要時勾選「僅星號題目」。'],
+['勾選想加入的題目，或按「全選目前篩選結果」。','視窗下方會顯示「篩選幾題・已選幾題」。'],['按「加入所選題目」，題目會出現在目前題庫最後面。'],['確認後按右上角「儲存」。']]],
+['t','加入的是「複本」，原題庫不會改變。如果加入後與本題庫既有題目重複，該題會標紅，刪除其一才能儲存。'],
+['h','做法 B：多題庫練習（不複製、直接練）'],
+['s',[['在首頁按「多題庫練習」。'],['可用「搜尋題庫」找題庫，勾選要一起練的題庫；「全選目前篩選結果」可一次全選。'],['按「開始練習」，在設定視窗選擇是否打亂順序、每題需答對次數，再按「開始」。']]],
+['t','多題庫練習的進度仍記在各題原本的題庫裡，不會另外產生新題庫。']]},
+{t:'如何匯出及匯入紀錄或題庫',ic:'swap',d:'備份題庫、轉移到別的裝置、還原學習紀錄',b:[
+['p','「題庫」匯出成 TXT 檔，只包含題目；「學習記錄」匯出成 JSON 檔，包含題庫、資料夾、練習進度、報告與設定。入口有兩個：首頁的「匯入／匯出」，或「個人檔案」裡的「匯出／匯入學習記錄」，進去後是同一個頁面。'],
+['h','匯出題庫（TXT）'],
+['s',[['進入「匯入／匯出」頁。'],['在「匯出題庫 TXT」勾選要匯出的題庫（可多選）。'],['按「匯出選取題庫」，下方會顯示內容。'],['按「下載」存成「題庫.txt」，或按「複製」貼到別處。']]],
+['h','匯出學習記錄（JSON）'],
+['s',[['在同一頁按「匯出學習記錄」。'],['按「下載」存成「學習記錄_日期.json」，或按「複製」。']]],
+['h','匯入'],
+['s',[['在「匯入」區按「選擇檔案」（可一次選多個 .txt／.json），或直接把內容貼在下方文字框。'],['按「匯入」。'],
+['TXT：會新增題庫，不影響現有題庫。','內容中以 #題庫 開頭的行會建立新題庫；沒有的話，題庫名稱使用檔案名稱。'],['JSON（學習記錄）：會「取代」目前所有題庫、進度與報告，系統會先跳出確認視窗。']]],
+['t','匯入學習記錄前，建議先匯出一份目前的資料備份。個人檔案頁的 Google 文件同步也可以自動備份。'],
+['c','題庫 TXT 的內容格式（每題一行，欄位之間用 Tab 分隔）',['#題庫 第三課 單字測試','Kyle [was] deeply [upset about] not winning first place.\tKyle 對於沒有贏得第一名感到非常難過。\tbe upset about\t對……感到難過\tabout 後面接名詞或動名詞\t1'].join('\n')],
+['p','欄位依序為：英文句子、中文句子、單字/片語、翻譯、筆記、是否有星號（1 代表有星號）。後面欄位可以省略。此外，匯入也能直接讀取「使用AI提示詞來生成題庫」裡的格式。']]},
+{t:'如何製作星號或錯題題庫',ic:'star',d:'把重點題或常錯的題目挑出來，另存成新題庫',b:[
+['p','星號題庫收集你標註星號的題目；錯題題庫收集曾經答錯的題目。兩者都從「個人檔案」進入，製作流程相同。'],
+['h','先標註星號'],
+['s',[['練習時按題目卡片右上角的星號。'],['或在題庫編輯頁，按題目列右側的星號。'],['或在練習報告、題目清單裡，按該題右側的星號。']]],
+['h','製作星號題庫'],
+['s',[['在首頁按右上角人像圖示進入「個人檔案」。'],['點「檢視所有星號題目」。','清單依答對率由低到高排列，尚未練習的排最後。'],['按右上角「製作星號題庫」，進入獨立頁面。'],
+['在「新題庫名稱」確認或修改名稱（預設為「星號題庫 月/日」）。'],['用「搜尋題目」、「篩選題庫」、「答對率低於 %」縮小範圍。','「篩選題庫」可直接輸入，也可從跳出的清單點選。'],['勾選要放入的題目；「全選篩選結果」可把目前篩選出的題目一次全選。'],['按右上角「建立題庫」，新題庫會出現在首頁。']]],
+['t','新題庫裡的題目是複本，星號會被取消，原題庫不受影響。'],
+['h','製作錯題題庫'],
+['s',[['進入「個人檔案」，點「檢視所有錯題」。','清單依答對率由低到高排列。'],['按右上角「製作錯題題庫」。'],['步驟與上面相同；錯題頁可用「答對率低於 %」，例如填 60，只留下答對率低於 60% 的題目。'],['按「建立題庫」完成。']]],
+['h','小技巧與清單說明'],
+['s',[['在清單中「長按」某一題約半秒，會直接進入製作頁，並預先勾選該題。'],['清單每列的色條與百分比是「答對率」；「最常答錯」顯示你最常答錯的挖空字；輕點一下可看題目完整內容。']]]]},
+{t:'如何進行作答',ic:'edit',d:'輸入方式、批改顏色代表的意思、進度與報告',b:[
+['h','開始練習'],
+['s',[['在首頁點題庫的「開始練習」。'],['在設定視窗選擇：「練習範圍」（題庫有星號題時才會出現）、「打亂順序」、「每題需答對次數」（預設 2 次）。'],['按「開始」。']]],
+['p','畫面上方是題庫名稱；卡片裡英文句子的挖空處是一個個格子，下方是中文翻譯；右上角星號可標註這題。卡片下方的進度條是整體進度，右邊的圓點是這題已答對的次數。'],
+['h','如何輸入'],
+['s',[['點一下格子輸入答案，不分大小寫。','在「設定」開啟「格子長度提示」時，格子寬度會對應答案長度。'],['每個格子只填一個字；片語會被拆成多個格子。'],['輸入完一格後按空白鍵或 Enter，會跳到下一個尚未答對的格子；在最後一格按下，會自動檢查。'],['也可以隨時按右下角「檢查」。'],['不確定時按「看答案」，所有未答對的格子會顯示正確答案，這題會記為答錯。']]],
+['h','批改結果的顏色'],
+['l',[[dm('awake').replace('class=dm','class="dm ok"'),'綠底格子：這格答對了，會自動鎖定，不能再修改。'],[dm(gl('awak','g')),'藍色字：你輸入對的字母。'],[dm(gl('e','r')),'紅色字：正確答案中，你寫錯或漏掉的字母，這裡顯示的是正確字母。'],[dm(gl('s','x')),'半透明灰色字：你多打的字母（正確答案裡沒有）。']]],
+['p','綜合範例：'],
+['l',[[dm(gl('awa','g')+gl('k','r')+gl('e','g')),'答案 awake，你輸入 awaje：k 寫錯，顯示紅色的正確字母 k。'],[dm(gl('kept','g')+gl('s','x')),'答案 kept，你輸入 kepts：多打的 s 以半透明灰色顯示。']]],
+['t','答錯的格子不用手動刪除，直接點進去重新輸入即可，舊內容會自動全選並被取代。全部答對後，下方會顯示這題的單字/片語與筆記，按「繼續」進入下一題。'],
+['h','進度怎麼算'],
+['s',[['整題一次就全部答對，圓點多亮一顆；圓點全亮代表這題已學會。'],['這題有答錯或使用「看答案」，本輪不加點，題目會在幾題之後再出現一次。'],['所有題目都學會後，練習結束並顯示報告。中途按左上角返回也沒關係，進度會保留，下次開始會接續。']]],
+['h','練習報告'],
+['s',[['報告依答對率由低到高排列，「最常答錯」會標出最常答錯的字。'],['色條顏色：紅色（50% 以下）、橘色（51%～99%）、綠色（100%）。'],['輕點某題可看完整內容。','過往報告可從題庫卡片的「⋯」或「個人檔案」→「檢視所有練習紀錄」查看。']]],
+['p','想隨時小練習一下，可到「個人檔案」最下方的「隨機練習一題」。']]},
+{t:'使用AI提示詞來生成題庫',ic:'spark',d:'把文字、PDF、Word、圖片交給AI整理成可匯入的題庫',b:[
+['p','如果你有一份還沒整理的完整資料（文字、PDF、Word、圖片都可以），可以交給 AI（例如 ChatGPT、Claude、Gemini）整理。關鍵是用下面這份提示詞，讓 AI 輸出本系統能直接讀取的格式。'],
+['h','操作流程'],
+['s',[['準備資料。','文字可直接貼上；PDF、Word、圖片請使用支援上傳檔案或圖片辨識的 AI。內容很長時，建議分段交給 AI。'],['複製下方的「AI 提示詞」，貼到 AI 對話框。'],['在提示詞最後的「我的資料」處貼上文字，或在同一則訊息上傳檔案／圖片。'],
+['AI 會回傳一個程式碼區塊，按區塊右上角的複製按鈕複製內容。','回覆分很多批時，每批各自複製。'],['回到本 App，擇一匯入：'],
+['方法 A：進入題庫編輯頁 →「自動生成題庫」→ 貼上 →「判定並加入」→「儲存」。','第一行的 #題庫 會被略過，題庫名稱請自己填在「題庫標題」。'],['方法 B：首頁「匯入／匯出」→ 把內容貼到下方文字框 →「匯入」。','第一行 #題庫 會成為新題庫的名稱，若有多個 #題庫 就會同時建立多個題庫。'],
+['匯入後打開題庫快速檢查一遍，再開始練習。']]],
+['c','AI 提示詞（複製後貼給 AI）',AIP],
+['h','範例'],
+['p','原始資料（你交給 AI 的內容）：'],
+['c','範例資料',AIIN],
+['p','AI 應該回傳的結果（可直接匯入）：'],
+['c','範例輸出',AIOUT],
+['h','不同檔案類型的小提醒'],
+['s',[['文字：直接貼在提示詞後面最方便。'],['PDF／Word：上傳檔案並在訊息中貼上提示詞；若 AI 讀不到內容，改成把文字複製貼上。'],['圖片（課本、講義、截圖）：確認文字清晰，一次不要拍太多頁；AI 辨識錯字時，在匯入後的題庫中手動修正。'],['純單字表：AI 會依規則自行造句，建議匯入後確認例句是否符合需求。']]],
+['h','AI 沒照格式輸出時'],
+['p','把下面這段追問提示詞貼給 AI，請它重新輸出即可。'],
+['c','追問提示詞（複製後貼給 AI）',AIFIX],
+['t','格式重點：每個 ______（6 個底線）對應一個英文單字；答案依順序以空格分開；中文翻譯用全形括號放在英文句子後面；「｜答案：」後面才是答案。']]}
+];
+function gHTML(b){GC=[];return b.map(x=>{const k=x[0];
+ if(k=='p')return `<p>${fm(x[1])}</p>`;if(k=='h')return `<h4>${fm(x[1])}</h4>`;
+ if(k=='t')return `<div class=gt>${I('spark',15)}<span>${fm(x[1])}</span></div>`;
+ if(k=='s')return x[1].map((s,i)=>`<div class=gs><span class=no>${i+1}</span><div class=tx>${fm(s[0])}${s[1]?`<small>${fm(s[1])}</small>`:''}</div></div>`).join('');
+ if(k=='l')return x[1].map(s=>`<div class=gs><div class=dmw>${s[0]}</div><div class=tx>${fm(s[1])}</div></div>`).join('');
+ if(k=='c'){GC.push(x[2]);return `<div class=gc><div class=gch><span>${esc(x[1])}</span><button class="sec cpb" data-act=gcp data-i=${GC.length-1}>${I('copy',14)}複製</button></div><pre>${esc(x[2])}</pre></div>`}
+ return ''}).join('')}
+function guideList(){view='guide';P=null;
+ setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>操作說明</h3></div></div><p style="font-size:14px;color:var(--sub);margin:4px 4px 10px">點選項目，查看詳細步驟與範例。</p>
+ ${GD.map((g,i)=>`<button class=pm data-act=gopen data-id=${i}>${I(g.ic,22)}<span>${g.t}<small style="display:block;font-size:12px;color:var(--sub);margin-top:2px">${g.d}</small></span>${I('right',18)}</button>`).join('')}</div>`,true)}
+function guideDoc(i){const g=GD[i];if(!g)return;view='gdoc';
+ setView(`<div class=wrap><div class=top><div class=row>${B('gback','back')}<h3 class=lt>${g.t}</h3></div></div><div class=gd>${gHTML(g.b)}</div></div>`,true);window.scrollTo(0,0)}
+async function gcopy(b){const t=GC[+b.dataset.i];let ok=true;
+ try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a._cw=1;a.value=t;a.style.cssText='position:fixed;left:-999px;opacity:0';document.body.append(a);a.select();ok=false;try{ok=document.execCommand('copy')}catch(x){}a.remove()}
+ if(!ok)return toast('無法自動複製，請長按文字手動複製');const o=b.innerHTML;b.innerHTML=I('check',14)+'已複製';setTimeout(()=>{b.innerHTML=o},1600);toast('已複製')}
+
 /* ===== 事件 ===== */
 app.addEventListener('click',e=>{if(lpDone){lpDone=false;return}const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,id=b.dataset.id;
  if(view=='edit'&&E.sel){if(a=='tg')togSel(b.closest('.er'));else if(a=='sall'){const rs=[...app.querySelectorAll('.er')],all=rs.every(r=>E.sel.has(r.dataset.cid));rs.forEach(r=>{if(all==E.sel.has(r.dataset.cid))togSel(r)})}
@@ -477,7 +612,7 @@ app.addEventListener('click',e=>{if(lpDone){lpDone=false;return}const b=e.target
  if(a=='tog'){const f=S.folders.find(x=>x.id==id);f.open=f.open===false;b.parentNode.classList.toggle('open',f.open);save()}
  else if(a=='home')home();else if(a=='back')back();else if(a=='new')edit();else if(a=='edit')edit(id);else if(a=='start')start(id);
  else if(a=='dmore')dmore(id);else if(a=='fmore')fmore(id);else if(a=='io')io(view=='profile'?profile:home);else if(a=='iback')IOB();else if(a=='multi')multi();else if(a=='msall')msall();else if(a=='mgo')mgo();else if(a=='cfg')cfg();
- else if(a=='prof')profile();else if(a=='orec')records();else if(a=='oerr')errors();else if(a=='emake')errPick([]);else if(a=='edet')detail(b.dataset.cid);
+ else if(a=='prof')profile();else if(a=='help')guideList();else if(a=='gopen')guideDoc(+id);else if(a=='gback')guideList();else if(a=='gcp')gcopy(b);else if(a=='orec')records();else if(a=='oerr')errors();else if(a=='emake')errPick([]);else if(a=='ostar')stars();else if(a=='smake')starPick([]);else if(a=='pkback'){PK&&PK.back()}else if(a=='edet')detail(b.dataset.cid);
  else if(a=='orep'){const r=S.reports.find(x=>x.id==id);showReport(r,false,records)}else if(a=='rback')RB();
  else if(a=='nf')ask('資料夾名稱','',v=>hlUpdate(()=>{S.folders.push({id:uid(),name:v,open:true});save()}));
  else if(a=='next')nextCard();else if(a=='rnext')profile(false);else if(a=='chk')checkAll();else if(a=='show')showAns();
@@ -488,8 +623,126 @@ app.addEventListener('click',e=>{if(lpDone){lpDone=false;return}const b=e.target
  else if(a=='mix')mix();else if(a=='selb')selMode(true);
  else if(a=='add'){const c=newCard();touch(c.id);E.cards.push(c);E.open=E.cards.length-1;app.querySelectorAll('.er.open').forEach(x=>x.classList.remove('open'));
   $('#list').insertAdjacentHTML('beforeend',rowHTML(c,E.cards.length-1,true));const r=$('#list').lastElementChild;r.classList.add('open');emp();r.scrollIntoView({behavior:'smooth',block:'center'})}
- else if(a=='rm'){const r=rowOf(b),c=cardOf(r),go=()=>fadeOut(r,()=>flip($('#list'),()=>{E.cards=E.cards.filter(c=>!x.includes?x!==c:true);if(E.cur==c.id)E.cur=null;r.remove();renum();emp()}));c.en||c.zh?yes('刪除這一題？',go):go()}
- else if(a=='ai')bulk('ai');else if(a=='local')bulk('local');
+ else if(a=='rm'){const r=rowOf(b),c=cardOf(r),go=()=>fadeOut(r,()=>flip($('#list'),()=>{E.cards=E.cards.filter(x=>x!==c);if(E.cur==c.id)E.cur=null;r.remove();renum();emp()}));c.en||c.zh?yes('刪除這一題？',go):go()}
+ else if(a=='local')bulk();else if(a=='syncnow')syncNow();else if(a=='dlall')pullDoc();else if(a=='syncset')syncSet();
  else if(a=='saveDeck'){if(saveDeck()){home();toast('已儲存')}}});
-home();
+/* ===== Google 文件同步（經 Apps Script 橋接） ===== */
+const DOCID='11-WZegt99hTTY54yJOvsT1gmCIY0NtSQrNfEicg4HRo',DOCURL='https://docs.google.com/document/d/'+DOCID+'/edit?usp=drivesdk',SYK='lvfill_sync';
+const DEF_URL='https://script.google.com/macros/s/AKfycbywJUeIY0FCJnbQBTitfjj7kYg1RqgookZ1Dz4Qdx50Im3P1VlAbhiHoMLmlyDBPsYH_w/exec',DEF_TOKEN='fillinblankohmygod';
+let SY={url:DEF_URL,token:DEF_TOKEN,last:0,h:0,pend:false,again:false,st:'off',msg:'',ready:false,busy:false,dirty:false,tm:null};
+try{const r=JSON.parse(localStorage.getItem(SYK)||'{}');if(r.url!==undefined){SY.url=r.url;SY.token=r.token||''}SY.last=r.last||0;SY.h=r.h||0;SY.pend=!!r.pend}catch(e){}if(SY.url)SY.st='syncing';
+const sySave=()=>{try{localStorage.setItem(SYK,JSON.stringify({url:SY.url,token:SY.token,last:SY.last,h:SY.h,pend:SY.pend}))}catch(e){}};
+const payload=()=>({app:'fillblank',v:3,ts:S.ts||0,decks:S.decks,folders:S.folders,prog:S.prog,reps:S.reps,reports:S.reports,cs:S.cs,total:S.total,cfg:S.cfg});
+const hsh=t=>{let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h},
+ snapStr=()=>JSON.stringify([S.decks,S.folders.map(f=>[f.id,f.name]),S.prog,S.reps,S.reports,S.cs,S.total,S.cfg]),
+ remSnap=j=>JSON.stringify([j.decks,(j.folders||[]).map(f=>[f.id,f.name]),j.prog||{},j.reps||{},j.reports||[],j.cs,j.total,j.cfg||S.cfg]);
+function syHTML(){const d=SY.last?new Date(SY.last):null,hm=d?`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`:'';
+ const L=`<a href="${DOCURL}" target=_blank rel=noopener>Google 文件</a>`;
+ const T={off:`尚未設定同步到 ${L}`,syncing:'同步中…',ok:`已同步到 ${L}${hm?`（${hm}）`:''}`,pending:'有變更，等待同步…',offline:'離線中，連線後會自動同步',err:`同步失敗：${esc(SY.msg)}`}[SY.st];
+ return `<div class="sy ${SY.st=='ok'?'ok':SY.st=='err'?'err':''}"><div class=syt><i></i><span>${T}</span></div><div class=syb><button class=sec data-act=syncnow>立即同步</button><button class=sec data-act=dlall>下載資料</button><button class=sec data-act=syncset>設定</button></div></div>`}
+const SDC={off:'',syncing:'ing',pending:'ing',offline:'ing',ok:'ok',err:'err'},SDT={off:'未設定同步',syncing:'同步中',pending:'有變更，等待同步',offline:'離線，連線後同步',ok:'已同步',err:'同步失敗'};
+function syUpd(st,msg){if(st){SY.st=st;SY.msg=msg||''}const el=$('#sy');if(el)el.innerHTML=syHTML();const d=$('#sd');if(d){d.className='sd '+SDC[SY.st];d.title=SDT[SY.st]}}
+const syChk=j=>{if(!j||!j.ok)throw new Error(j&&j.error=='token'?'密碼（Token）不符':(j&&j.error)||'伺服器錯誤');return j};
+async function syFetch(body){let to;const tm=new Promise((_,rej)=>{to=setTimeout(()=>{const e=new Error('連線逾時');e.name='TimeoutError';rej(e)},25000)});
+ try{const req=body?fetch(SY.url,{method:'POST',body:JSON.stringify({...body,token:SY.token}),redirect:'follow'}):fetch(SY.url+(SY.url.includes('?')?'&':'?')+'token='+encodeURIComponent(SY.token)+'&t='+Date.now(),{redirect:'follow'});
+  const r=await Promise.race([req,tm]);let j;try{j=await Promise.race([r.json(),tm])}catch(e){if(e&&e.name=='TimeoutError')throw e;throw new Error('回應格式不正確，請確認網址是 Apps Script 的部署網址（/exec）')}
+  return syChk(j)}finally{clearTimeout(to)}}
+function syJsonp(p){return new Promise((res,rej)=>{const cb='sycb'+Date.now()+Math.floor(Math.random()*1e4),sc=document.createElement('script');let done=0,t;const fin=(e,v)=>{if(done)return;done=1;clearTimeout(t);try{delete window[cb]}catch(x){window[cb]=undefined}sc.remove();e?rej(e):res(v)};window[cb]=v=>fin(0,v);t=setTimeout(()=>fin(new Error('逾時')),15000);sc.onerror=()=>fin(new Error('載入失敗'));sc.src=SY.url+'?'+new URLSearchParams({...p,token:SY.token,callback:cb}).toString();document.head.append(sc)})}
+function syForm(fields){return new Promise((res,rej)=>{const id='syf'+Date.now()+Math.floor(Math.random()*1e4),ifr=document.createElement('iframe'),f=document.createElement('form');let done=0,t;ifr.name=id;ifr.style.display='none';f.method='POST';f.action=SY.url;f.target=id;f.style.display='none';
+ const on=e=>{if(e.data&&e.data.sy===id)fin(0,e.data)},fin=(er,v)=>{if(done)return;done=1;clearTimeout(t);window.removeEventListener('message',on);ifr.remove();f.remove();er?rej(er):res(v)};
+ t=setTimeout(()=>fin(new Error('逾時')),30000);window.addEventListener('message',on);
+ Object.entries({...fields,token:SY.token,reqid:id}).forEach(([k,v])=>{const i=document.createElement('textarea');i.name=k;i.value=v;f.append(i)});document.body.append(ifr,f);f.submit()})}
+async function syCall(body){
+ try{return await syFetch(body)}
+ catch(e){if(!(e instanceof TypeError))throw e;
+  try{return syChk(body?await syForm({action:'set',text:body.text}):await syJsonp({action:'get'}))}
+  catch(e2){if(e2&&/Token/.test(e2.message||''))throw e2;const er=new Error('無法連線到 Apps Script。請確認：部署存取權為「任何人」、已完成授權，且已更新成「設定」裡最新版的程式碼並重新部署；若是在 Claude 預覽視窗中開啟，請改用瀏覽器開啟下載的檔案');er.name='NetError';throw er}}}
+function syErr(e){SY.busy=false;const m=e&&e.name=='TimeoutError'?'連線逾時':e instanceof TypeError?'無法連線，請確認網址與部署權限（任何人）':(e&&e.message)||'未知錯誤';navigator.onLine?syUpd('err',m):syUpd('offline');return m}
+const doPush=async()=>{const h0=hsh(snapStr());await syCall({action:'set',text:JSON.stringify(payload())});SY.h=h0;SY.last=Date.now();SY.pend=hsh(snapStr())!==h0;sySave()};
+const markSynced=()=>{SY.h=hsh(snapStr());SY.pend=false;SY.last=Date.now();sySave()};
+const parseDoc=t=>{t=(t||'').trim();if(!t)return null;try{const j=JSON.parse(t);return j&&j.app=='fillblank'&&Array.isArray(j.decks)?j:null}catch(e){return null}};
+const idle=()=>view=='home'||view=='profile';
+function setData(j){S={...S,decks:j.decks,folders:j.folders||[],prog:j.prog||{},reps:j.reps||{},reports:j.reports||[],cs:j.cs,total:j.total,cfg:{...S.cfg,...(j.cfg||{})},seeded:1,ts:j.ts||0};fix();applyTheme();saveRaw();markSynced();if(view=='home')home(false);else if(view=='profile')profile(false)}
+/* 只有「資料有變更」才會上傳：與上次同步的內容比對，沒變就不送 */
+function syQueue(){if(!SY.url)return;if(hsh(snapStr())===SY.h){if(SY.pend){SY.pend=false;sySave()}if(SY.st=='pending')syUpd('ok');return}
+ SY.pend=true;sySave();if(!navigator.onLine)return syUpd('offline');if(!SY.ready)return;syUpd('pending');clearTimeout(SY.tm);SY.tm=setTimeout(syPush,3000)}
+async function syPush(){if(!SY.url||!SY.ready||!SY.pend)return;if(!navigator.onLine)return syUpd('offline');if(SY.busy){SY.dirty=true;return}SY.busy=true;SY.dirty=false;syUpd('syncing');
+ try{await doPush();SY.busy=false;syUpd('ok');if(SY.pend)syQueue()}catch(e){syErr(e)}}
+function syAsk(pend){return new Promise(res=>{const m=modal(`<h3>雲端資料與本機不同</h3><p>${pend?'這台裝置有尚未上傳的變更，而雲端的資料也已被更新過。':'這台裝置尚未同步過，而雲端已有學習記錄。'}要下載雲端資料取代本機，還是用本機資料覆蓋雲端？</p><div class=rt><button class=sec id=a>下載雲端資料</button><button class=pri id=b>上傳本機資料</button></div>`),c0=m.close;m.close=()=>{c0();res('cancel')};m.querySelector('#a').onclick=()=>{res('cloud');c0()};m.querySelector('#b').onclick=()=>{res('local');c0()}})}
+/* 開啟／恢復連線／首次設定：以「下載」為主。沒有本機變更 → 直接用雲端資料；有本機變更且雲端沒被動過 → 上傳；兩邊都動過 → 詢問 */
+async function sync(manual){
+ if(!SY.url){syUpd('off');if(manual)syncSet();return}
+ if(!navigator.onLine){syUpd('offline');if(manual)toast('目前離線，連線後會自動同步');return}
+ if(SY.busy)return;SY.busy=true;clearTimeout(SY.tm);syUpd('syncing');
+ try{const j=await syCall(),rem=parseDoc(j.text);let msg='已是最新';
+  if(!idle()){SY.busy=false;SY.again=true;return}
+  if(!rem){await doPush();msg='已上傳到 Google 文件'}
+  else{const rh=hsh(remSnap(rem));
+   if(rh===hsh(snapStr()))markSynced();
+   else if(SY.pend&&rh===SY.h){await doPush();msg='已上傳到 Google 文件'}
+   else if(SY.pend||!SY.last){const c=await syAsk(SY.pend);if(c=='cancel'){SY.busy=false;syUpd('err','已取消，尚未同步');return}if(c=='cloud'){setData(rem);msg='已從雲端載入最新資料'}else{await doPush();msg='已上傳到 Google 文件'}}
+   else{setData(rem);msg='已從雲端載入最新資料'}}
+  SY.ready=true;SY.busy=false;syUpd('ok');if(manual)toast(msg);if(SY.pend)syQueue()}
+ catch(e){const m=syErr(e);if(manual)toast('同步失敗：'+m)}}
+async function syncNow(){if(!SY.url)return syncSet();if(!navigator.onLine){syUpd('offline');return toast('目前離線，連線後會自動同步')}if(SY.busy)return toast('同步進行中，請稍後再試');
+ SY.busy=true;clearTimeout(SY.tm);SY.dirty=false;syUpd('syncing');
+ try{if(!S.ts){S.ts=Date.now();saveRaw()}await doPush();SY.ready=true;SY.busy=false;syUpd('ok');toast('已清空文件並寫入最新資料');if(SY.pend)syQueue()}
+ catch(e){const m=syErr(e);toast('同步失敗：'+m)}}
+function pullDoc(){if(!SY.url)return syncSet();if(!navigator.onLine)return toast('目前離線，無法下載');
+ yes('從 Google 文件下載資料，會先清空這台裝置目前的所有題庫與學習記錄，再換成文件裡的內容，確定嗎？',async()=>{
+  if(SY.busy)return toast('同步進行中，請稍後再試');const prev=[SY.st,SY.msg];SY.busy=true;clearTimeout(SY.tm);syUpd('syncing');
+  try{const j=await syCall(),rem=parseDoc(j.text);
+   if(!rem){SY.busy=false;syUpd(prev[0],prev[1]);return toast('文件裡沒有有效的學習記錄')}
+   setData(rem);SY.ready=true;SY.busy=false;syUpd('ok');toast('已從 Google 文件載入資料')}
+  catch(e){const m=syErr(e);toast('下載失敗：'+m)}})}
+function syncSet(){const tk=(SY.token||DEF_TOKEN).replace(/['\\\n]/g,''),code=`const DOC_ID = '${DOCID}';
+const TOKEN = '${tk}';
+
+function json_(o, cb) {
+  var t = JSON.stringify(o);
+  if (cb && /^[\\w$.]+$/.test(cb)) {
+    return ContentService.createTextOutput(cb + '(' + t + ')')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(t)
+    .setMimeType(ContentService.MimeType.JSON);
+}
+function doGet(e) {
+  var p = e.parameter;
+  if (p.token !== TOKEN) return json_({ok: false, error: 'token'}, p.callback);
+  var text = DocumentApp.openById(DOC_ID).getBody().getText();
+  return json_({ok: true, text: text}, p.callback);
+}
+function save_(text) {
+  var body = DocumentApp.openById(DOC_ID).getBody();
+  body.clear();
+  body.setText(text);
+}
+function doPost(e) {
+  var p = e.parameter;
+  if (p.reqid) {
+    var id = String(p.reqid).replace(/[^\\w]/g, '');
+    var ok = p.token === TOKEN;
+    if (ok) save_(p.text);
+    var msg = JSON.stringify({sy: id, ok: ok, error: ok ? '' : 'token'}).replace(/</g, '\\\\u003c');
+    return HtmlService.createHtmlOutput(
+      '<script>var m=' + msg + ';[window.parent.parent, window.top].forEach(function(w){try{w.postMessage(m,"*")}catch(x){}})<\/script>'
+    ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+  var d = JSON.parse(e.postData.contents);
+  if (d.token !== TOKEN) return json_({ok: false, error: 'token'});
+  save_(d.text);
+  return json_({ok: true});
+}`;
+ const m=modal(`<h3>Google 文件同步設定</h3><p style="font-size:13px;line-height:1.7;margin:0 0 8px">網頁無法直接改寫 Google 文件，需先用你的 Google 帳號建立一個免費的 Apps Script 當橋接：<br>1. 開啟 script.google.com → 新增專案，貼上下方程式碼，並把 TOKEN 改成自訂密碼。<br>2. 按「部署 → 新增部署」，類型選「網頁應用程式」，執行身分選「我」，存取權選「任何人」，完成授權後複製網址。（之後若更新程式碼：部署 → 管理部署 → 編輯 → 版本選「新版本」→ 部署，網址不變。）<br>3. 把網址與同一組密碼填到下方。</p><textarea id=sc readonly rows=9 style="font-size:12px;font-family:ui-monospace,Menlo,monospace">${esc(code)}</textarea><div class=row style="margin:6px 0 0"><button class=sec id=cc>複製程式碼</button></div>
+ <label>部署網址（結尾為 /exec）</label><input class=ti id=su type=text ${NOSUG} value="${esc(SY.url)}"><label>密碼（與程式碼中的 TOKEN 相同）</label><input class=ti id=sk type=text ${NOSUG} value="${esc(SY.token)}">
+ <div class=rt><button class=sec id=x>取消</button>${SY.url?'<button class=sec id=off style="color:var(--r)">停用同步</button>':''}<button class=pri id=sv>儲存並同步</button></div>`,true),q=s=>m.querySelector(s);
+ q('#cc').onclick=async()=>{try{await navigator.clipboard.writeText(code);toast('已複製程式碼')}catch(e){q('#sc').select();toast('請手動複製')}};
+ q('#x').onclick=()=>m.close();
+ if(q('#off'))q('#off').onclick=()=>{SY.url='';SY.token='';SY.ready=false;clearTimeout(SY.tm);sySave();m.close();syUpd('off');toast('已停用同步')};
+ q('#sv').onclick=()=>{const u=q('#su').value.trim(),k=q('#sk').value.trim();if(!/^https:\/\/script\.google\.com\/\S+\/exec/.test(u))return toast('請貼上 Apps Script 部署網址（結尾為 /exec）');if(!k)return toast('請輸入密碼');if(u!==SY.url){SY.last=0;SY.h=0}SY.url=u;SY.token=k;SY.ready=false;sySave();m.close();SY.busy=false;sync(true)}}
+window.addEventListener('online',()=>{if(SY.url)sync()});
+window.addEventListener('offline',()=>{if(SY.url)syUpd('offline')});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='hidden'&&SY.pend&&SY.ready){clearTimeout(SY.tm);syPush()}});
+home();sync();
 </script></body></html>
