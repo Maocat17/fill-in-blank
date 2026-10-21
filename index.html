@@ -120,7 +120,7 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:2px s
 .cs,.sgw{position:relative;display:block}
 .csb{width:100%;justify-content:space-between;padding:8px 12px;font-size:15px}
 .csb .cl{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.csb svg{transition:transform .2s}.cs.open .csb svg{transform:rotate(180deg)}
-.cm{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:8;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 20px #0003;padding:4px;max-height:220px;overflow:auto;animation:down .18s}
+.cm{display:block;position:fixed;z-index:9999;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 20px #0003;padding:4px;max-height:220px;overflow:auto;animation:down .18s}
 .cs.open .cm,.sgw.open .cm{display:block}
 .cm button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--tx);font-size:15px;padding:9px 10px;border-radius:8px}
 .cm button:hover,.cm button.on{background:color-mix(in srgb,var(--pri) 14%,transparent)}.cm button.on{color:var(--fg);font-weight:600}
@@ -129,6 +129,8 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:2px s
 .pkf .ti{padding:7px 10px}
 .pkr{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px}.rt2{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--sub)}
 .pkb{display:flex;align-items:center;gap:8px;margin-top:6px}.pkb #cn{flex:1;min-width:0;font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zu{color:var(--fg);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px;text-decoration-color:var(--pri)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}.kv span{color:var(--sub)}.kv b{font-weight:600;text-align:right}
 .hint{font-size:12px;color:var(--sub);margin-top:10px}
 /* 操作說明 */
 .gd p{font-size:15px;line-height:1.8;margin:8px 4px}.gd h4{margin:24px 4px 6px;font-size:16px;color:var(--fg)}
@@ -165,21 +167,27 @@ const B=(a,n,x='')=>`<button class=ic data-act=${a} ${x}>${I(n,22)}</button>`;
 const NOSUG='autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="next" data-lpignore="true" data-form-type="other"';
 let S={decks:[],folders:[],prog:{},reps:{},reports:[],cfg:{hint:true,theme:'auto'}},view='home',P=null,E=null,HQ='',RB=null;
 try{const r=localStorage.getItem('lvfill1');if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
-if(!S.seeded){S.seeded=1;S.decks=[{id:uid(),title:'第三課 單字測試',cards:[
-{en:'Samuel [wonders] [if] he will lose some weight after he joins the swimming club.',zh:'Samuel 想知道他加入游泳社之後，是否就能減重',phrase:'wonder if/whether S + V',phraseZh:'想知道是否......',note:''},
-{en:'[An accidental wrong turn] led us to a beautiful, undiscovered beach.',zh:'一個意外的轉錯彎，帶領我們到了一個美麗、未被發現的海灘。',phrase:'an accidental wrong turn',phraseZh:'意外轉錯彎',note:''},
-{en:'Kyle [was] deeply [upset about] not winning first place in the swimming race.',zh:'Kyle 對於沒有贏得游泳比賽第一名，感到非常難過。',phrase:'be upset about',phraseZh:'對......感到難過',note:'about 後面接名詞或動名詞'},
-{en:'The loud music from the neighbors’ party [kept] the whole family [awake] all night.',zh:'鄰居派對的音樂聲太吵，讓這家人整夜睡不著。',phrase:'keep... awake',phraseZh:'讓……睡不著',note:''}]}]}
-function fix(){S.folders=S.folders||[];S.prog=S.prog||{};S.reps=S.reps||{};S.reports=S.reports||[];S.cfg=S.cfg||{};if(S.cfg.hint===undefined)S.cfg.hint=true;S.cfg.theme=S.cfg.theme||'auto';
- S.decks.forEach(d=>d.cards.forEach(c=>c.id||(c.id=uid())));
- if(!S.cs){S.cs={};let t=0;S.reports.forEach(r=>r.items.forEach(i=>{const k=S.cs[i.cid]||(S.cs[i.cid]={att:0,wrong:0});k.att+=i.att;k.wrong+=i.wrong;t+=i.att}));S.total=t}
- S.total=S.total||0}fix();
+/* 資料正規化：舊版匯出檔／本機資料缺少的欄位一律補齊，並把舊版「未完成」的練習轉成可接續的進度 */
+function fixObj(o){o.decks=Array.isArray(o.decks)?o.decks.filter(d=>d&&typeof d=='object'):[];o.folders=Array.isArray(o.folders)?o.folders.filter(f=>f&&typeof f=='object'):[];
+ for(const k of['prog','reps','sess'])if(!o[k]||typeof o[k]!='object'||Array.isArray(o[k]))o[k]={};
+ o.reports=Array.isArray(o.reports)?o.reports.filter(r=>r&&typeof r=='object'):[];o.cfg=o.cfg&&typeof o.cfg=='object'?o.cfg:{};if(o.cfg.hint===undefined)o.cfg.hint=true;o.cfg.theme=o.cfg.theme||'auto';
+ o.decks.forEach(d=>{d.id=d.id||uid();d.title=d.title==null?'':String(d.title);d.cards=Array.isArray(d.cards)?d.cards.filter(c=>c&&typeof c=='object'):[];
+  d.cards.forEach(c=>{c.id=c.id||uid();['en','zh','phrase','phraseZh','note'].forEach(k=>c[k]=c[k]==null?'':String(c[k]));c.star=!!c.star})});
+ o.reports.forEach(r=>{r.id=r.id||uid();r.items=(Array.isArray(r.items)?r.items:[]).filter(i=>i&&i.cid);r.items.forEach(i=>{i.att=+i.att||0;i.wrong=+i.wrong||0})});
+ if(!o.cs||typeof o.cs!='object'){o.cs={};let t=0;o.reports.forEach(r=>r.items.forEach(i=>{const k=o.cs[i.cid]||(o.cs[i.cid]={att:0,wrong:0});k.att+=i.att;k.wrong+=i.wrong;t+=i.att}));o.total=t}
+ o.total=+o.total||0;
+ for(const k of Object.keys(o.sess)){const x=o.sess[k];if(!x||!x.Q||!Array.isArray(x.ids)||!Array.isArray(x.Q.order))delete o.sess[k]}
+ const un={};o.reports.forEach(r=>{if(!r.deckId||String(r.deckId).startsWith('multi:'))return;if(r.fin===false&&!r.abandoned)un[r.deckId]=r;else delete un[r.deckId]});
+ Object.values(un).forEach(r=>{const d=o.decks.find(x=>x.id==r.deckId);if(!d||o.sess[d.id])return;const reps=+r.reps||2,md=r.mode||'all',pr=o.prog[d.id]||{},
+  sel=d.cards.filter(c=>md=='all'||(md=='star')==!!c.star),ord=sel.filter(c=>(pr[c.id]||0)<reps).map(c=>c.id);if(!ord.length)return;
+  o.sess[d.id]={Q:{order:ord,R:reps,r:0,mq:[],bh:[],bp:0,seen:[],q:[],st:'newround'},md,shuf:!!r.shuffle,zhHint:true,reps,ids:sel.map(c=>c.id),repId:r.id,ts:r.time||0}})}
+function fix(){fixObj(S)}fix();
 const applyTheme=()=>{S.cfg.theme=='auto'?delete document.documentElement.dataset.theme:document.documentElement.dataset.theme=S.cfg.theme};applyTheme();
 const saveRaw=()=>{try{localStorage.setItem('lvfill1',JSON.stringify(S))}catch(e){}},save=()=>{S.ts=Date.now();saveRaw();syQueue()};
 function toast(m){document.querySelectorAll('.toast:not(.out)').forEach(x=>{x.classList.add('out');setTimeout(()=>x.remove(),320)});const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),320)},2800)}
 /* 頁面捲動：開新頁一律回到頂端；按返回時回到離開前的位置；同頁重繪（如搜尋、加題）維持原位 */
 const NAV=[];
-function setView(h,enter){const y=window.scrollY,top=NAV[NAV.length-1];if(top)top.y=y;let ty=0;
+function setView(h,enter){popClose();const y=window.scrollY,top=NAV[NAV.length-1];if(top)top.y=y;let ty=0;
  if(top&&top.v===view){if(!enter)ty=y}
  else{let i=NAV.length-2;while(i>=0&&NAV[i].v!==view)i--;
   if(i>=0){NAV.length=i+1;ty=NAV[i].y||0}else{NAV.push({v:view,y:0});if(NAV.length>40)NAV.shift()}}
@@ -204,14 +212,15 @@ function flip(box,fn){const q=()=>[...box.querySelectorAll('[data-k]')],m=new Ma
  L.forEach(e=>{const p=e.parentElement.closest('[data-k]'),d=ds.get(e)-(p?ds.get(p):0);if(Math.abs(d)<1)return;
   e.style.transition='none';e.style.transform=`translateY(${d}px)`;void e.offsetHeight;e.style.transition='transform .32s cubic-bezier(.2,.8,.2,1)';e.style.transform='';setTimeout(()=>e.style.transition='',340)})}
 /* ===== 對話框 ===== */
-function modal(h,wide){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="mb ${wide?'wide':''}">${h}</div>`;m.onclick=e=>{if(e.target==m)m.close()};m.close=()=>{m.classList.add('out');setTimeout(()=>m.remove(),180)};document.body.append(m);return m}
+function modal(h,wide){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class="mb ${wide?'wide':''}">${h}</div>`;m.onclick=e=>{if(e.target==m)m.close()};m.close=()=>{popClose();m.classList.add('out');setTimeout(()=>m.remove(),180)};document.body.append(m);return m}
 function ask(t,v,cb){const m=modal(`<h3>${t}</h3><input class=ti id=ai type=text ${NOSUG} value="${esc(v)}"><div class=rt><button class=sec id=c>取消</button><button class=pri id=o>確定</button></div>`);const i=m.querySelector('#ai');setTimeout(()=>i.focus(),80);
  const go=()=>{if(i.value.trim()){cb(i.value.trim());m.close()}};m.querySelector('#c').onclick=()=>m.close();m.querySelector('#o').onclick=go;
  i.addEventListener('keydown',e=>{if(e.key=='Enter'&&!e.isComposing&&e.keyCode!=229){e.preventDefault();go()}})}
 function yes(msg,cb){const m=modal(`<p>${msg}</p><div class=rt><button class=sec id=c>取消</button><button class=pri id=o>確定</button></div>`);m.querySelector('#c').onclick=()=>m.close();m.querySelector('#o').onclick=()=>{m.close();cb()}}
 function menu(t,items){const m=modal(`<h3>${t}</h3>`+items.map((x,i)=>`<button class="sec mi" data-i=${i}>${x[0]}</button>`).join(''));m.onclick=e=>{const b=e.target.closest('[data-i]');if(b){m.close();items[b.dataset.i][1]()}else if(e.target==m)m.close()}}
 const norm=s=>s.toLowerCase().replace(/[’‘]/g,"'").trim(),plain=s=>(s||'').replace(/[\[\]]/g,''),boldEn=s=>esc(s).replace(/\[([^\]]*)\]/g,'<b class=u>$1</b>');
-const qkey=c=>norm(plain(c.en)).replace(/\s+/g,' '),dupsOf=c=>{const k=qkey(c);return k&&E?E.cards.filter(x=>x.id!==c.id&&qkey(x)==k):[]},hasB=s=>/\[[^\]]*\S[^\]]*\]/.test(s),probs=c=>{const p=[];if(!c.en.trim())p.push('未填英文句子');else if(!hasB(c.en))p.push('英文句子尚未用 [ ] 標示挖空');if(!c.zh.trim())p.push('未填中文句子');if(dupsOf(c).length)p.push('與同題庫其他題目重複');return p},bad=c=>probs(c).length>0;
+const ZR=/\[([^\[\]]+)\]/g,zhPlain=t=>(t||'').replace(ZR,'$1'),zhHTML=(t,on)=>on?esc(t||'').replace(ZR,'<u class=zu>$1</u>'):esc(zhPlain(t));
+const qkey=c=>norm(plain(c.en)).replace(/\s+/g,' '),dupsOf=c=>{const k=qkey(c);return k&&E?E.cards.filter(x=>x.id!==c.id&&qkey(x)==k):[]},hasB=s=>/\[[^\]]*\S[^\]]*\]/.test(s),probs=c=>{const p=[];if(!c.en.trim())p.push('未填英文句子');else if(!hasB(c.en))p.push('英文句子尚未用 [ ] 標示挖空');if(!zhPlain(c.zh).trim())p.push('未填中文句子');if(dupsOf(c).length)p.push('與同題庫其他題目重複');return p},bad=c=>probs(c).length>0;
 function parse(en){const T=[];en.split(/(\[[^\]]*\])/).forEach((p,i)=>{
  if(i%2==0){if(p)T.push({t:'t',s:p});return}
  p.slice(1,-1).trim().split(/\s+/).filter(Boolean).forEach((w,j)=>{
@@ -240,11 +249,11 @@ function hlUpdate(mut){const el=$('#hl');if(!el||view!='home'){mut();return}if((
 function swap(arr,i,dir){const j=i+dir;if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]]}
 function moveDeck(id,dir){const d=S.decks.find(x=>x.id==id),sib=inF(d.folder||null),i=sib.indexOf(d),o=sib[i+dir];if(!o)return;
  hlUpdate(()=>{const a=S.decks.indexOf(d),b=S.decks.indexOf(o);[S.decks[a],S.decks[b]]=[S.decks[b],S.decks[a]];save()})}
-function dmore(id){const d=S.decks.find(x=>x.id==id),L=(n,t)=>I(n,18)+t;menu(esc(d.title),[[L('chart','過往練習報告'),()=>{const rs=S.reports.filter(r=>r.deckId==id).reverse();rs.length?menu('過往報告',rs.map(r=>[new Date(r.time).toLocaleString()+'（'+(r.fin===false?'未完成 '+r.pct+'%':'已完成')+'）',()=>showReport(r,false,home)])):toast('這個題庫還沒有報告')}],
+function dmore(id){const d=S.decks.find(x=>x.id==id),L=(n,t)=>I(n,18)+t;menu(esc(d.title),[[L('chart','整體報告'),()=>deckRpt(id)],[L('note','過往練習報告'),()=>{const rs=S.reports.filter(r=>r.deckId==id).reverse();rs.length?menu('過往報告',rs.map(r=>[new Date(r.time).toLocaleString()+'（'+(r.fin===false?'未完成 '+r.pct+'%':'已完成')+'）',()=>showReport(r,false,home)])):toast('這個題庫還沒有報告')}],
  [L('up','上移'),()=>moveDeck(id,-1)],[L('down','下移'),()=>moveDeck(id,1)],
  [L('folder','移到資料夾…'),()=>menu('移到哪裡？',[['（不放資料夾）',()=>hlUpdate(()=>{d.folder=null;save()})],...S.folders.map(f=>[L('folder',esc(f.name)),()=>hlUpdate(()=>{d.folder=f.id;save()})])])],
- [L('reset','重置學習進度'),()=>yes('清除這個題庫的學習進度？',()=>{delete S.prog[id];save();hlUpdate(()=>{})})],
- [L('trash','刪除題庫'),()=>yes('確定刪除這個題庫？',()=>{const el=app.querySelector(`[data-k=d${id}]`);fadeOut(el,()=>hlUpdate(()=>{S.decks=S.decks.filter(x=>x.id!=id);delete S.prog[id];save()}))})]])}
+ [L('reset','重置學習進度'),()=>yes('清除這個題庫的學習進度？',()=>{delete S.prog[id];delete S.sess[id];S.reports.forEach(r=>{if(r.deckId==id&&r.fin===false)r.abandoned=true});save();hlUpdate(()=>{})})],
+ [L('trash','刪除題庫'),()=>yes('確定刪除這個題庫？',()=>{const el=app.querySelector(`[data-k=d${id}]`);fadeOut(el,()=>hlUpdate(()=>{S.decks=S.decks.filter(x=>x.id!=id);delete S.prog[id];delete S.sess[id];save()}))})]])}
 function fmore(id){const f=S.folders.find(x=>x.id==id),i=S.folders.indexOf(f),L=(n,t)=>I(n,18)+t;menu(esc(f.name),[[L('edit','重新命名'),()=>ask('資料夾名稱',f.name,v=>hlUpdate(()=>{f.name=v;save()}))],
  [L('up','上移'),()=>hlUpdate(()=>{swap(S.folders,i,-1);save()})],[L('down','下移'),()=>hlUpdate(()=>{swap(S.folders,i,1);save()})],
  [L('trash','刪除資料夾（題庫移到外面）'),()=>yes('刪除資料夾？裡面的題庫會保留。',()=>hlUpdate(()=>{S.decks.forEach(d=>{if(d.folder==id)d.folder=null});S.folders.splice(i,1);save()}))]])}
@@ -254,25 +263,62 @@ function cfg(){const T=[['auto','自動',''],['light','淺色','sun'],['dark','�
  m.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{S.cfg.theme=b.dataset.t;applyTheme();save();m.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x==b))});
  m.querySelector('#ok').onclick=()=>{S.cfg.hint=m.querySelector('#c2').checked;save();m.close()}}
 /* ===== 練習 ===== */
-function start(id){const d=S.decks.find(x=>x.id==id);if(!d||!d.cards.length)return toast('這個題庫沒有題目');startDlg(d)}
-function startDlg(d,prA){const hs=d.cards.some(c=>c.star);
- const m=modal(`<h3>開始練習</h3>${hs?`<label>練習範圍</label><label class=ck><input type=radio name=md value=all checked>練習所有題目</label><label class=ck><input type=radio name=md value=star>僅練習標註星號題目</label><label class=ck><input type=radio name=md value=unstar>僅練習未標註星號題目</label>`:''}
- <div class=set><span>打亂順序</span><input type=checkbox id=c1></div><div class=set><span>每題需答對次數</span><span id=c3 style="width:84px"></span></div>
+function start(id){const d=S.decks.find(x=>x.id==id);if(!d||!d.cards.length)return toast('這個題庫沒有題目');startFlow(d)}
+/* 有未完成的練習 → 詢問接續或重新開始 */
+function startFlow(d,prA){const s=S.sess[d.id];if(!s)return startDlg(d,prA);
+ const ok=new Set(d.cards.map(c=>c.id)),ids=(s.ids||[]).filter(i=>ok.has(i));if(!ids.length){delete S.sess[d.id];save();return startDlg(d,prA)}
+ const pr=prA||S.prog[d.id]||{},t=ids.length*s.reps,dn=ids.reduce((a,i)=>a+Math.min(pr[i]||0,s.reps),0),p=t?Math.floor(dn/t*100):0,lr=ids.filter(i=>(pr[i]||0)>=s.reps).length,
+ MD={all:'所有題目',star:'僅標註星號的題目',unstar:'僅未標註星號的題目'};
+ const m=modal(`<h3>有未完成的練習</h3><div style="font-size:13px;color:var(--sub);margin-bottom:8px">上次練習：${new Date(s.ts).toLocaleString()}</div>
+ <div class=kv><span>完成度</span><b>${p}%</b></div><div class=pgb style="margin:4px 0 6px"><i style="width:${p}%"></i></div>
+ <div class=kv><span>已學會題數</span><b>${lr} / ${ids.length}</b></div><div class=kv><span>練習範圍</span><b>${MD[s.md]||MD.all}</b></div><div class=kv><span>打亂順序</span><b>${s.shuf?'是':'否'}</b></div><div class=kv><span>每題需答對次數</span><b>${s.reps} 次</b></div><div class=kv style="border:0"><span>填空提示</span><b>${s.zhHint===false?'關閉':'開啟'}</b></div>
+ <div class=rt><button class=sec id=c>取消</button><button class=sec id=n>重新開始</button><button class=pri id=r>接續上次</button></div>`);
+ m.querySelector('#c').onclick=()=>m.close();
+ m.querySelector('#r').onclick=()=>{m.close();resume(d,prA)};
+ m.querySelector('#n').onclick=()=>{m.close();startDlg(d,prA,true)}}
+function startDlg(d,prA,reset){const hs=d.cards.some(c=>c.star);
+ const m=modal(`<h3>${reset?'重新開始':'開始練習'}</h3>${reset?'<p style="font-size:13px;color:var(--sub);margin:0 0 6px">重新開始會清除這個範圍目前的學習進度。</p>':''}${hs?`<label>練習範圍</label><label class=ck><input type=radio name=md value=all checked>練習所有題目</label><label class=ck><input type=radio name=md value=star>僅練習標註星號題目</label><label class=ck><input type=radio name=md value=unstar>僅練習未標註星號題目</label>`:''}
+ <div class=set><span>打亂順序</span><input type=checkbox id=c1></div><div class=set><span>填空提示<small style="display:block;font-size:12px;color:var(--sub)">中文句子裡 [ ] 框住的詞會加底線</small></span><input type=checkbox id=c4 checked></div><div class=set><span>每題需答對次數</span><span id=c3 style="width:84px"></span></div>
  <div class=rt><button class=sec id=c>取消</button><button class=pri id=o>開始</button></div>`);
  m.querySelector('#c').onclick=()=>m.close();
  mkSel(m.querySelector('#c3'),Array.from({length:10},(_,i)=>[i+1,i+1]),2);
- m.querySelector('#o').onclick=()=>{const md=hs?m.querySelector('input[name=md]:checked').value:'all';begin(d,md,m.querySelector('#c1').checked,+m.querySelector('#c3').value,m,prA)}}
-function begin(d,md,shuf,reps,m,prA){const sel=d.cards.filter(c=>md=='all'||(md=='star')==!!c.star);if(!sel.length)return toast('這個範圍沒有題目');m.close();
- const pr=prA||S.prog[d.id]||(S.prog[d.id]={});(d.parts||[d]).forEach(x=>S.reps[x.id]=reps);let o=sel.filter(c=>(pr[c.id]||0)<reps).map(c=>c.id);
- if(!o.length){sel.forEach(c=>delete pr[c.id]);o=sel.map(c=>c.id);toast('這個範圍已全部學會，重新開始')}
- if(shuf)o.sort(()=>Math.random()-.5);const old=[...S.reports].reverse().find(r=>r.deckId==d.id&&r.fin===false);P={d,q:o,pr,reps,shuf,md,ids:sel.map(c=>c.id),stats:{},rep:old||null};
- if(old){old.items.forEach(i=>P.stats[i.cid]={att:i.att,wrong:i.wrong,bw:{...(i.bw||{})}});old.reps=reps;old.shuffle=shuf;old.mode=md;old.deckTitle=d.title}save();nextCard()}
+ m.querySelector('#o').onclick=()=>{const md=hs?m.querySelector('input[name=md]:checked').value:'all';begin(d,md,m.querySelector('#c1').checked,+m.querySelector('#c3').value,m.querySelector('#c4').checked,m,prA,reset)}}
+/* ===== 出題排程 =====
+ 每 5 題一組：依序出新題 → 複習這組之前尚未達標的題目 → 下一組。全部新題出完後再做一次錯題複習，進入下一輪。
+ 第 r 輪的目標是每題累積 r 次答對；上一輪沒達標的題目不進入主序列，而是「每隔一題」插入，直到補到本輪目標。
+ 最後一輪結束後輪流複習剩下的題目，直到全部達標。 */
+const PB=5,qc=id=>P.pr[id]||0;
+const qOut=Q=>{const s=new Set([...Q.seen,...Q.bh]);return Q.order.filter(id=>s.has(id)&&qc(id)<Q.r)};
+function qInit(order,R){return{order,R,r:0,mq:[],bh:[],bp:0,seen:[],q:[],st:'newround'}}
+function qFill(Q){for(let g=0;g<500;g++){
+ if(Q.st=='newround'){Q.r++;if(Q.r>Q.R)return false;Q.mq=Q.order.filter(id=>qc(id)==Q.r-1);Q.bh=Q.order.filter(id=>qc(id)<Q.r-1);Q.seen=[];Q.bp=0;Q.st='batch';continue}
+ if(Q.st=='batch'){if(Q.mq.length){const b=Q.mq.splice(0,PB),hb=Q.bh.some(id=>qc(id)<Q.r);Q.seen.push(...b);Q.q=b.flatMap(id=>hb?[id,'*']:[id]);Q.st='review';return true}Q.st='endrev';continue}
+ if(Q.st=='review'){Q.st='batch';const L=qOut(Q);if(L.length){Q.q=L;return true}continue}
+ if(Q.st=='endrev'){const L=qOut(Q);if(Q.r<Q.R){Q.st='newround';if(L.length){Q.q=L;return true}continue}if(!L.length)return false;Q.q=L;return true}}
+ return false}
+function qNext(Q){for(let g=0;g<500;g++){if(!Q.q.length&&!qFill(Q))return null;const x=Q.q.shift();if(x!=='*')return x;
+ const L=Q.bh.filter(id=>qc(id)<Q.r);if(!L.length)continue;return L[(Q.bp++)%L.length]}return null}
+/* 進度快照：每答完一題存一次（尚未抽下一題的狀態），重開時可接續 */
+function sessSave(){if(!P||P.rand||!P.Q)return;S.sess[P.d.id]=JSON.parse(JSON.stringify({Q:P.Q,md:P.md,shuf:P.shuf,zhHint:P.zhHint!==false,reps:P.reps,ids:P.ids,repId:P.rep?P.rep.id:null,ts:Date.now()}))}
+function begin(d,md,shuf,reps,zh,m,prA,reset){const sel=d.cards.filter(c=>md=='all'||(md=='star')==!!c.star);if(!sel.length)return toast('這個範圍沒有題目');m.close();
+ const pr=prA||S.prog[d.id]||(S.prog[d.id]={});(d.parts||[d]).forEach(x=>S.reps[x.id]=reps);
+ const old=S.sess[d.id];if(old){const r=S.reports.find(x=>x.id==old.repId);if(r)r.abandoned=true;delete S.sess[d.id]}
+ if(reset||sel.every(c=>(pr[c.id]||0)>=reps)){sel.forEach(c=>delete pr[c.id]);if(!reset)toast('這個範圍已全部學會，重新開始')}
+ const o=sel.filter(c=>(pr[c.id]||0)<reps).map(c=>c.id);
+ if(shuf)for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}
+ P={d,pr,reps,shuf,md,zhHint:zh,ids:sel.map(c=>c.id),stats:{},rep:null,Q:qInit(o,reps)};sessSave();save();nextCard()}
+function resume(d,prA){const s=S.sess[d.id];if(!s)return;
+ const ok=new Set(d.cards.map(c=>c.id)),f=a=>a.filter(x=>x==='*'||ok.has(x)),Q=JSON.parse(JSON.stringify(s.Q));['order','mq','bh','seen','q'].forEach(k=>Q[k]=f(Q[k]));
+ const ids=s.ids.filter(x=>ok.has(x));if(!ids.length){delete S.sess[d.id];save();return toast('這個題庫沒有題目')}
+ const pr=prA||S.prog[d.id]||(S.prog[d.id]={});(d.parts||[d]).forEach(x=>S.reps[x.id]=s.reps);
+ const rep=S.reports.find(r=>r.id==s.repId)||null;P={d,pr,reps:s.reps,shuf:s.shuf,md:s.md,zhHint:s.zhHint!==false,ids,stats:{},rep,Q};
+ if(rep)rep.items.forEach(i=>P.stats[i.cid]={att:i.att,wrong:i.wrong,bw:{...(i.bw||{})}});nextCard()}
 const dots=(g,n,p)=>`<div class=dots>`+Array.from({length:n},(_,i)=>`<span class="dot ${i<g?'on':''} ${i==p?'pop':''}">${I('check',12)}</span>`).join('')+`</div>`;
 const pct=()=>{const t=P.ids.length*P.reps,d=P.ids.reduce((s,i)=>s+Math.min(P.pr[i]||0,P.reps),0);return t?Math.floor(d/t*100):0};
 const starBtn=c=>`<button class="ic st sbtn ${c.star?'on':''}" data-act=pstar>${I('star',24)}</button>`;
-function nextCard(){if(!P.q.length)return finish();view='practice';const id=P.q.shift();P.id=id;const c=P.d.cards.find(x=>x.id==id);
+function nextCard(){const id=qNext(P.Q);if(!id)return finish();view='practice';P.id=id;const c=P.d.cards.find(x=>x.id==id);
  setView(`<div class=wrap><div class=row>${B('home','back')}<h3 class=lt>${esc(P.d.title)}</h3></div>
- <div class=card>${starBtn(c)}<div class=en id=en></div><div class=zh>${esc(c.zh)}</div></div>
+ <div class=card>${starBtn(c)}<div class=en id=en></div><div class=zh>${zhHTML(c.zh,P.zhHint!==false)}</div></div>
  <div class=row2><div class=pg><div class=pgb><i id=pgi style="width:${pct()}%"></i></div><b id=pgt>${pct()}%</b></div><span id=dots>${dots(P.pr[id]||0,P.reps,-1)}</span></div>
  <div id=info></div><div id=act><button class=sec data-act=show>看答案</button><button class=pri data-act=chk>檢查</button></div></div>`,true);buildQ(c,true)}
 function buildQ(c,focus){P.taint=false;P.fin=false;P.id=c.id;const en=$('#en');en.innerHTML='';
@@ -296,22 +342,32 @@ function showAns(){if(P.fin)return;P.taint=true;const s=stat();let f=null;app.qu
 function complete(){P.fin=true;document.activeElement&&document.activeElement.blur();const c=P.d.cards.find(x=>x.id==P.id),s=stat();let p=-1;
  s.att++;if(P.taint)s.wrong++;S.total++;const k=S.cs[P.id]||(S.cs[P.id]={att:0,wrong:0});k.att++;if(P.taint)k.wrong++;
  if(!P.rand){if(!P.taint){p=P.pr[P.id]||0;P.pr[P.id]=p+1}
-  if(!P.rep){P.rep={id:uid(),deckId:P.d.id,deckTitle:P.d.title,time:Date.now(),reps:P.reps,shuffle:P.shuf,mode:P.md,items:[],pct:0,fin:false};S.reports.push(P.rep);if(S.reports.length>80)S.reports.shift()}
+  if(!P.rep){P.rep={id:uid(),deckId:P.d.id,deckTitle:P.d.title,time:Date.now(),reps:P.reps,shuffle:P.shuf,mode:P.md,zhHint:P.zhHint!==false,items:[],pct:0,fin:false};S.reports.push(P.rep);if(S.reports.length>80)S.reports.shift()}
   P.rep.items=Object.keys(P.stats).filter(i=>P.stats[i].att).map(i=>({cid:i,en:(findCard(i)||{c:{en:''}}).c.en,...P.stats[i]}));P.rep.pct=pct();
-  if((P.pr[P.id]||0)<P.reps)P.q.splice(Math.min(3,P.q.length),0,P.id);
+  sessSave();
   $('#dots').innerHTML=dots(P.pr[P.id]||0,P.reps,p);$('#pgi').style.width=pct()+'%';$('#pgt').textContent=pct()+'%'}
  save();const tt=$('#tot');if(tt)tt.textContent=S.total;
  $('#info').innerHTML=((c.phrase||c.phraseZh)?`<div class=info>${c.phrase?`<div class=p>${esc(c.phrase)}</div>`:''}${c.phraseZh?`<div class=s>${esc(c.phraseZh)}</div>`:''}</div>`:'')+(c.note?`<div class=info><div class=s>${I('note',16)}<span>${esc(c.note)}</span></div></div>`:'');
  $('#act').innerHTML=P.rand?`<button class=pri data-act=rnext>下一題</button>`:`<button class=pri data-act=next>繼續${I('right',16)}</button>`}
 document.addEventListener('keydown',e=>{if(e.key=='Enter'&&(view=='practice'||view=='profile')&&P&&P.fin&&!/INPUT|BUTTON/.test(e.target.tagName)){e.preventDefault();P.rand?profile(false):nextCard()}});
 /* ===== 報告 ===== */
-function finish(){const r=P.rep;if(r){r.fin=true;r.pct=100;save();showReport(r,true,home)}else home()}
+/* ===== 題庫整體報告：合併所有練習方式（單一題庫、多題庫練習等）的作答紀錄 ===== */
+function deckRpt(id){const d=S.decks.find(x=>x.id==id);if(!d)return;view='drpt';
+ const bwAll={};S.reports.forEach(r=>r.items.forEach(i=>{if(!i.bw)return;const o=bwAll[i.cid]||(bwAll[i.cid]={});for(const[k,v]of Object.entries(i.bw))o[k]=(o[k]||0)+v}));
+ const L=d.cards.map(c=>{const k=S.cs[c.id]||{};return{cid:c.id,att:k.att||0,wrong:k.wrong||0,bw:bwAll[c.id]||{},card:c,did:d.id}}),
+ pr=L.filter(x=>x.att).sort((a,b)=>b.wrong/b.att-a.wrong/a.att||b.wrong-a.wrong||b.att-a.att),un=L.filter(x=>!x.att),A=pr.reduce((s,x)=>s+x.att,0),W=pr.reduce((s,x)=>s+x.wrong,0);
+ setView(`<div class=wrap><div class=top><div class=row>${B('home','back')}<h3 class=lt>整體報告</h3></div></div>
+ <div class=card style="padding:16px 20px"><div style="font-size:15px">${esc(d.title)}</div><div class=zh style="margin-top:6px">共 ${d.cards.length} 題・已練習 ${pr.length} 題・共作答 ${A} 次・整體答對率 ${A?Math.round((A-W)/A*100):0}%</div><div class=zh style="margin-top:4px;font-size:12px">合併這個題庫所有練習的作答紀錄；尚未練習的題目排在最後。</div></div>
+ <div>${pr.concat(un).map(x=>rrHTML({...x,act:`data-act=edet data-cid=${x.cid} style="cursor:pointer"`})).join('')||'<div class=center>這個題庫還沒有題目</div>'}</div></div>`,true)}
+
+function finish(){delete S.sess[P.d.id];const r=P.rep;if(r){r.fin=true;r.pct=100;save();showReport(r,true,home)}else{save();home()}}
 function rrHTML(x,att){const a=x.att,p=a?Math.round((a-x.wrong)/a*100):0,col=!a?'var(--sub)':p<=50?'var(--r)':p<100?'#e8a33d':'var(--ok)',c=x.card,bw=Object.entries(x.bw||{}).sort((u,v)=>v[1]-u[1])[0];
  return `<div class=rr style="--w:${p}%;--c:${col}" ${x.act||''}><div class=fill></div><div class=rl><div class=t>${boldEn(c?c.en:x.en)}</div>${bw&&x.wrong?`<div class=w>最常答錯：<b>${esc(bw[0])}</b>（${bw[1]} 次）</div>`:''}${x.deck?`<div class=d>${esc(x.deck)}</div>`:''}</div><div class=pc style="color:${col}">${a?`${p}%<small>對 ${a-x.wrong}/${a} 次</small>`:'—<small>尚未練習</small>'}</div>${c&&x.did?`<button class="ic st ${c.star?'on':''}" data-act=rstar data-d=${x.did} data-c=${c.id}>${I('star',24)}</button>`:'<span style="width:40px"></span>'}</div>`}
+const MDL={all:'所有題目',star:'僅星號題目',unstar:'僅未星號題目'},setTxt=r=>[MDL[r.mode]||'',r.shuffle?'打亂順序':'依序出題',r.reps?`每題答對 ${r.reps} 次`:'',r.zhHint===undefined?'':r.zhHint?'填空提示：開':'填空提示：關'].filter(Boolean).join('・');
 function showReport(r,fresh,back){view='report';RB=back||home;const d=S.decks.find(x=>x.id==r.deckId),
  it=r.items.filter(x=>x.att).sort((a,b)=>b.wrong/b.att-a.wrong/a.att||b.wrong-a.wrong||b.att-a.att),A=it.reduce((s,x)=>s+x.att,0),W=it.reduce((s,x)=>s+x.wrong,0);
  setView(`<div class=wrap><div class=top><div class=row>${B('rback','back')}<h3 class=lt>${fresh?'練習完成・':''}練習報告${r.fin===false?'（未完成 '+r.pct+'%）':''}</h3></div></div>
- <div class=card style="padding:16px 20px"><div style="font-size:15px">${esc(r.deckTitle)}</div><div class=zh style="margin-top:6px">${new Date(r.time).toLocaleString()}・${it.length} 題・共作答 ${A} 次・整體答對率 ${A?Math.round((A-W)/A*100):0}%</div></div>
+ <div class=card style="padding:16px 20px"><div style="font-size:15px">${esc(r.deckTitle)}</div><div class=zh style="margin-top:6px">${new Date(r.time).toLocaleString()}・${it.length} 題・共作答 ${A} 次・整體答對率 ${A?Math.round((A-W)/A*100):0}%</div>${setTxt(r)?`<div class=zh style="margin-top:4px;font-size:13px">${setTxt(r)}</div>`:''}</div>
  <div>${it.map(x=>{const f=findCard(x.cid);return rrHTML({...x,card:f&&f.c,did:f&&f.d.id,act:`data-act=edet data-cid=${x.cid} style="cursor:pointer"`})}).join('')||'<div class=center>還沒有作答紀錄</div>'}</div>
  ${fresh?`<div style="display:flex;justify-content:center;margin-top:18px"><button class=pri data-act=home>回題庫</button></div>`:''}</div>`,true)}
 /* ===== 個人檔案 ===== */
@@ -320,11 +376,11 @@ function profile(enter=true){view='profile';P=null;const all=S.decks.flatMap(d=>
  setView(`<div class=wrap><div class=top><div class=row>${B('home','back')}<h3 class=lt>個人檔案</h3></div></div>
  <div class=card style="text-align:center;padding:20px"><div class=big id=tot>${S.total}</div><div class=zh style="margin-top:2px">已練習題數</div></div><div id=sy style="margin-top:14px"></div>
  <div style="margin-top:18px">${PM('orec','list','檢視所有練習紀錄')}${PM('oerr','xc','檢視所有錯題')}${PM('ostar','star','檢視所有星號題目')}${PM('io','swap','匯出／匯入學習紀錄')}${PM('help','book','操作說明')}</div>
- <div>${pk?`<label style="margin-top:22px">隨機練習一題</label><div class=card>${starBtn(pk.c)}<div class=en id=en></div><div class=zh>${esc(pk.c.zh)}</div></div><div class=row2><span></span></div><div id=info></div><div id=act><button class=sec data-act=show>看答案</button><button class=pri data-act=chk>檢查</button></div>`:''}</div></div>`,enter);
+ <div>${pk?`<label style="margin-top:22px">隨機練習一題</label><div class=card>${starBtn(pk.c)}<div class=en id=en></div><div class=zh>${zhHTML(pk.c.zh,true)}</div></div><div class=row2><span></span></div><div id=info></div><div id=act><button class=sec data-act=show>看答案</button><button class=pri data-act=chk>檢查</button></div>`:''}</div></div>`,enter);
  syUpd();if(pk){P={rand:true,d:pk.d,pr:{},reps:1,stats:{},ids:[],q:[]};buildQ(pk.c,false)}}
 function records(){view='records';const L=[...S.reports].reverse();
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有練習紀錄</h3></div></div><div>${L.map(r=>{const p=r.pct??100,f=r.fin!==false;
-  return `<div class=rr style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=orep data-id=${r.id}><div class=fill></div><div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(r.deckTitle)}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題</div></div><div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div><span style="width:14px"></span></div>`}).join('')||'<div class=center>還沒有練習紀錄</div>'}</div></div>`,true)}
+  return `<div class=rr style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=orep data-id=${r.id}><div class=fill></div><div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(r.deckTitle)}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題${r.zhHint===undefined?'':r.zhHint?'・提示開':'・提示關'}</div></div><div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div><span style="width:14px"></span></div>`}).join('')||'<div class=center>還沒有練習紀錄</div>'}</div></div>`,true)}
 function errList(){const o=[];S.decks.forEach(d=>d.cards.forEach(c=>{const k=S.cs[c.id];if(k&&k.att&&k.wrong)o.push({card:c,deck:d,att:k.att,wrong:k.wrong,rate:(k.att-k.wrong)/k.att})}));return o.sort((a,b)=>a.rate-b.rate||a.att-b.att)}
 function errors(){view='errors';const L=errList();
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有錯題</h3><span class=grow></span><button class=sec data-act=emake>${I('plus',16)}製作錯題題庫</button></div></div><div>${L.map(x=>rrHTML({...x,did:x.deck.id,deck:x.deck.title,act:`data-act=edet data-cid=${x.card.id} style="cursor:pointer"`})).join('')||'<div class=center>目前沒有錯題</div>'}</div></div>`,true)}
@@ -340,27 +396,40 @@ function starPick(pre){const L=starList();if(!L.length)return toast('目前沒�
  picker({page:true,heading:'製作星號題庫',back:stars,noStar:true,pool:L.map(x=>({c:x.card,d:x.deck,rate:x.rate})),rate:true,pre,name:`星號題庫 ${dt.getMonth()+1}/${dt.getDate()}`,btn:'建立題庫',cb:(items,name)=>{
   S.decks.push({id:uid(),title:name.trim()||'星號題庫',folder:null,cards:items.map(x=>({...x.c,id:uid(),star:false}))});save();toast(`已建立題庫，共 ${items.length} 題`)}})}
 function detail(id){let c=null;S.decks.some(d=>c=d.cards.find(x=>x.id==id));if(!c)return;const R=(l,v)=>v?`<label>${l}</label><div style="white-space:pre-wrap;font-size:15px">${v}</div>`:'';
- const m=modal(`<h3>題目內容</h3>${R('英文句子',`<span class=en style="font-size:19px">${boldEn(c.en)}</span>`)}${R('中文句子',esc(c.zh))}${R('單字/片語',esc(c.phrase))}${R('單字/片語 翻譯',esc(c.phraseZh))}${R('筆記',esc(c.note))}<div class=rt><button class=pri id=o>關閉</button></div>`);m.querySelector('#o').onclick=()=>m.close()}
+ const m=modal(`<h3>題目內容</h3>${R('英文句子',`<span class=en style="font-size:19px">${boldEn(c.en)}</span>`)}${R('中文句子',zhHTML(c.zh,true))}${R('單字/片語',esc(c.phrase))}${R('單字/片語 翻譯',esc(c.phraseZh))}${R('筆記',esc(c.note))}<div class=rt><button class=pri id=o>關閉</button></div>`);m.querySelector('#o').onclick=()=>m.close()}
 /* ===== 題目挑選器（混編／錯題） ===== */
 let PK=null;
-/* 自製下拉選單／建議清單 */
-function closeCs(){document.querySelectorAll('.cs.open,.sgw.open').forEach(x=>x.classList.remove('open'))}
-document.addEventListener('click',e=>{if(!e.target.closest('.cs'))document.querySelectorAll('.cs.open').forEach(x=>x.classList.remove('open'))});
-function mkSel(host,opts,val){host.classList.add('cs');host.innerHTML=`<button type=button class="sec csb"><span class=cl></span>${I('down',14)}</button><div class=cm>${opts.map(o=>`<button type=button data-v="${esc(o[0])}">${esc(o[1])}</button>`).join('')}</div>`;
- const btn=host.firstChild,menu=host.lastChild,set=v=>{host.value=String(v);const o=opts.find(x=>String(x[0])==String(v));btn.querySelector('.cl').textContent=o?o[1]:'';menu.querySelectorAll('[data-v]').forEach(e=>e.classList.toggle('on',e.dataset.v==String(v)))};
- btn.onclick=e=>{e.stopPropagation();const open=!host.classList.contains('open');closeCs();host.classList.toggle('open',open);if(open){const on=menu.querySelector('.on');on&&(menu.scrollTop=on.offsetTop-40)}};
- menu.onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;e.stopPropagation();set(b.dataset.v);host.classList.remove('open');host.dispatchEvent(new Event('input',{bubbles:true}))};set(val)}
-function mkSug(sw,items){const inp=sw.querySelector('input'),menu=sw.querySelector('.cm');let skip=false;
- const show=()=>{if(skip)return;const t=inp.value.trim().toLowerCase(),L=items.filter(x=>!t||x.toLowerCase().includes(t));menu.innerHTML=L.map(x=>`<button type=button data-v="${esc(x)}">${esc(x)}</button>`).join('');sw.classList.toggle('open',!!L.length&&!(L.length==1&&L[0].toLowerCase()==t))};
- inp.addEventListener('focus',show);inp.addEventListener('input',show);inp.addEventListener('blur',()=>setTimeout(()=>sw.classList.remove('open'),150));
- menu.addEventListener('mousedown',e=>e.preventDefault());
- menu.addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;inp.value=b.dataset.v;skip=true;inp.dispatchEvent(new Event('input',{bubbles:true}));skip=false;sw.classList.remove('open')})}
+/* 自製下拉選單／建議清單：選單掛在 body 最上層（position:fixed），不會被任何容器裁切或遮蓋 */
+let POP=null;
+function popClose(){if(!POP)return;POP.el.remove();POP.anchor.classList.remove('open');POP=null}
+function popPlace(){if(!POP)return;const{el,anchor}=POP,r=anchor.getBoundingClientRect(),vh=window.innerHeight;if(r.bottom<0||r.top>vh)return popClose();
+ const below=vh-r.bottom-10,above=r.top-10,h=Math.min(el.scrollHeight,220),up=below<h&&above>below;
+ el.style.left=r.left+'px';el.style.width=Math.max(r.width,120)+'px';el.style.maxHeight=Math.max(90,Math.min(220,up?above:below))+'px';
+ if(up){el.style.top='auto';el.style.bottom=(vh-r.top+4)+'px'}else{el.style.bottom='auto';el.style.top=(r.bottom+4)+'px'}}
+function popOpen(anchor,html,onPick){let el;
+ if(POP&&POP.anchor===anchor){el=POP.el;el.innerHTML=html;POP.onPick=onPick}
+ else{popClose();el=document.createElement('div');el.className='cm';el.innerHTML=html;document.body.append(el);
+  el.addEventListener('mousedown',e=>e.preventDefault());
+  el.addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b){e.stopPropagation();POP.onPick(b.dataset.v)}});
+  POP={el,anchor,onPick};anchor.classList.add('open')}
+ popPlace();const on=el.querySelector('.on');if(on)el.scrollTop=Math.max(0,on.offsetTop-40)}
+window.addEventListener('scroll',popPlace,true);window.addEventListener('resize',popPlace);
+document.addEventListener('click',e=>{if(POP&&!e.target.closest('.cm')&&!POP.anchor.contains(e.target))popClose()});
+function mkSel(host,opts,val){host.classList.add('cs');host.innerHTML=`<button type=button class="sec csb"><span class=cl></span>${I('down',14)}</button>`;
+ const btn=host.firstChild,set=v=>{host.value=String(v);const o=opts.find(x=>String(x[0])==String(v));btn.querySelector('.cl').textContent=o?o[1]:''},
+ html=()=>opts.map(o=>`<button type=button data-v="${esc(o[0])}" class="${String(o[0])==host.value?'on':''}">${esc(o[1])}</button>`).join('');
+ btn.onclick=e=>{e.stopPropagation();if(POP&&POP.anchor===host)return popClose();popOpen(host,html(),v=>{set(v);popClose();host.dispatchEvent(new Event('input',{bubbles:true}))})};set(val)}
+function mkSug(sw,items){const inp=sw.querySelector('input');let skip=false;
+ const show=()=>{if(skip)return;const t=inp.value.trim().toLowerCase(),L=items.filter(x=>!t||x.toLowerCase().includes(t));
+  if(!L.length||(L.length==1&&L[0].toLowerCase()==t))return popClose();
+  popOpen(sw,L.map(x=>`<button type=button data-v="${esc(x)}">${esc(x)}</button>`).join(''),v=>{inp.value=v;skip=true;inp.dispatchEvent(new Event('input',{bubbles:true}));skip=false;popClose()})};
+ inp.addEventListener('focus',show);inp.addEventListener('input',show);inp.addEventListener('blur',()=>setTimeout(()=>{if(POP&&POP.anchor===sw)popClose()},150))}
 function picker(o){const page=!!o.page,sel=new Set(o.pre||[]),decks=[...new Map(o.pool.map(x=>[x.d.id,x.d])).values()];let root,m;
  if(page){PK=o;view='pick';
   setView(`<div class="wrap pk"><div class=top><div class=row style="flex-wrap:nowrap;gap:6px">${B('pkback','back')}<h3 class=lt>${o.heading||'製作題庫'}</h3><span class=grow></span><button class=pri id=ad style="padding:8px 16px;white-space:nowrap">${o.btn}</button></div>
   <div class=pkb><span id=cn></span><button class=sec id=sa style="padding:5px 10px;font-size:13px;white-space:nowrap">${I('select',14)}全選篩選結果</button></div></div>
   <div class=pkf><label>新題庫名稱</label><input class=ti id=nm type=text ${NOSUG} value="${esc(o.name)}">
-  <div class=g2><div><label>搜尋題目</label><input class=ti id=q type=text ${NOSUG} placeholder="題目文字"></div><div><label>篩選題庫</label><div class=sgw id=sw><input class=ti id=dk type=text ${NOSUG} placeholder="全部題庫"><div class=cm></div></div></div></div>
+  <div class=g2><div><label>搜尋題目</label><input class=ti id=q type=text ${NOSUG} placeholder="題目文字"></div><div><label>篩選題庫</label><div class=sgw id=sw><input class=ti id=dk type=text ${NOSUG} placeholder="全部題庫"></div></div></div>
   <div class=pkr>${o.rate?`<div class=rt2><span>答對率低於</span><input class=ti id=rt type=number min=1 max=100 placeholder="不限" style="width:96px"><span>%</span></div>`:''}${o.noStar?'':`<label class=ck style="margin:0;font-size:14px"><input type=checkbox id=sr>只看星號題目</label>`}</div>
   <div class=hint>勾選要放進新題庫的題目，再按右上角「${o.btn}」。</div></div><div id=ml></div></div>`,true);root=app;
  }else{
@@ -373,7 +442,7 @@ function picker(o){const page=!!o.page,sel=new Set(o.pre||[]),decks=[...new Map(
  const q=s=>root.querySelector(s);let cur=[];const cn=()=>q('#cn').textContent=`篩選 ${cur.length} 題・已選 ${sel.size} 題`;
  if(page)mkSug(q('#sw'),decks.map(d=>d.title));else mkSel(q('#dk'),[['','所有題庫'],...decks.map(d=>[d.id,d.title])],'');
  const draw=()=>{const t=q('#q').value.trim().toLowerCase(),dv=q('#dk').value,dk=dv.trim().toLowerCase(),st=q('#sr')&&q('#sr').checked,rv=o.rate?+q('#rt').value:0;
-  cur=o.pool.filter(x=>(!dk||(page?x.d.title.toLowerCase().includes(dk):x.d.id==dv))&&(!st||x.c.star)&&(!rv||(x.rate!=null&&Math.round(x.rate*100)<rv))&&(!t||[x.c.en,x.c.zh,x.c.phrase,x.c.phraseZh].join(' ').toLowerCase().includes(t)));
+  cur=o.pool.filter(x=>(!dk||(page?x.d.title.toLowerCase().includes(dk):x.d.id==dv))&&(!st||x.c.star)&&(!rv||(x.rate!=null&&Math.round(x.rate*100)<rv))&&(!t||[x.c.en,zhPlain(x.c.zh),x.c.phrase,x.c.phraseZh].join(' ').toLowerCase().includes(t)));
   q('#ml').innerHTML=cur.map(x=>`<label class=ck><input type=checkbox data-c=${x.c.id} ${sel.has(x.c.id)?'checked':''}><span style="font-size:14px">${boldEn(x.c.en)}<br><small style="color:var(--sub)">${esc(x.d.title)}${x.rate!=null?'・答對率 '+Math.round(x.rate*100)+'%':(o.rate?'・尚未練習':'')}</small></span></label>`).join('')||'<small>沒有符合的題目</small>';cn()};
  ['#q','#dk','#sr','#rt'].forEach(k=>q(k)&&q(k).addEventListener('input',draw));
  q('#ml').addEventListener('change',e=>{const id=e.target.dataset.c;if(!id)return;e.target.checked?sel.add(id):sel.delete(id);cn()});
@@ -386,7 +455,7 @@ function edit(id){const d=S.decks.find(x=>x.id==id);E=d?JSON.parse(JSON.stringif
 const flag=c=>bad(c)&&E.chk.has(c.id),WARN=c=>`${I('warn',14)}${probs(c).join('、')}`;
 function rowHTML(c,i,isNew){return `<div class="er ${isNew?'new':''} ${flag(c)?'inv':''}" data-cid=${c.id} data-k=${c.id}><div class=eh data-act=tg><span class=sk>${I('check',14)}</span><span class=n>${i+1}</span><span class=pv>${flag(c)?I('warn',14):''}<span>${boldEn(c.en)||'（空白題目）'}</span></span><button class="ic st ${c.star?'on':''}" data-act=estar>${I('star',20)}</button><button class=ic data-act=rm>${I('trash',20)}</button></div>
  <div class=eb><div class=ebi><label>英文句子（用 [ ] 框住要挖空的字）</label><textarea rows=2 data-k=en>${esc(c.en)}</textarea>
- <label>中文句子</label><textarea rows=2 data-k=zh>${esc(c.zh)}</textarea>
+ <label>中文句子（可用 [ ] 框住要提示的詞）</label><textarea rows=2 data-k=zh placeholder="例：Kyle 對於沒有贏得第一名感到非常[難過]。">${esc(c.zh)}</textarea>
  <div class=g2><div><label>單字/片語（選填）</label><textarea rows=1 data-k=phrase>${esc(c.phrase)}</textarea></div><div><label>翻譯（選填）</label><textarea rows=1 data-k=phraseZh>${esc(c.phraseZh)}</textarea></div></div>
  <label>筆記（選填）</label><textarea rows=1 data-k=note>${esc(c.note)}</textarea><div class=warn>${flag(c)?WARN(c):''}</div></div></div></div>`}
 function drawEdit(newIds=[],enter){view='edit';E.sel=null;
@@ -394,7 +463,7 @@ function drawEdit(newIds=[],enter){view='edit';E.sel=null;
  <div class="row tb2"><span id=sc style="color:var(--fg)">已選 0 項</span><span class=grow></span><button class=sec data-act=sall>全選</button><button class=sec data-act=sdel style="color:var(--r)">${I('trash',16)}刪除</button><button class=sec data-act=scan>取消</button></div></div>
  <input class=ti id=ti type=text placeholder="題庫標題" value="${esc(E.title)}">
  <details class=bulk><summary class=sm><span class=tri>${I('right',16)}</span>${I('spark',16)}<span>自動生成題庫</span></summary>
- <label>每行一題，可直接貼原始文本，例如：The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）。</label>
+ <label>每行一題，可直接貼原始文本，例如：The loud music ______ the whole family ______ all night.（鄰居派對太吵，[讓]這家人整夜[睡不著]。）｜答案：kept awake（keep... awake 讓……睡不著）。</label>
  <textarea id=bulk rows=5 ${NOSUG}></textarea>
  <div class=row style="margin:8px 0 0"><button class=pri data-act=local>${I('spark',16)}判定並加入</button></div><div id=st></div></details>
  <div id=emp class=center style="padding:30px 0;${E.cards.length?'display:none':''}">還沒有題目，按「新增」開始，或使用自動生成、混編。</div>
@@ -469,11 +538,11 @@ function io(back){view='io';IOB=back||home;
   q('#cp').onclick=async()=>{try{await navigator.clipboard.writeText(text);toast('已複製')}catch(e){q('#out').select();toast('請手動複製')}}};
  q('#fl').onchange=()=>{const f=q('#fl').files;q('#fn').textContent=f.length?(f.length==1?f[0].name:`已選 ${f.length} 個檔案`):'尚未選擇檔案'};
  q('#e1').onclick=()=>{const ids=[...app.querySelectorAll('.ck input:checked')].map(i=>i.value);if(!ids.length)return toast('請先勾選題庫');show('題庫.txt',toTxt(S.decks.filter(d=>ids.includes(d.id))))};
- q('#e2').onclick=()=>show('學習記錄_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({app:'fillblank',v:3,decks:S.decks,folders:S.folders,prog:S.prog,reps:S.reps,reports:S.reports,cs:S.cs,total:S.total,cfg:S.cfg}));
+ q('#e2').onclick=()=>show('學習記錄_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({app:'fillblank',v:3,decks:S.decks,folders:S.folders,prog:S.prog,reps:S.reps,reports:S.reports,cs:S.cs,total:S.total,cfg:S.cfg,sess:S.sess}));
  q('#im').onclick=async()=>{const items=[];for(const f of q('#fl').files)items.push([await f.text(),f.name.replace(/\.\w+$/,'')]);if(q('#pt').value.trim())items.push([q('#pt').value,'匯入題庫']);if(!items.length)return toast('請選擇檔案或貼上內容');
   let n=0;for(const [t,name] of items){if(t.trim()[0]=='{'){let j;try{j=JSON.parse(t)}catch(e){toast('JSON 格式錯誤');return}
-    if(!j.decks)return toast('不是有效的學習記錄');
-    return yes('匯入學習記錄會取代目前所有題庫、進度與報告，確定嗎？',()=>{S={...S,decks:j.decks,folders:j.folders||[],prog:j.prog||{},reps:j.reps||{},reports:j.reports||[],cs:j.cs,total:j.total,cfg:{...S.cfg,...(j.cfg||{})},seeded:1};fix();applyTheme();save();home();toast('學習記錄已還原')})}
+    if(!Array.isArray(j.decks))return toast('不是有效的學習記錄');
+    return yes('匯入學習記錄會取代目前所有題庫、進度與報告，確定嗎？',()=>{S={...S,decks:j.decks,folders:j.folders||[],prog:j.prog||{},reps:j.reps||{},reports:j.reports||[],cs:j.cs,total:j.total,cfg:{...S.cfg,...(j.cfg||{})},sess:j.sess||{},seeded:1};fix();applyTheme();save();home();toast('學習記錄已還原')})}
    n+=importTxt(t,name)}
   fix();save();toast(`已匯入 ${n} 題`);IOB()}}
 /* ===== 多題庫練習 ===== */
@@ -488,7 +557,7 @@ app.addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.d;
 function msall(){const L=mlist(),all=L.length&&L.every(d=>MS.has(d.id));L.forEach(d=>all?MS.delete(d.id):MS.add(d.id));mdraw()}
 function mgo(){const ds=S.decks.filter(d=>MS.has(d.id)&&d.cards.length);if(!ds.length)return toast('請先選擇題庫');const own={};ds.forEach(d=>d.cards.forEach(c=>own[c.id]=d.id));
  const pr=new Proxy({},{get:(t,k)=>(S.prog[own[k]]||{})[k],set:(t,k,v)=>{if(own[k])(S.prog[own[k]]||(S.prog[own[k]]={}))[k]=v;return true},deleteProperty:(t,k)=>{if(S.prog[own[k]])delete S.prog[own[k]][k];return true}});
- startDlg({id:'multi:'+ds.map(d=>d.id).sort().join(','),title:`多題庫練習（${ds.length} 個題庫）`,cards:ds.flatMap(d=>d.cards),parts:ds},pr)}
+ startFlow({id:'multi:'+ds.map(d=>d.id).sort().join(','),title:`多題庫練習（${ds.length} 個題庫）`,cards:ds.flatMap(d=>d.cards),parts:ds},pr)}
 /* ===== 操作說明 ===== */
 const fm=t=>esc(t).replace(/「([^」]+)」/g,'<span class=kb>「$1」</span>').replace(/`([^`]+)`/g,'<code>$1</code>');
 const gl=(t,c)=>[...t].map(ch=>`<b class=${c}>${esc(ch)}</b>`).join(''),dm=h=>`<span class=dm>${h}</span>`;
@@ -496,26 +565,27 @@ let GC=[];
 const AIP=['你是「英文填空題庫」編輯員。請把我提供的資料（文字、PDF、Word 或圖片中的內容）整理成填空題，並嚴格依照下列格式輸出。','',
 '【輸出格式】','1. 只輸出一個純文字程式碼區塊，區塊外不要有任何說明、問候或總結。','2. 第一行寫：#題庫 題庫名稱（我沒指定時，請依內容自行命名）','3. 之後每行一題，不可空行、不可加編號或項目符號，格式固定為：',
 '英文句子（挖空處寫 ______）（中文翻譯）｜答案：字1 字2（片語原形 片語中文意思）','','格式範例：',
-'The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）','',
+'The loud music ______ the whole family ______ all night.（鄰居派對太吵，[讓]這家人整夜[睡不著]。）｜答案：kept awake（keep... awake 讓……睡不著）','',
 '【規則】','1. 每個 ______（6 個底線）只對應一個英文單字；答案依挖空順序、以半形空格分開，例如兩個空格就寫 kept awake。','2. 每題挖 1～3 個重點字（單字、片語、文法重點皆可）。',
 '3. 「（中文翻譯）」緊接在英文句子後面，使用全形括號，整句翻譯要通順、不可省略。','4. 答案後面的「（片語原形 片語中文意思）」是選填，原形與中文意思之間用空格分開；沒有就整個省略。',
 '5. 英文句子裡不要出現全形括號、｜ 符號或換行。','6. 資料中若已有句子與翻譯就直接沿用；若只有單字或片語，請自行造一個簡單自然的例句。','7. 題目不可重複；看不清楚或無法確定的內容直接略過，不要自行猜測。',
-'8. 內容很多時，一次最多輸出 30 題，我回覆「繼續」再接著輸出。','','【我的資料】','（在這裡貼上文字，或直接上傳檔案／圖片）'].join('\n');
+'8. 內容很多時，一次最多輸出 30 題，我回覆「繼續」再接著輸出。','9. 中文翻譯裡，請用 [ ] 框住「對應挖空答案」的中文詞（可框多處），例如 [難過]，作答時會以底線提示該填什麼；找不到明確對應的詞就不用框。','','【我的資料】','（在這裡貼上文字，或直接上傳檔案／圖片）'].join('\n');
 const AIIN=['Lesson 3 Vocabulary','1. wonder if：想知道是否　Samuel wonders if he will lose weight after joining the swimming club.（Samuel 想知道他加入游泳社後是否能減重。）','2. be upset about：對……感到難過　Kyle was deeply upset about not winning first place.（Kyle 對於沒有贏得第一名感到非常難過。）','3. keep... awake：讓……睡不著　The loud music kept the whole family awake all night.'].join('\n');
-const AIOUT=['#題庫 Lesson 3 Vocabulary','Samuel ______ ______ he will lose weight after joining the swimming club.（Samuel 想知道他加入游泳社後是否能減重。）｜答案：wonders if（wonder if 想知道是否）','Kyle was deeply ______ ______ not winning first place.（Kyle 對於沒有贏得第一名感到非常難過。）｜答案：upset about（be upset about 對……感到難過）','The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）'].join('\n');
+const AIOUT=['#題庫 Lesson 3 Vocabulary','Samuel ______ ______ he will lose weight after joining the swimming club.（Samuel [想知道] 他加入游泳社後[是否]能減重。）｜答案：wonders if（wonder if 想知道是否）','Kyle was deeply ______ ______ not winning first place.（Kyle 對於沒有贏得第一名感到非常[難過]。）｜答案：upset about（be upset about 對……感到難過）','The loud music ______ the whole family ______ all night.（鄰居派對太吵，[讓]這家人整夜[睡不著]。）｜答案：kept awake（keep... awake 讓……睡不著）'].join('\n');
 const AIFIX=['你剛才的輸出不符合格式，請重新輸出：','1. 只輸出一個程式碼區塊，區塊外不要有任何文字。','2. 第一行是「#題庫 題庫名稱」，之後每行一題，不要空行、不要編號。','3. 每題格式：英文句子（挖空處寫 ______）（中文翻譯）｜答案：字1 字2（片語原形 片語中文意思）','4. 每個 ______ 只對應一個英文單字，答案依順序以半形空格分開。'].join('\n');
 const GD=[
 {t:'如何新增題庫',ic:'plus',d:'手動輸入、貼上文字自動生成、管理題庫',b:[
 ['p','一個題庫由多道填空題組成。每題一定要有「英文句子（用 [ ] 標出挖空處）」和「中文句子」；單字/片語、翻譯與筆記是選填。'],
 ['h','方法一：手動逐題新增'],
 ['s',[['在首頁左上角按「題庫」，進入題庫編輯頁。'],['在最上方「題庫標題」欄輸入名稱。','沒填的話會存成「未命名題庫」。'],['按上方「新增」，會多出一題並自動展開。'],
-['在「英文句子」輸入完整句子，並用 `[ ]` 框住要挖空的字。','[ ] 裡如果有多個字，每個字會各自變成一個格子。'],['在「中文句子」輸入翻譯，作答時會顯示在英文句子下方。'],
+['在「英文句子」輸入完整句子，並用 `[ ]` 框住要挖空的字。','[ ] 裡如果有多個字，每個字會各自變成一個格子。'],['在「中文句子」輸入翻譯，作答時會顯示在英文句子下方。','可以用 [ ] 框住對應挖空處的中文詞（不一定要用），作答時會加底線提示該填什麼；但「中文句子」本身一定要填。'],
 ['選填：「單字/片語」與「翻譯」會在答對後顯示；「筆記」可寫文法提醒。'],['點題目那一列可展開／收合；列右側的星號可標註重點題、垃圾桶可刪除該題。'],['全部完成後，按右上角「儲存」。','有未儲存的變更時按返回箭頭，系統會詢問是否儲存。']]],
 ['c','英文句子輸入範例（含 [ ] 挖空）','Kyle [was] deeply [upset about] not winning first place in the swimming race.'],
+['c','中文句子輸入範例（[ ] 為選填的提示）','Kyle 對於沒有贏得游泳比賽第一名，感到非常[難過]。'],
 ['t','題目缺英文／中文、沒有 [ ] 挖空，或與同題庫的題目重複時，該題會以紅色標示，且無法儲存。依紅字提示修正即可。'],
 ['h','方法二：貼上文字自動生成'],
 ['s',[['在編輯頁按「自動生成題庫」展開輸入區。'],['每行貼上一題（格式見下方範例）。'],['按「判定並加入」。','不符合規則或重複的題目會自動刪除，並顯示刪除題數。'],['檢查新加入的題目無誤後，按「儲存」。']]],
-['c','自動生成輸入範例（每行一題）',['The loud music ______ the whole family ______ all night.（鄰居派對太吵，讓這家人整夜睡不著。）｜答案：kept awake（keep... awake 讓……睡不著）','Kyle ______ deeply ______ ______ not winning first place.（Kyle 對於沒有贏得第一名感到非常難過。）｜答案：was upset about'].join('\n')],
+['c','自動生成輸入範例（每行一題）',['The loud music ______ the whole family ______ all night.（鄰居派對太吵，[讓]這家人整夜[睡不著]。）｜答案：kept awake（keep... awake 讓……睡不著）','Kyle ______ deeply ______ ______ not winning first place.（Kyle 對於沒有贏得第一名感到非常[難過]。）｜答案：was upset about'].join('\n')],
 ['p','如果手上有 PDF、Word 或圖片，可以請 AI 幫你整理成這個格式，詳見「使用AI提示詞來生成題庫」。'],
 ['h','整理與管理'],
 ['s',[['首頁題庫卡片右上角的「⋯」：上移、下移、移到資料夾、重置學習進度、刪除題庫、查看過往練習報告。'],['首頁「資料夾」可建立資料夾，把題庫分類收納。'],['題庫超過 3 個時，首頁會出現「搜尋題庫」欄。'],['編輯頁要一次刪除多題：按「選取」（或長按任一題），勾選後按「刪除」。']]]]},
@@ -538,6 +608,7 @@ const GD=[
 ['s',[['在「匯入」區按「選擇檔案」（可一次選多個 .txt／.json），或直接把內容貼在下方文字框。'],['按「匯入」。'],
 ['TXT：會新增題庫，不影響現有題庫。','內容中以 #題庫 開頭的行會建立新題庫；沒有的話，題庫名稱使用檔案名稱。'],['JSON（學習記錄）：會「取代」目前所有題庫、進度與報告，系統會先跳出確認視窗。']]],
 ['t','匯入學習記錄前，建議先匯出一份目前的資料備份。個人檔案頁的 Google 文件同步也可以自動備份。'],
+['t','舊版匯出的學習記錄（JSON）、題庫 TXT 與 Google 文件資料，都可以直接匯入目前版本：舊版沒有的欄位會自動補上，舊版中途未完成的練習也能用「接續上次」繼續。'],
 ['c','題庫 TXT 的內容格式（每題一行，欄位之間用 Tab 分隔）',['#題庫 第三課 單字測試','Kyle [was] deeply [upset about] not winning first place.\tKyle 對於沒有贏得第一名感到非常難過。\tbe upset about\t對……感到難過\tabout 後面接名詞或動名詞\t1'].join('\n')],
 ['p','欄位依序為：英文句子、中文句子、單字/片語、翻譯、筆記、是否有星號（1 代表有星號）。後面欄位可以省略。此外，匯入也能直接讀取「使用AI提示詞來生成題庫」裡的格式。']]},
 {t:'如何製作星號或錯題題庫',ic:'star',d:'把重點題或常錯的題目挑出來，另存成新題庫',b:[
@@ -554,8 +625,10 @@ const GD=[
 ['s',[['在清單中「長按」某一題約半秒，會直接進入製作頁，並預先勾選該題。'],['清單每列的色條與百分比是「答對率」；「最常答錯」顯示你最常答錯的挖空字；輕點一下可看題目完整內容。']]]]},
 {t:'如何進行作答',ic:'edit',d:'輸入方式、批改顏色代表的意思、進度與報告',b:[
 ['h','開始練習'],
-['s',[['在首頁點題庫的「開始練習」。'],['在設定視窗選擇：「練習範圍」（題庫有星號題時才會出現）、「打亂順序」、「每題需答對次數」（預設 2 次）。'],['按「開始」。']]],
+['s',[['在首頁點題庫的「開始練習」。','若這個題庫有未完成的練習，會先詢問「接續上次」或「重新開始」，並顯示上次的完成度與設定。'],['在設定視窗選擇：「練習範圍」（題庫有星號題時才會出現）、「打亂順序」、「每題需答對次數」（預設 2 次）、「填空提示」（預設開啟）。','開啟「填空提示」時，中文句子裡用 [ ] 框住的詞會加底線，提示英文格子要填什麼；關閉則不顯示底線。'],['按「開始」。']]],
 ['p','畫面上方是題庫名稱；卡片裡英文句子的挖空處是一個個格子，下方是中文翻譯；右上角星號可標註這題。卡片下方的進度條是整體進度，右邊的圓點是這題已答對的次數。'],
+['h','中文句子的底線提示'],
+['l',[['<span class=zu style="font-size:17px">難過</span>','中文句子裡有底線的字，就是對應英文挖空的詞，提示這格要填什麼。需要在開始練習的設定視窗開啟「填空提示」，題目也要有用 [ ] 框住的中文詞。']]],
 ['h','如何輸入'],
 ['s',[['點一下格子輸入答案，不分大小寫。','在「設定」開啟「格子長度提示」時，格子寬度會對應答案長度。'],['每個格子只填一個字；片語會被拆成多個格子。'],['輸入完一格後按空白鍵或 Enter，會跳到下一個尚未答對的格子；在最後一格按下，會自動檢查。'],['也可以隨時按右下角「檢查」。'],['不確定時按「看答案」，所有未答對的格子會顯示正確答案，這題會記為答錯。']]],
 ['h','批改結果的顏色'],
@@ -564,9 +637,13 @@ const GD=[
 ['l',[[dm(gl('awa','g')+gl('k','r')+gl('e','g')),'答案 awake，你輸入 awaje：k 寫錯，顯示紅色的正確字母 k。'],[dm(gl('kept','g')+gl('s','x')),'答案 kept，你輸入 kepts：多打的 s 以半透明灰色顯示。']]],
 ['t','答錯的格子不用手動刪除，直接點進去重新輸入即可，舊內容會自動全選並被取代。全部答對後，下方會顯示這題的單字/片語與筆記，按「繼續」進入下一題。'],
 ['h','進度怎麼算'],
-['s',[['整題一次就全部答對，圓點多亮一顆；圓點全亮代表這題已學會。'],['這題有答錯或使用「看答案」，本輪不加點，題目會在幾題之後再出現一次。'],['所有題目都學會後，練習結束並顯示報告。中途按左上角返回也沒關係，進度會保留，下次開始會接續。']]],
+['s',[['整題一次就全部答對，圓點才會多亮一顆；圓點全亮代表這題已學會。有答錯或使用「看答案」，這次不加點。'],
+['出題順序：先讓每一題都拿到第 1 次答對，再拿第 2 次、第 3 次……。','每 5 題為一組：先依序出這 5 題，再複習這組還沒答對的題目，然後才出下一組新題目。'],
+['所有題目都出現過一次後，會再做一次錯題複習，接著進入下一輪。','下一輪會先跳過還沒拿滿的題目，並讓它們每隔一題就出現一次，直到補上為止。'],
+['最後一輪結束後，會輪流複習剩下還沒達標的題目，全部達標就結束並顯示報告。'],
+['中途按左上角返回也沒關係，進度與出題順序都會保留，下次按「開始練習」可選擇「接續上次」或「重新開始」。']]],
 ['h','練習報告'],
-['s',[['報告依答對率由低到高排列，「最常答錯」會標出最常答錯的字。'],['色條顏色：紅色（50% 以下）、橘色（51%～99%）、綠色（100%）。'],['輕點某題可看完整內容。','過往報告可從題庫卡片的「⋯」或「個人檔案」→「檢視所有練習紀錄」查看。']]],
+['s',[['報告依答對率由低到高排列，「最常答錯」會標出最常答錯的字。'],['色條顏色：紅色（50% 以下）、橘色（51%～99%）、綠色（100%）。'],['輕點某題可看完整內容。','過往報告可從題庫卡片的「⋯」或「個人檔案」→「檢視所有練習紀錄」查看。'],['想看某個題庫「所有練習」合併後的答題情形，點題庫卡片的「⋯」→「整體報告」。']]],
 ['p','想隨時小練習一下，可到「個人檔案」最下方的「隨機練習一題」。']]},
 {t:'使用AI提示詞來生成題庫',ic:'spark',d:'把文字、PDF、Word、圖片交給AI整理成可匯入的題庫',b:[
 ['p','如果你有一份還沒整理的完整資料（文字、PDF、Word、圖片都可以），可以交給 AI（例如 ChatGPT、Claude、Gemini）整理。關鍵是用下面這份提示詞，讓 AI 輸出本系統能直接讀取的格式。'],
@@ -632,14 +709,14 @@ const DEF_URL='https://script.google.com/macros/s/AKfycbywJUeIY0FCJnbQBTitfjj7kY
 let SY={url:DEF_URL,token:DEF_TOKEN,last:0,h:0,pend:false,again:false,st:'off',msg:'',ready:false,busy:false,dirty:false,tm:null};
 try{const r=JSON.parse(localStorage.getItem(SYK)||'{}');if(r.url!==undefined){SY.url=r.url;SY.token=r.token||''}SY.last=r.last||0;SY.h=r.h||0;SY.pend=!!r.pend}catch(e){}if(SY.url)SY.st='syncing';
 const sySave=()=>{try{localStorage.setItem(SYK,JSON.stringify({url:SY.url,token:SY.token,last:SY.last,h:SY.h,pend:SY.pend}))}catch(e){}};
-const payload=()=>({app:'fillblank',v:3,ts:S.ts||0,decks:S.decks,folders:S.folders,prog:S.prog,reps:S.reps,reports:S.reports,cs:S.cs,total:S.total,cfg:S.cfg});
+const payload=()=>({app:'fillblank',v:3,ts:S.ts||0,decks:S.decks,folders:S.folders,prog:S.prog,reps:S.reps,reports:S.reports,cs:S.cs,total:S.total,cfg:S.cfg,sess:S.sess});
 const hsh=t=>{let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h},
- snapStr=()=>JSON.stringify([S.decks,S.folders.map(f=>[f.id,f.name]),S.prog,S.reps,S.reports,S.cs,S.total,S.cfg]),
- remSnap=j=>JSON.stringify([j.decks,(j.folders||[]).map(f=>[f.id,f.name]),j.prog||{},j.reps||{},j.reports||[],j.cs,j.total,j.cfg||S.cfg]);
+ snapStr=()=>JSON.stringify([S.decks,S.folders.map(f=>[f.id,f.name]),S.prog,S.reps,S.reports,S.cs,S.total,S.cfg,S.sess]),
+ remSnap=j=>{const c=JSON.parse(JSON.stringify(j));fixObj(c);return JSON.stringify([c.decks,c.folders.map(f=>[f.id,f.name]),c.prog,c.reps,c.reports,c.cs,c.total,j.cfg||S.cfg,c.sess])};
 function syHTML(){const d=SY.last?new Date(SY.last):null,hm=d?`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`:'';
  const L=`<a href="${DOCURL}" target=_blank rel=noopener>Google 文件</a>`;
  const T={off:`尚未設定同步到 ${L}`,syncing:'同步中…',ok:`已同步到 ${L}${hm?`（${hm}）`:''}`,pending:'有變更，等待同步…',offline:'離線中，連線後會自動同步',err:`同步失敗：${esc(SY.msg)}`}[SY.st];
- return `<div class="sy ${SY.st=='ok'?'ok':SY.st=='err'?'err':''}"><div class=syt><i></i><span>${T}</span></div><div class=syb><button class=sec data-act=syncnow>立即同步</button><button class=sec data-act=dlall>下載資料</button><button class=sec data-act=syncset>設定</button></div></div>`}
+ return `<div class="sy ${SY.st=='ok'?'ok':SY.st=='err'?'err':''}"><div class=syt><i></i><span>${T}</span></div><div class=syb><button class=sec data-act=syncnow>上傳資料</button><button class=sec data-act=dlall>下載資料</button><button class=sec data-act=syncset>設定</button></div></div>`}
 const SDC={off:'',syncing:'ing',pending:'ing',offline:'ing',ok:'ok',err:'err'},SDT={off:'未設定同步',syncing:'同步中',pending:'有變更，等待同步',offline:'離線，連線後同步',ok:'已同步',err:'同步失敗'};
 function syUpd(st,msg){if(st){SY.st=st;SY.msg=msg||''}const el=$('#sy');if(el)el.innerHTML=syHTML();const d=$('#sd');if(d){d.className='sd '+SDC[SY.st];d.title=SDT[SY.st]}}
 const syChk=j=>{if(!j||!j.ok)throw new Error(j&&j.error=='token'?'密碼（Token）不符':(j&&j.error)||'伺服器錯誤');return j};
@@ -660,15 +737,18 @@ async function syCall(body){
 function syErr(e){SY.busy=false;const m=e&&e.name=='TimeoutError'?'連線逾時':e instanceof TypeError?'無法連線，請確認網址與部署權限（任何人）':(e&&e.message)||'未知錯誤';navigator.onLine?syUpd('err',m):syUpd('offline');return m}
 const doPush=async()=>{const h0=hsh(snapStr());await syCall({action:'set',text:JSON.stringify(payload())});SY.h=h0;SY.last=Date.now();SY.pend=hsh(snapStr())!==h0;sySave()};
 const markSynced=()=>{SY.h=hsh(snapStr());SY.pend=false;SY.last=Date.now();sySave()};
-const parseDoc=t=>{t=(t||'').trim();if(!t)return null;try{const j=JSON.parse(t);return j&&j.app=='fillblank'&&Array.isArray(j.decks)?j:null}catch(e){return null}};
+const parseDoc=t=>{t=(t||'').trim();if(!t)return null;try{const j=JSON.parse(t);return j&&(j.app=='fillblank'||j.app===undefined)&&Array.isArray(j.decks)?j:null}catch(e){return null}};
 const idle=()=>view=='home'||view=='profile';
-function setData(j){S={...S,decks:j.decks,folders:j.folders||[],prog:j.prog||{},reps:j.reps||{},reports:j.reports||[],cs:j.cs,total:j.total,cfg:{...S.cfg,...(j.cfg||{})},seeded:1,ts:j.ts||0};fix();applyTheme();saveRaw();markSynced();if(view=='home')home(false);else if(view=='profile')profile(false)}
+const isEmpty=()=>!S.decks.length&&!S.folders.length&&!S.reports.length&&!S.total;
+function setData(j){S={...S,decks:j.decks,folders:j.folders||[],prog:j.prog||{},reps:j.reps||{},reports:j.reports||[],cs:j.cs,total:j.total,cfg:{...S.cfg,...(j.cfg||{})},sess:j.sess||{},seeded:1,ts:j.ts||0};fix();applyTheme();saveRaw();markSynced();if(view=='home')home(false);else if(view=='profile')profile(false)}
 /* 只有「資料有變更」才會上傳：與上次同步的內容比對，沒變就不送 */
 function syQueue(){if(!SY.url)return;if(hsh(snapStr())===SY.h){if(SY.pend){SY.pend=false;sySave()}if(SY.st=='pending')syUpd('ok');return}
  SY.pend=true;sySave();if(!navigator.onLine)return syUpd('offline');if(!SY.ready)return;syUpd('pending');clearTimeout(SY.tm);SY.tm=setTimeout(syPush,3000)}
 async function syPush(){if(!SY.url||!SY.ready||!SY.pend)return;if(!navigator.onLine)return syUpd('offline');if(SY.busy){SY.dirty=true;return}SY.busy=true;SY.dirty=false;syUpd('syncing');
  try{await doPush();SY.busy=false;syUpd('ok');if(SY.pend)syQueue()}catch(e){syErr(e)}}
-function syAsk(pend){return new Promise(res=>{const m=modal(`<h3>雲端資料與本機不同</h3><p>${pend?'這台裝置有尚未上傳的變更，而雲端的資料也已被更新過。':'這台裝置尚未同步過，而雲端已有學習記錄。'}要下載雲端資料取代本機，還是用本機資料覆蓋雲端？</p><div class=rt><button class=sec id=a>下載雲端資料</button><button class=pri id=b>上傳本機資料</button></div>`),c0=m.close;m.close=()=>{c0();res('cancel')};m.querySelector('#a').onclick=()=>{res('cloud');c0()};m.querySelector('#b').onclick=()=>{res('local');c0()}})}
+function syAsk1(pend){return new Promise(res=>{const m=modal(`<h3>雲端資料與本機不同</h3><p>${pend?'這台裝置有尚未上傳的變更，而雲端的資料也已被更新過。':'這台裝置尚未同步過，而雲端已有學習記錄。'}要下載雲端資料取代本機，還是用本機資料覆蓋雲端？</p><div class=rt><button class=sec id=a>下載雲端資料</button><button class=pri id=b>上傳本機資料</button></div>`),c0=m.close;m.close=()=>{c0();res('cancel')};m.querySelector('#a').onclick=()=>{res('cloud');c0()};m.querySelector('#b').onclick=()=>{res('local');c0()}})}
+function syConfirm(c){return new Promise(res=>{const m=modal(`<h3>再次確認</h3><p>${c=='cloud'?'確定要下載雲端資料，並<b>取代</b>這台裝置目前所有的題庫與學習記錄嗎？此動作無法復原。':'確定要上傳這台裝置的資料，並<b>覆蓋</b>雲端目前的內容嗎？此動作無法復原。'}</p><div class=rt><button class=sec id=a>返回</button><button class=pri id=b>確定</button></div>`),c0=m.close;m.close=()=>{c0();res(false)};m.querySelector('#a').onclick=()=>m.close();m.querySelector('#b').onclick=()=>{res(true);c0()}})}
+async function syAsk(pend){for(;;){const c=await syAsk1(pend);if(c=='cancel')return c;if(await syConfirm(c))return c}}
 /* 開啟／恢復連線／首次設定：以「下載」為主。沒有本機變更 → 直接用雲端資料；有本機變更且雲端沒被動過 → 上傳；兩邊都動過 → 詢問 */
 async function sync(manual){
  if(!SY.url){syUpd('off');if(manual)syncSet();return}
@@ -680,6 +760,7 @@ async function sync(manual){
   else{const rh=hsh(remSnap(rem));
    if(rh===hsh(snapStr()))markSynced();
    else if(SY.pend&&rh===SY.h){await doPush();msg='已上傳到 Google 文件'}
+   else if(isEmpty()){setData(rem);msg='已從雲端載入最新資料'}
    else if(SY.pend||!SY.last){const c=await syAsk(SY.pend);if(c=='cancel'){SY.busy=false;syUpd('err','已取消，尚未同步');return}if(c=='cloud'){setData(rem);msg='已從雲端載入最新資料'}else{await doPush();msg='已上傳到 Google 文件'}}
    else{setData(rem);msg='已從雲端載入最新資料'}}
   SY.ready=true;SY.busy=false;syUpd('ok');if(manual)toast(msg);if(SY.pend)syQueue()}
