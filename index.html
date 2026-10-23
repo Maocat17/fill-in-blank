@@ -2,7 +2,7 @@
 <html lang="zh-Hant"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>填空練習</title>
-<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;500;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f9f1ec;--card:#fff;--fg:#4f8084;--sub:#5b5a82;--blank:#dce8f2;--info:#fdf6dc;--line:#e6d9d0;--ok:#22c3a6;--gray:#b5b5b5;--g:#5b9bd0;--r:#e07a7a;--pri:#4f8084;--priT:#fff;--tx:#222;--star:#f0b429;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -93,7 +93,7 @@ input[type=search]::-webkit-search-cancel-button{display:none}
 .rl .w{font-size:12px;color:var(--r);margin-top:3px}.rl .w b{font-family:"Alegreya",Georgia,serif;font-size:14px}.rl .d{font-size:12px;color:var(--sub);margin-top:2px}
 .pc{text-align:right;font:600 17px system-ui;min-width:64px}.pc small{display:block;font-weight:400;font-size:11px;color:var(--sub)}
 .pm{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:0;border-radius:14px;padding:14px 16px;margin:8px 0;color:var(--tx);font-size:16px;box-shadow:0 1px 6px #0001}.pm span{flex:1}.pm svg{color:var(--fg)}
-.big{font:700 44px system-ui;color:var(--fg)}
+.big{font:700 44px "Noto Serif TC","Songti TC",serif;color:var(--fg)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .sy{margin:8px 0 10px;padding:9px 10px;border-radius:12px;background:var(--card);font-size:13px;color:var(--sub)}.sy .syt{display:flex;align-items:flex-start;gap:8px;line-height:1.5}.sy i{width:8px;height:8px;border-radius:50%;background:var(--sub);flex:none;margin-top:6px}.sy.ok i{background:#2e9d5b}.sy.err i{background:var(--r)}.sy a{color:inherit;text-decoration:underline}.sy .syb{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}.sy .syb button{padding:8px 2px;font-size:13px;white-space:nowrap;justify-content:center;min-width:0}
 
@@ -134,6 +134,17 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:2px s
 .bk .hp,.bk .hs{position:absolute;top:0;bottom:0;display:flex;align-items:center;color:var(--sub);opacity:.6;pointer-events:none;transition:opacity .15s;font-size:.85em;white-space:pre}
 .bk .hp{left:.55em}.bk .hs{right:.55em}
 .bk.typed .hp,.bk.typed .hs,.bk.ok .hp,.bk.ok .hs,.bk.bad .hp,.bk.bad .hs{opacity:0}
+.mb .rt{position:sticky;bottom:-20px;background:var(--card);padding:12px 0 0;margin-top:8px;z-index:2}
+.stn{display:flex;gap:6px;margin:0 0 10px}.stn span{flex:1;display:flex;align-items:center;gap:6px;justify-content:center;padding:6px 4px;border-radius:10px;background:var(--bg);color:var(--sub);font-size:13px;white-space:nowrap}
+.stn span b{width:18px;height:18px;border-radius:50%;background:var(--line);color:var(--fg);font:600 11px system-ui;display:flex;align-items:center;justify-content:center}
+.stn span.on{background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--fg);font-weight:600}.stn span.on b{background:var(--pri);color:var(--priT)}
+.ck:has(input:disabled){opacity:.45}
+.sh{font-size:13px;font-weight:600;color:var(--fg);margin:16px 0 2px;padding-bottom:4px;border-bottom:1px solid var(--line)}.sh:first-child{margin-top:0}
+.ktag{display:inline-block;padding:2px 12px;border-radius:999px;font-size:13px;background:color-mix(in srgb,var(--pri) 14%,transparent);color:var(--fg)}
+.info.dk{background:var(--card)}
+.bh{margin:10px 0 8px}.bhp{font-size:14px;color:var(--tx);margin-bottom:2px}.bhs{font-weight:600;color:var(--fg);font-size:14px;margin:14px 0 2px}.bhl{font-size:12px;color:var(--sub);margin:8px 0 3px}
+.bhc{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:12.5px/1.65 ui-monospace,Menlo,Consolas,"Noto Sans TC",monospace;white-space:pre-wrap;word-break:break-word;color:var(--tx)}
+.bhn{font-size:12px;color:var(--sub);line-height:1.6;margin:6px 0 0}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}.kv span{color:var(--sub)}.kv b{font-weight:600;text-align:right}
 .hint{font-size:12px;color:var(--sub);margin-top:10px}
 /* 操作說明 */
@@ -235,6 +246,8 @@ function vHint(w,mode,base){const n=w.length;if(!n)return['',''];const pre=w[0];
   else if(n>3&&/es$/.test(lw)){const full=b?lw===b+'es':/(x|ch|sh|ss|zz|o)es$/.test(lw);take=full?3:2}
   suf=w.slice(n-take)}
  if(1+suf.length>=n)suf='';return[pre,suf]}
+const DCF=()=>({zc:true,lc:true,vh:'a',vd:false,vz:true,lv:false}),mixK=d=>d.cards.some(isV)&&d.cards.some(c=>!isV(c)),
+getCf=x=>x.cf||{zc:x.zhHint!==false,lc:S.cfg.hint!==false,vh:x.vh||'a',vd:false,vz:x.zhHint!==false,lv:false};
 const ZR=/\[([^\[\]]+)\]/g,zhPlain=t=>(t||'').replace(ZR,'$1'),zhHTML=(t,on)=>on?esc(t||'').replace(ZR,'<u class=zu>$1</u>'):esc(zhPlain(t));
 const qkey=c=>norm(plain(c.en)).replace(/\s+/g,' '),dupsOf=c=>{const k=qkey(c);return k&&E?E.cards.filter(x=>x.id!==c.id&&qkey(x)==k):[]},hasB=s=>/\[[^\]]*\S[^\]]*\]/.test(s),probs=c=>{const p=[];if(!c.en.trim())p.push('未填英文句子');else if(!hasB(c.en))p.push('英文句子尚未用 [ ] 標示挖空');if(isV(c)){if(!(c.def||'').trim())p.push('未填單字解釋')}else if(!zhPlain(c.zh).trim())p.push('未填中文句子');if(dupsOf(c).length)p.push('與同題庫其他題目重複');return p},bad=c=>probs(c).length>0;
 function parse(en){const T=[];en.split(/(\[[^\]]*\])/).forEach((p,i)=>{
@@ -263,7 +276,7 @@ function newDeck(){const B2=(t,ic,ti,de)=>`<button class=pm data-t=${t}>${I(ic,2
 function kindMenu(cb){const m=modal(`<h3>新增哪一種題目？</h3><button class=pm data-t=c>${I('edit',22)}<span>搭配詞題</span>${I('right',18)}</button><button class=pm data-t=v>${I('book',22)}<span>單字題</span>${I('right',18)}</button><div class=rt><button class=sec id=c>取消</button></div>`);
  m.querySelector('#c').onclick=()=>m.close();m.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{m.close();cb(b.dataset.t)})}
 function home(enter=true){view='home';P=null;if(SY.again){SY.again=false;setTimeout(sync,0)}if(S.decks.length<=3)HQ='';
- setView(`<div class=wrap><div class=top><div class="row fit"><button class=sec data-act=new>${I('plus',16)}<span class=bt>題庫</span></button><button class=sec data-act=nf>${I('folder',16)}<span class=bt>資料夾</span></button><button class=sec data-act=io>${I('swap',16)}<span class=bt>匯入／匯出</span></button><span class=grow></span>${B('prof','user')}<i class=sd id=sd></i>${B('cfg','gear')}</div>
+ setView(`<div class=wrap><div class=top><div class="row fit"><button class=sec data-act=new>${I('plus',16)}<span class=bt>題庫</span></button><button class=sec data-act=nf>${I('folder',16)}<span class=bt>資料夾</span></button><button class=sec data-act=io>${I('swap',16)}<span class=bt>匯入／匯出</span></button><span class=grow></span>${B('prof','user')}<i class=sd id=sd></i></div>
  <button class=sec data-act=multi style="width:100%;justify-content:center;margin-top:8px;padding:10px 14px">${I('list',16)}多題庫練習</button>
  ${S.decks.length>3?`<input class=ti id=hq type=search placeholder="搜尋題庫" ${NOSUG} value="${esc(HQ)}" style="margin-top:8px">`:''}</div><div id=hl></div></div>`,enter);syUpd();renderHL()}
 function hlUpdate(mut){const el=$('#hl');if(!el||view!='home'){mut();return}if((S.decks.length>3)!=!!$('#hq')){mut();home(false);return}flip(el,()=>{mut();renderHL()})}
@@ -278,33 +291,46 @@ function dmore(id){const d=S.decks.find(x=>x.id==id),L=(n,t)=>I(n,18)+t;menu(esc
 function fmore(id){const f=S.folders.find(x=>x.id==id),i=S.folders.indexOf(f),L=(n,t)=>I(n,18)+t;menu(esc(f.name),[[L('edit','重新命名'),()=>ask('資料夾名稱',f.name,v=>hlUpdate(()=>{f.name=v;save()}))],
  [L('up','上移'),()=>hlUpdate(()=>{swap(S.folders,i,-1);save()})],[L('down','下移'),()=>hlUpdate(()=>{swap(S.folders,i,1);save()})],
  [L('trash','刪除資料夾（題庫移到外面）'),()=>yes('刪除資料夾？裡面的題庫會保留。',()=>hlUpdate(()=>{S.decks.forEach(d=>{if(d.folder==id)d.folder=null});S.folders.splice(i,1);save()}))]])}
-function cfg(){const T=[['auto','自動',''],['light','淺色','sun'],['dark','深色','moon']];
- const m=modal(`<h3>設定</h3><div class=set><span>外觀</span><div class=seg>${T.map(t=>`<button data-t=${t[0]} class="${S.cfg.theme==t[0]?'on':''}">${t[2]?I(t[2],15):''}${t[1]}</button>`).join('')}</div></div>
- <div class=set><span>格子長度提示</span><input type=checkbox id=c2 ${S.cfg.hint?'checked':''}></div><div class=rt><button class=pri id=ok>完成</button></div>`);
- m.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{S.cfg.theme=b.dataset.t;applyTheme();save();m.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x==b))});
- m.querySelector('#ok').onclick=()=>{S.cfg.hint=m.querySelector('#c2').checked;save();m.close()}}
 /* ===== 練習 ===== */
 function start(id){const d=S.decks.find(x=>x.id==id);if(!d||!d.cards.length)return toast('這個題庫沒有題目');startFlow(d)}
 /* 有未完成的練習 → 詢問接續或重新開始 */
+function cfRows(d,cf){const hc=d.cards.some(c=>!isV(c)),hv=d.cards.some(isV),b=hc&&hv,oo=x=>x?'開啟':'關閉',r=[];
+ if(hc){const p=b?'搭配詞・':'';r.push([p+'填空提示',oo(cf.zc)],[p+'格子長度提示',oo(cf.lc)])}
+ if(hv){const p=b?'單字・':'';r.push([p+'單字提示',VHL[cf.vh]||''],[p+'填空提示（單字解釋）',oo(cf.vd)],[p+'句子翻譯標註',oo(cf.vz)],[p+'格子長度提示',oo(cf.lv)])}
+ return r}
 function startFlow(d,prA){const s=S.sess[d.id];if(!s)return startDlg(d,prA);
  const ok=new Set(d.cards.map(c=>c.id)),ids=(s.ids||[]).filter(i=>ok.has(i));if(!ids.length){delete S.sess[d.id];save();return startDlg(d,prA)}
  const pr=prA||S.prog[d.id]||{},t=ids.length*s.reps,dn=ids.reduce((a,i)=>a+Math.min(pr[i]||0,s.reps),0),p=t?Math.floor(dn/t*100):0,lr=ids.filter(i=>(pr[i]||0)>=s.reps).length,
  MD={all:'所有題目',star:'僅標註星號的題目',unstar:'僅未標註星號的題目'};
  const m=modal(`<h3>有未完成的練習</h3><div style="font-size:13px;color:var(--sub);margin-bottom:8px">上次練習：${new Date(s.ts).toLocaleString()}</div>
  <div class=kv><span>完成度</span><b>${p}%</b></div><div class=pgb style="margin:4px 0 6px"><i style="width:${p}%"></i></div>
- <div class=kv><span>已學會題數</span><b>${lr} / ${ids.length}</b></div><div class=kv><span>練習範圍</span><b>${MD[s.md]||MD.all}</b></div><div class=kv><span>打亂順序</span><b>${s.shuf?'是':'否'}</b></div><div class=kv><span>每題需答對次數</span><b>${s.reps} 次</b></div><div class=kv ${d.cards.some(isV)?'':'style="border:0"'}><span>填空提示</span><b>${s.zhHint===false?'關閉':'開啟'}</b></div>${d.cards.some(isV)?`<div class=kv style="border:0"><span>單字提示</span><b>${VHL[s.vh||'a']}</b></div>`:''}
+ <div class=kv><span>已學會題數</span><b>${lr} / ${ids.length}</b></div><div class=kv><span>練習範圍</span><b>${MD[s.md]||MD.all}</b></div><div class=kv><span>打亂順序</span><b>${s.shuf?'是':'否'}</b></div><div class=kv><span>每題需答對次數</span><b>${s.reps} 次</b></div>${cfRows(d,getCf(s)).map((r,i,a)=>`<div class=kv ${i==a.length-1?'style="border:0"':''}><span>${r[0]}</span><b>${r[1]}</b></div>`).join('')}
  <div class=rt><button class=sec id=c>取消</button><button class=sec id=n>重新開始</button><button class=pri id=r>接續上次</button></div>`);
  m.querySelector('#c').onclick=()=>m.close();
  m.querySelector('#r').onclick=()=>{m.close();resume(d,prA)};
  m.querySelector('#n').onclick=()=>{m.close();startDlg(d,prA,true)}}
-function startDlg(d,prA,reset){const hs=d.cards.some(c=>c.star),hv=d.cards.some(isV);
- const m=modal(`<h3>${reset?'重新開始':'開始練習'}</h3>${reset?'<p style="font-size:13px;color:var(--sub);margin:0 0 6px">重新開始會清除這個範圍目前的學習進度。</p>':''}${hs?`<label>練習範圍</label><label class=ck><input type=radio name=md value=all checked>練習所有題目</label><label class=ck><input type=radio name=md value=star>僅練習標註星號題目</label><label class=ck><input type=radio name=md value=unstar>僅練習未標註星號題目</label>`:''}
- ${hv?`<label>單字提示（單字題的格子）</label><label class=ck><input type=radio name=vh value=a checked>字首＋字尾（完整提示）</label><label class=ck><input type=radio name=vh value=b>字首＋字尾（一字提示）</label><label class=ck><input type=radio name=vh value=c>僅提示字首</label>`:''}
- <div class=set><span>打亂順序</span><input type=checkbox id=c1></div><div class=set><span>填空提示<small style="display:block;font-size:12px;color:var(--sub)">中文句子裡 [ ] 框住的詞會加底線</small></span><input type=checkbox id=c4 checked></div><div class=set><span>每題需答對次數</span><span id=c3 style="width:84px"></span></div>
- <div class=rt><button class=sec id=c>取消</button><button class=pri id=o>開始</button></div>`);
+function startDlg(d,prA,reset){const hs=d.cards.some(c=>c.star),hv=d.cards.some(isV),hc=d.cards.some(c=>!isV(c)),both=hv&&hc;
+ const sw=(id,t,sub,on)=>`<div class=set><span>${t}${sub?`<small style="display:block;font-size:12px;color:var(--sub);margin-top:2px">${sub}</small>`:''}</span><input type=checkbox id=${id} ${on?'checked':''}></div>`,
+ rd=(n,items)=>items.map((x,i)=>`<label class=ck><input type=radio name=${n} value=${x[0]} ${i?'':'checked'}>${x[1]}</label>`).join(''),
+ sec=t=>both?`<div class=sh>${t}</div>`:'',
+ cnt={all:d.cards.length,star:d.cards.filter(c=>c.star).length},
+ RANGE=(cnt.unstar=cnt.all-cnt.star,`<label>練習範圍</label>${[['all','練習所有題目'],['star','僅練習標註星號題目'],['unstar','僅練習未標註星號題目']].map((x,i)=>`<label class=ck><input type=radio name=md value=${x[0]} ${i?'':'checked'} ${cnt[x[0]]?'':'disabled'}>${x[1]}<small style="color:var(--sub);margin-left:auto">${cnt[x[0]]} 題</small></label>`).join('')}`),
+ SHUF=sw('c1','打亂順序','',false),REPS='<div class=set><span>每題需答對次數</span><span id=c3 style="width:84px"></span></div>',
+ ZC=sw('zc','填空提示','中文句子裡 [ ] 框住的詞會加底線',true),LC=sw('lc','格子長度提示','開啟：格子寬度對應答案長度；關閉：一律 6 個字母寬',true),
+ VH=`<label style="margin-top:10px">單字提示（單字題的格子）</label>${rd('vh',[['a','字首＋字尾（完整提示）'],['b','字首＋字尾（一字提示）'],['c','僅提示字首']])}`,
+ VD=sw('vd','填空提示（顯示單字解釋）','練習時直接顯示單字解釋',false),VZ=sw('vz','句子翻譯標註單字解釋','顯示答案時，句子翻譯中 [ ] 框住的詞會加底線',true),LV=sw('lv','格子長度提示','開啟：格子寬度對應答案長度；關閉：一律 6 個字母寬',false);
+ const stp=(n,h)=>`<div class=stp data-s=${n} style="${n==1?'':'display:none'}">${h}</div>`,
+ nav=`<div class=stn>${['通用','搭配詞題','單字題'].map((t,i)=>`<span data-i=${i+1}><b>${i+1}</b>${t}</span>`).join('')}</div>`;
+ const body=both?`${nav}${stp(1,RANGE+SHUF+REPS)}${stp(2,ZC+LC)}${stp(3,VH+VD+VZ+LV)}`
+  :hv?`${RANGE}${SHUF}${VH}${VD}${VZ}${REPS}${LV}`:`${RANGE}${SHUF}${ZC}${REPS}${LC}`;
+ const m=modal(`<h3>${reset?'重新開始':'開始練習'}</h3>${reset?'<p style="font-size:13px;color:var(--sub);margin:0 0 6px">重新開始會清除這個範圍目前的學習進度。</p>':''}${body}
+ ${both?'<div class=rt><button class=sec id=c>取消</button><button class=sec id=pv>上一步</button><button class=pri id=nx>下一步</button><button class=pri id=o>開始</button></div>':'<div class=rt><button class=sec id=c>取消</button><button class=pri id=o>開始</button></div>'}`);
  m.querySelector('#c').onclick=()=>m.close();
  mkSel(m.querySelector('#c3'),Array.from({length:10},(_,i)=>[i+1,i+1]),2);
- m.querySelector('#o').onclick=()=>{const md=hs?m.querySelector('input[name=md]:checked').value:'all';begin(d,md,m.querySelector('#c1').checked,+m.querySelector('#c3').value,m.querySelector('#c4').checked,hv?m.querySelector('input[name=vh]:checked').value:'a',m,prA,reset)}}
+ const g=id=>m.querySelector('#'+id),on=(id,df)=>g(id)?g(id).checked:df,rv=(n,df)=>{const e=m.querySelector(`input[name=${n}]:checked`);return e?e.value:df};
+ if(both){let st=1;const go=n=>{st=n;m.querySelectorAll('.stp').forEach(e=>e.style.display=+e.dataset.s==n?'':'none');m.querySelectorAll('.stn span').forEach(e=>e.classList.toggle('on',+e.dataset.i==n));g('pv').style.display=n>1?'':'none';g('nx').style.display=n<3?'':'none';g('o').style.display=n==3?'':'none';m.scrollTop=0};
+  g('nx').onclick=()=>go(st+1);g('pv').onclick=()=>go(st-1);go(1)}
+ m.querySelector('#o').onclick=()=>begin(d,{md:rv('md','all'),shuf:g('c1').checked,reps:+g('c3').value,cf:{zc:on('zc',true),lc:on('lc',true),vh:rv('vh','a'),vd:on('vd',false),vz:on('vz',true),lv:on('lv',false)}},m,prA,reset)}
 /* ===== 出題排程 =====
  每 5 題一組：依序出新題 → 複習這組之前尚未達標的題目 → 下一組。全部新題出完後再做一次錯題複習，進入下一輪。
  第 r 輪的目標是每題累積 r 次答對；上一輪沒達標的題目不進入主序列，而是「每隔一題」插入，直到補到本輪目標。
@@ -321,33 +347,34 @@ function qFill(Q){for(let g=0;g<500;g++){
 function qNext(Q){for(let g=0;g<500;g++){if(!Q.q.length&&!qFill(Q))return null;const x=Q.q.shift();if(x!=='*')return x;
  const L=Q.bh.filter(id=>qc(id)<Q.r);if(!L.length)continue;return L[(Q.bp++)%L.length]}return null}
 /* 進度快照：每答完一題存一次（尚未抽下一題的狀態），重開時可接續 */
-function sessSave(){if(!P||P.rand||!P.Q)return;S.sess[P.d.id]=JSON.parse(JSON.stringify({Q:P.Q,md:P.md,shuf:P.shuf,zhHint:P.zhHint!==false,vh:P.vh||'a',reps:P.reps,ids:P.ids,repId:P.rep?P.rep.id:null,ts:Date.now()}))}
-function begin(d,md,shuf,reps,zh,vh,m,prA,reset){const sel=d.cards.filter(c=>md=='all'||(md=='star')==!!c.star);if(!sel.length)return toast('這個範圍沒有題目');m.close();
+function sessSave(){if(!P||P.rand||!P.Q)return;S.sess[P.d.id]=JSON.parse(JSON.stringify({Q:P.Q,md:P.md,shuf:P.shuf,cf:P.cf,reps:P.reps,ids:P.ids,repId:P.rep?P.rep.id:null,ts:Date.now()}))}
+function begin(d,opt,m,prA,reset){const{md,shuf,reps}=opt;const sel=d.cards.filter(c=>md=='all'||(md=='star')==!!c.star);if(!sel.length)return toast('這個範圍沒有題目');m.close();
  const pr=prA||S.prog[d.id]||(S.prog[d.id]={});(d.parts||[d]).forEach(x=>S.reps[x.id]=reps);
  const old=S.sess[d.id];if(old){const r=S.reports.find(x=>x.id==old.repId);if(r)r.abandoned=true;delete S.sess[d.id]}
  if(reset||sel.every(c=>(pr[c.id]||0)>=reps)){sel.forEach(c=>delete pr[c.id]);if(!reset)toast('這個範圍已全部學會，重新開始')}
  const o=sel.filter(c=>(pr[c.id]||0)<reps).map(c=>c.id);
  if(shuf)for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}
- P={d,pr,reps,shuf,md,zhHint:zh,vh,ids:sel.map(c=>c.id),stats:{},rep:null,Q:qInit(o,reps)};sessSave();save();nextCard()}
+ P={d,pr,reps,shuf,md,cf:opt.cf,ids:sel.map(c=>c.id),stats:{},rep:null,Q:qInit(o,reps)};sessSave();save();nextCard()}
 function resume(d,prA){const s=S.sess[d.id];if(!s)return;
  const ok=new Set(d.cards.map(c=>c.id)),f=a=>a.filter(x=>x==='*'||ok.has(x)),Q=JSON.parse(JSON.stringify(s.Q));['order','mq','bh','seen','q'].forEach(k=>Q[k]=f(Q[k]));
  const ids=s.ids.filter(x=>ok.has(x));if(!ids.length){delete S.sess[d.id];save();return toast('這個題庫沒有題目')}
  const pr=prA||S.prog[d.id]||(S.prog[d.id]={});(d.parts||[d]).forEach(x=>S.reps[x.id]=s.reps);
- const rep=S.reports.find(r=>r.id==s.repId)||null;P={d,pr,reps:s.reps,shuf:s.shuf,md:s.md,zhHint:s.zhHint!==false,vh:s.vh||'a',ids,stats:{},rep,Q};
+ const rep=S.reports.find(r=>r.id==s.repId)||null;P={d,pr,reps:s.reps,shuf:s.shuf,md:s.md,cf:getCf(s),ids,stats:{},rep,Q};
  if(rep)rep.items.forEach(i=>P.stats[i.cid]={att:i.att,wrong:i.wrong,bw:{...(i.bw||{})}});nextCard()}
 const dots=(g,n,p)=>`<div class=dots>`+Array.from({length:n},(_,i)=>`<span class="dot ${i<g?'on':''} ${i==p?'pop':''}">${I('check',12)}</span>`).join('')+`</div>`;
 const pct=()=>{const t=P.ids.length*P.reps,d=P.ids.reduce((s,i)=>s+Math.min(P.pr[i]||0,P.reps),0);return t?Math.floor(d/t*100):0};
 const starBtn=c=>`<button class="ic st sbtn ${c.star?'on':''}" data-act=pstar>${I('star',24)}</button>`;
 function nextCard(){const id=qNext(P.Q);if(!id)return finish();view='practice';P.id=id;const c=P.d.cards.find(x=>x.id==id);
  setView(`<div class=wrap><div class=row>${B('home','back')}<h3 class=lt>${esc(P.d.title)}</h3></div>
- <div class=card>${starBtn(c)}<div class=en id=en></div>${isV(c)?'<div class=zh id=zh style="display:none"></div>':`<div class=zh>${zhHTML(c.zh,P.zhHint!==false)}</div>`}</div>
+ ${mixK(P.d)?`<div style="margin:2px 4px 8px"><span class=ktag>${isV(c)?'單字題':'搭配詞題'}</span></div>`:''}<div class=card>${starBtn(c)}<div class=en id=en></div>${isV(c)?'<div class=zh id=zh style="display:none"></div>':`<div class=zh>${zhHTML(c.zh,P.cf.zc)}</div>`}</div>${isV(c)&&P.cf.vd&&c.def?`<div class="info dk"><div class=p>${esc(c.def)}</div></div>`:''}
  <div class=row2><div class=pg><div class=pgb><i id=pgi style="width:${pct()}%"></i></div><b id=pgt>${pct()}%</b></div><span id=dots>${dots(P.pr[id]||0,P.reps,-1)}</span></div>
  <div id=info></div><div id=act><button class=sec data-act=show>看答案</button><button class=pri data-act=chk>檢查</button></div></div>`,true);buildQ(c,true)}
 const cvx=document.createElement('canvas').getContext('2d');
-function buildQ(c,focus){P.taint=false;P.fin=false;P.id=c.id;const en=$('#en');en.innerHTML='';const V=isV(c),vm=P.vh||'a';
+function buildQ(c,focus){P.taint=false;P.fin=false;P.id=c.id;const en=$('#en');en.innerHTML='';const V=isV(c),vm=P.cf.vh;
  parse(c.en).forEach(k=>{if(k.t=='t')return en.append(document.createTextNode(k.s));
-  const w=document.createElement('span');w.className='bk';w.style.width=V?'calc(10ch + 1.6em)':`calc(${S.cfg.hint?k.a.length:5}ch + 1.4em)`;
-  const[hp,hs]=V?vHint(k.a,vm,c.base):['',''];
+  const w=document.createElement('span');w.className='bk';
+  const[hp,hs]=V?vHint(k.a,vm,c.base):['',''],ln=V?P.cf.lv:P.cf.lc,hl=hp.length+hs.length;
+  w.style.width=`calc(${ln?Math.max(k.a.length,V?hl+1:0):Math.max(6,V?hl+2:0)}ch + 1.4em)`;
   w.innerHTML=`<input type=text inputmode=text ${NOSUG} name="f${uid()}">${V?`<span class=hp>${esc(hp)}</span><span class=hs>${esc(hs)}</span>`:''}<span class=ov></span>`;en.append(w);w._a=k.a;
   const inp=w.firstChild,ov=w.lastChild,nxt=()=>{const all=[...app.querySelectorAll('.bk')],i=all.indexOf(w),nx=all.slice(i+1).find(b=>!b.classList.contains('ok'));nx?nx.firstChild.focus():checkAll()};
   /* 輸入的字比預設寬度長時，格子跟著變長；刪除時跟著變短，最短回到預設寬度 */
@@ -360,7 +387,7 @@ function buildQ(c,focus){P.taint=false;P.fin=false;P.id=c.id;const en=$('#en');e
   inp.addEventListener('focus',()=>setTimeout(sel,0));inp.addEventListener('pointerup',()=>setTimeout(sel,0))});
  en.querySelectorAll('.bk').forEach(w=>w._w0=w.offsetWidth);
  if(focus){const f=app.querySelector('.bk input');if(f)f.focus()}}
-function revealZh(c){const z=$('#zh');if(z&&isV(c)&&zhPlain(c.zh).trim()){z.innerHTML=zhHTML(c.zh,P.rand||P.zhHint!==false);z.style.display=''}}
+function revealZh(c){const z=$('#zh');if(z&&isV(c)&&zhPlain(c.zh).trim()){z.innerHTML=zhHTML(c.zh,P.rand||P.cf.vz);z.style.display=''}}
 const stat=()=>P.stats[P.id]||(P.stats[P.id]={att:0,wrong:0,bw:{}});
 function checkAll(){if(P.fin)return;const bs=[...app.querySelectorAll('.bk:not(.ok)')],e=bs.find(b=>!b.firstChild.value.trim());if(e){e.firstChild.focus();return}
  let bd=null;bs.forEach(w=>{const inp=w.firstChild,v=inp.value.trim(),a=w._a;
@@ -371,13 +398,13 @@ function showAns(){if(P.fin)return;P.taint=true;revealZh(P.d.cards.find(x=>x.id=
 function complete(){P.fin=true;revealZh(P.d.cards.find(x=>x.id==P.id)||{});document.activeElement&&document.activeElement.blur();const c=P.d.cards.find(x=>x.id==P.id),s=stat();let p=-1;
  s.att++;if(P.taint)s.wrong++;S.total++;const k=S.cs[P.id]||(S.cs[P.id]={att:0,wrong:0});k.att++;if(P.taint)k.wrong++;
  if(!P.rand){if(!P.taint){p=P.pr[P.id]||0;P.pr[P.id]=p+1}
-  if(!P.rep){P.rep={id:uid(),deckId:P.d.id,deckTitle:P.d.title,time:Date.now(),reps:P.reps,shuffle:P.shuf,mode:P.md,zhHint:P.zhHint!==false,vh:P.d.cards.some(isV)?(P.vh||'a'):undefined,deckType:P.d.type||'col',items:[],pct:0,fin:false};S.reports.push(P.rep);if(S.reports.length>80)S.reports.shift()}
+  if(!P.rep){P.rep={id:uid(),deckId:P.d.id,deckTitle:P.d.title,time:Date.now(),reps:P.reps,shuffle:P.shuf,mode:P.md,cf:P.cf,kinds:(P.d.cards.some(c=>!isV(c))?'c':'')+(P.d.cards.some(isV)?'v':''),zhHint:P.d.cards.some(c=>!isV(c))?P.cf.zc:P.cf.vz,deckType:P.d.type||'col',items:[],pct:0,fin:false};S.reports.push(P.rep);if(S.reports.length>80)S.reports.shift()}
   P.rep.items=Object.keys(P.stats).filter(i=>P.stats[i].att).map(i=>({cid:i,en:(findCard(i)||{c:{en:''}}).c.en,...P.stats[i]}));P.rep.pct=pct();
   sessSave();
   $('#dots').innerHTML=dots(P.pr[P.id]||0,P.reps,p);$('#pgi').style.width=pct()+'%';$('#pgt').textContent=pct()+'%'}
  save();const tt=$('#tot');if(tt)tt.textContent=S.total;
  const pi=(c.phrase||c.phraseZh)?`<div class=info>${c.phrase?`<div class=p>${esc(c.phrase)}</div>`:''}${c.phraseZh?`<div class=s>${esc(c.phraseZh)}</div>`:''}</div>`:'';
-  $('#info').innerHTML=(isV(c)&&c.def?`<div class=info><div class=p>${esc(c.def)}</div></div>`:'')+pi+(c.note?`<div class=info><div class=s>${I('note',16)}<span>${esc(c.note)}</span></div></div>`:'');
+  $('#info').innerHTML=(isV(c)&&c.def&&!P.cf.vd?`<div class=info><div class=p>${esc(c.def)}</div></div>`:'')+pi+(c.note?`<div class=info><div class=s>${I('note',16)}<span>${esc(c.note)}</span></div></div>`:'');
  $('#act').innerHTML=P.rand?`<button class=pri data-act=rnext>下一題</button>`:`<button class=pri data-act=next>繼續${I('right',16)}</button>`}
 document.addEventListener('keydown',e=>{if(e.key=='Enter'&&(view=='practice'||view=='profile')&&P&&P.fin&&!/INPUT|BUTTON/.test(e.target.tagName)){e.preventDefault();P.rand?profile(false):nextCard()}});
 /* ===== 報告 ===== */
@@ -393,7 +420,12 @@ function deckRpt(id){const d=S.decks.find(x=>x.id==id);if(!d)return;view='drpt';
 function finish(){delete S.sess[P.d.id];const r=P.rep;if(r){r.fin=true;r.pct=100;save();showReport(r,true,home)}else{save();home()}}
 function rrHTML(x,att){const a=x.att,p=a?Math.round((a-x.wrong)/a*100):0,col=!a?'var(--sub)':p<=50?'var(--r)':p<100?'#e8a33d':'var(--ok)',c=x.card,bw=Object.entries(x.bw||{}).sort((u,v)=>v[1]-u[1])[0];
  return `<div class=rr style="--w:${p}%;--c:${col}" ${x.act||''}><div class=fill></div><div class=rl><div class=t>${boldEn(c?c.en:x.en)}</div>${bw&&x.wrong?`<div class=w>最常答錯：<b>${esc(bw[0])}</b>（${bw[1]} 次）</div>`:''}${x.deck?`<div class=d>${esc(x.deck)}</div>`:''}</div><div class=pc style="color:${col}">${a?`${p}%<small>對 ${a-x.wrong}/${a} 次</small>`:'—<small>尚未練習</small>'}</div>${c&&x.did?`<button class="ic st ${c.star?'on':''}" data-act=rstar data-d=${x.did} data-c=${c.id}>${I('star',24)}</button>`:'<span style="width:40px"></span>'}</div>`}
-const MDL={all:'所有題目',star:'僅星號題目',unstar:'僅未星號題目'},setTxt=r=>[MDL[r.mode]||'',r.shuffle?'打亂順序':'依序出題',r.reps?`每題答對 ${r.reps} 次`:'',r.zhHint===undefined?'':r.zhHint?'填空提示：開':'填空提示：關',r.vh?'單字提示：'+(VHL[r.vh]||''):''].filter(Boolean).join('・');
+const MDL={all:'所有題目',star:'僅星號題目',unstar:'僅未星號題目'},setTxt=r=>{const a=[MDL[r.mode]||'',r.shuffle?'打亂順序':'依序出題',r.reps?`每題答對 ${r.reps} 次`:''].filter(Boolean).join('・'),oo=b=>b?'開':'關';
+ if(r.cf){const k=r.kinds||'c',hc=k.includes('c'),hv=k.includes('v'),b=hc&&hv,o=r.cf,L=[a];
+  if(hc)L.push((b?'搭配詞題：':'')+`填空提示${oo(o.zc)}・格子長度提示${oo(o.lc)}`);
+  if(hv)L.push((b?'單字題：':'')+`${VHL[o.vh]||''}・顯示單字解釋${oo(o.vd)}・句子翻譯標註${oo(o.vz)}・格子長度提示${oo(o.lv)}`);
+  return L.join('<br>')}
+ return [a,r.zhHint===undefined?'':r.zhHint?'填空提示：開':'填空提示：關',r.vh?'單字提示：'+(VHL[r.vh]||''):''].filter(Boolean).join('・')};
 function showReport(r,fresh,back){view='report';RB=back||home;const d=S.decks.find(x=>x.id==r.deckId),
  it=r.items.filter(x=>x.att).sort((a,b)=>b.wrong/b.att-a.wrong/a.att||b.wrong-a.wrong||b.att-a.att),A=it.reduce((s,x)=>s+x.att,0),W=it.reduce((s,x)=>s+x.wrong,0);
  setView(`<div class=wrap><div class=top><div class=row>${B('rback','back')}<h3 class=lt>${fresh?'練習完成・':''}練習報告${r.fin===false?'（未完成 '+r.pct+'%）':''}</h3></div></div>
@@ -405,9 +437,10 @@ function profile(enter=true){view='profile';P=null;const all=S.decks.flatMap(d=>
  const PM=(a,n,t)=>`<button class=pm data-act=${a}>${I(n,22)}<span>${t}</span>${I('right',18)}</button>`;
  setView(`<div class=wrap><div class=top><div class=row>${B('home','back')}<h3 class=lt>個人檔案</h3></div></div>
  <div class=card style="text-align:center;padding:20px"><div class=big id=tot>${S.total}</div><div class=zh style="margin-top:2px">已練習題數</div></div><div id=sy style="margin-top:14px"></div>
+  <div class=card style="margin-top:14px;padding:4px 16px"><div class=set style="border:0"><span>外觀</span><div class=seg>${[['auto','自動',''],['light','淺色','sun'],['dark','深色','moon']].map(t=>`<button data-act=theme data-t=${t[0]} class="${S.cfg.theme==t[0]?'on':''}">${t[2]?I(t[2],15):''}${t[1]}</button>`).join('')}</div></div></div>
  <div style="margin-top:18px">${PM('orec','list','檢視所有練習紀錄')}${PM('oerr','xc','檢視所有錯題')}${PM('ostar','star','檢視所有星號題目')}${PM('io','swap','匯出／匯入學習紀錄')}${PM('help','book','操作說明')}</div>
  <div>${pk?`<label style="margin-top:22px">隨機練習一題</label><div class=card>${starBtn(pk.c)}<div class=en id=en></div>${isV(pk.c)?'<div class=zh id=zh style="display:none"></div>':`<div class=zh>${zhHTML(pk.c.zh,true)}</div>`}</div><div class=row2><span></span></div><div id=info></div><div id=act><button class=sec data-act=show>看答案</button><button class=pri data-act=chk>檢查</button></div>`:''}</div></div>`,enter);
- syUpd();if(pk){P={rand:true,d:pk.d,pr:{},reps:1,vh:'a',stats:{},ids:[],q:[]};buildQ(pk.c,false)}}
+ syUpd();if(pk){P={rand:true,d:pk.d,pr:{},reps:1,cf:DCF(),stats:{},ids:[],q:[]};buildQ(pk.c,false)}}
 function records(){view='records';const L=[...S.reports].reverse();
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有練習紀錄</h3></div></div><div>${L.map(r=>{const p=r.pct??100,f=r.fin!==false;
   return `<div class=rr style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=orep data-id=${r.id}><div class=fill></div><div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(r.deckTitle)}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題${r.zhHint===undefined?'':r.zhHint?'・提示開':'・提示關'}</div></div><div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div><span style="width:14px"></span></div>`}).join('')||'<div class=center>還沒有練習紀錄</div>'}</div></div>`,true)}
@@ -496,14 +529,18 @@ function rowHTML(c,i,isNew){const V=isV(c);
  <div class=eb><div class=ebi>${body}
  <label>筆記（選填）</label><textarea rows=1 data-k=note>${esc(c.note)}</textarea><div class=warn>${flag(c)?WARN(c):''}</div></div></div></div>`}
 const BH_C='The loud music ______ the whole family ______ all night.（鄰居派對太吵，[讓]這家人整夜[睡不著]。）｜答案：kept awake（keep... awake 讓……睡不著）',BH_V='Kiwi birds are [unique] to New Zealand. Nowhere else you can find them.（奇異鳥[為]紐西蘭[所獨有]，其他地方都找不到。）｜unique (adj.) 獨有的｜be unique to + 地方（為某地方所獨有）';
-const bulkHelp=()=>{const t=E.type||'col';return t=='col'?'每行一題，可直接貼原始文本，例如：'+BH_C:t=='vocab'?'每行一題，用「｜」分成：英文句子（中文）｜單字 (詞性) 解釋｜搭配詞（翻譯）。例如：'+BH_V:'每行一題，搭配詞題與單字題格式都能辨識。搭配詞題例如：'+BH_C+'；單字題例如：'+BH_V}
+const bhBlock=(t,fmt,ex,note)=>`${t?`<div class=bhs>${t}</div>`:''}<div class=bhl>格式</div><pre class=bhc>${esc(fmt)}</pre><div class=bhl>範例</div><pre class=bhc>${esc(ex)}</pre><div class=bhn>${note}</div>`;
+const bulkHelp=()=>{const t=E.type||'col',mx=t=='mix',
+ C=bhBlock(mx?'搭配詞題':'','英文句子（挖空處寫 ______）（中文句子）｜答案：字1 字2（片語 翻譯）',BH_C,'每個 ______ 對應一個單字，答案依序以空格分開；片語與翻譯可省略。'),
+ V=bhBlock(mx?'單字題':'','英文句子（中文句子）｜單字 (詞性) 解釋｜搭配詞（翻譯）',BH_V,'句子翻譯與搭配詞可省略；句子沒有 [ ] 時，會依單字原形自動找出要考的字。');
+ return `<div class=bh><div class=bhp>${mx?'每行貼上一題，搭配詞題與單字題格式都能辨識。':'每行貼上一題，系統會自動判定各欄位。'}按「判定並加入」即可。</div><details class=bhd><summary class=sm style="font-size:14px;color:var(--sub);margin-top:6px"><span class=tri>${I('right',16)}</span><span>格式說明與範例</span></summary>${t=='col'?C:t=='vocab'?V:C+V}</details></div>`}
 function drawEdit(newIds=[],enter){view='edit';E.sel=null;
  setView(`<div class=wrap><div class=top><div class="row tb1 fit">${B('back','back')}<span class=grow></span><button class=sec data-act=add>${I('plus',16)}<span class=bt>新增</span></button><button class=sec data-act=selb>${I('select',16)}<span class=bt>選取</span></button><button class=sec data-act=mix>${I('mix',16)}<span class=bt>混編</span></button><button class=pri data-act=saveDeck>儲存</button></div>
  <div class="row tb2"><span id=sc style="color:var(--fg)">已選 0 項</span><span class=grow></span><button class=sec data-act=sall>全選</button><button class=sec data-act=sdel style="color:var(--r)">${I('trash',16)}刪除</button><button class=sec data-act=scan>取消</button></div></div>
  <input class=ti id=ti type=text placeholder="題庫標題" value="${esc(E.title)}"><div style="font-size:12px;color:var(--sub);margin:6px 4px 0">題庫類型：${TL[E.type||'col']}</div>
  <details class=bulk><summary class=sm><span class=tri>${I('right',16)}</span>${I('spark',16)}<span>自動生成題庫</span></summary>
- <label>${bulkHelp()}</label>
- <textarea id=bulk rows=5 ${NOSUG}></textarea>
+ ${bulkHelp()}
+ <textarea id=bulk rows=5 ${NOSUG} placeholder="在這裡貼上要整理的題目，每行一題"></textarea>
  <div class=row style="margin:8px 0 0"><button class=pri data-act=local>${I('spark',16)}判定並加入</button></div><div id=st></div></details>
  <div id=emp class=center style="padding:30px 0;${E.cards.length?'display:none':''}">還沒有題目，按「新增」開始，或使用自動生成、混編。</div>
  <div id=list>${E.cards.map((c,i)=>rowHTML(c,i,newIds.includes(c.id))).join('')}</div></div>`,enter)}
@@ -658,7 +695,7 @@ const GD=[
 ['h','整理與管理'],
 ['s',[['首頁題庫卡片右上角的「⋯」：上移、下移、移到資料夾、重置學習進度、刪除題庫、查看過往練習報告。'],['首頁「資料夾」可建立資料夾，把題庫分類收納。'],['題庫超過 3 個時，首頁會出現「搜尋題庫」欄。'],['編輯頁要一次刪除多題：按「選取」（或長按任一題），勾選後按「刪除」。']]]]},
 {t:'如何新增單字題庫',ic:'book',d:'單字填空題：欄位說明、自動判定格式、三種提示、混搭題庫',b:[
-['p','單字題庫用來練習「單一個單字」的填空。和搭配詞題庫不同的地方：作答時不會顯示句子翻譯，所有格子的預設寬度都一樣，格子的最前端和最後端會有該單字的字首、字尾提示。'],
+['p','單字題庫用來練習「單一個單字」的填空。和搭配詞題庫不同的地方：作答時不會顯示句子翻譯，格子的最前端和最後端會有該單字的字首、字尾提示（格子寬度預設 6 個字母，開啟「格子長度提示」則依答案長度）。'],
 ['h','新增單字題庫'],
 ['s',[['在首頁左上角按「題庫」，選擇「單字題庫」。','如果想把搭配詞題和單字題放在同一個題庫，請選「混搭題庫」。'],['在最上方「題庫標題」輸入名稱，按「新增」新增一題。'],
 ['「英文句子」（必填）：輸入句子，用 `[ ]` 框住要考的單字。','框住的是句子裡實際出現的形式，例如 realized、presented、messages。'],
@@ -679,7 +716,7 @@ const GD=[
 [hd('字','尾'),'字首＋字尾（一字提示）：不管有沒有變化，都只提示字首與字尾各一個字母。'],[hd('字',''),'僅提示字首：只顯示字首一個字母。']]],
 ['t','字尾提示是依單字的外型判斷：自動生成的單字題會記住第二段的「單字原形」，判斷最準確；手動新增的題目則依 es／ed 等結尾的常見規則推測，少數不規則的字可能和預期不同。'],
 ['h','混搭題庫'],
-['s',[['按「題庫」選擇「混搭題庫」。'],['在編輯頁按「新增」時，會先問你要新增「搭配詞題」還是「單字題」。'],['按「混編」可以從所有題庫加入題目，搭配詞題與單字題都可以。'],['開始練習時，若題庫裡有單字題，設定視窗就會出現「單字提示」。']]],
+['s',[['按「題庫」選擇「混搭題庫」。'],['在編輯頁按「新增」時，會先問你要新增「搭配詞題」還是「單字題」。'],['按「混編」可以從所有題庫加入題目，搭配詞題與單字題都可以。'],['開始練習時，設定視窗會分成「通用」、「搭配詞題」、「單字題」三個分頁，依序設定、按「下一步」換頁；作答時題目上方會標示這題的題型。']]],
 ['t','「混搭題庫」和「混編」不同：混搭題庫是一種題庫類型，可同時放兩種題目；「混編」是把其他題庫的題目複製進來，但搭配詞題庫只能加搭配詞題、單字題庫只能加單字題。']]},
 {t:'如何混編題目',ic:'mix',d:'把其他題庫的題目加進來，或多個題庫一起練習',b:[
 ['p','有兩種做法：「混編」是把其他題庫的題目複製進目前的題庫；「多題庫練習」則不改動任何題庫，直接把幾個題庫混在一起練習。'],
@@ -722,19 +759,25 @@ const GD=[
 ['s',[['在清單中「長按」某一題約半秒，會直接進入製作頁，並預先勾選該題。'],['清單每列的色條與百分比是「答對率」；「最常答錯」顯示你最常答錯的挖空字；輕點一下可看題目完整內容。']]]]},
 {t:'如何進行作答',ic:'edit',d:'輸入方式、批改顏色代表的意思、進度與報告',b:[
 ['h','開始練習'],
-['s',[['在首頁點題庫的「開始練習」。','若這個題庫有未完成的練習，會先詢問「接續上次」或「重新開始」，並顯示上次的完成度與設定。'],['在設定視窗選擇：「練習範圍」（題庫有星號題時才會出現）、「打亂順序」、「每題需答對次數」（預設 2 次）、「填空提示」（預設開啟）。','開啟「填空提示」時，中文句子裡用 [ ] 框住的詞會加底線，提示英文格子要填什麼；關閉則不顯示底線。題庫含單字題時，還會多一項「單字提示」：字首＋字尾（完整提示）、字首＋字尾（一字提示）、僅提示字首。'],['按「開始」。']]],
+['s',[['在首頁點題庫的「開始練習」。','若這個題庫有未完成的練習，會先詢問「接續上次」或「重新開始」，並顯示上次的完成度與設定。'],['在設定視窗依題庫的題型設定。','設定項目會隨題型不同，詳見下方「開始練習的設定」。'],['按「開始」。']]],
+['h','開始練習的設定'],
+['s',[['搭配詞題庫：練習範圍、打亂順序、填空提示、每題需答對次數、格子長度提示（預設開啟）。','填空提示：中文句子裡用 [ ] 框住的詞會加底線。'],
+['單字題庫：練習範圍、打亂順序、單字提示（字首＋字尾完整提示／一字提示／僅提示字首）、填空提示（顯示單字解釋，預設關閉）、句子翻譯標註單字解釋、每題需答對次數、格子長度提示（預設關閉）。'],
+['混搭題庫或多題庫練習：如果同時有兩種題型，設定會分成三個分頁，設定完一頁按「下一步」換下一頁，最後一頁按「開始」。','第一頁通用：練習範圍、打亂順序、每題需答對次數；第二頁搭配詞題：填空提示、格子長度提示；第三頁單字題：單字提示、填空提示（顯示單字解釋）、句子翻譯標註單字解釋、格子長度提示。']]],
+['p','「格子長度提示」開啟時，格子寬度對應答案長度；關閉時一律是 6 個字母寬。「填空提示（顯示單字解釋）」開啟時，練習單字題會直接在題目下方顯示單字解釋。「句子翻譯標註單字解釋」開啟時，顯示答案後的句子翻譯裡，用 [ ] 框住的詞會加底線。'],
+['t','混搭題庫或多題庫練習同時含有兩種題型時，答題畫面的題目上方會標示這題是「搭配詞題」還是「單字題」。'],
 ['p','畫面上方是題庫名稱；卡片裡英文句子的挖空處是一個個格子，下方是中文翻譯；右上角星號可標註這題。卡片下方的進度條是整體進度，右邊的圓點是這題已答對的次數。'],
 ['h','中文句子的底線提示'],
 ['l',[['<span class=zu style="font-size:17px">難過</span>','中文句子裡有底線的字，就是對應英文挖空的詞，提示這格要填什麼。需要在開始練習的設定視窗開啟「填空提示」，題目也要有用 [ ] 框住的中文詞。']]],
 ['h','如何輸入'],
-['s',[['點一下格子輸入答案，不分大小寫。','在「設定」開啟「格子長度提示」時，格子寬度會對應答案長度。'],['每個格子只填一個字；片語會被拆成多個格子。','輸入的字比格子預設寬度長時，格子會跟著變長；刪除時會跟著變短，最短回到預設寬度。'],['輸入完一格後按空白鍵或 Enter，會跳到下一個尚未答對的格子；在最後一格按下，會自動檢查。'],['也可以隨時按右下角「檢查」。'],['不確定時按「看答案」，所有未答對的格子會顯示正確答案，這題會記為答錯。']]],
+['s',[['點一下格子輸入答案，不分大小寫。','在開始練習的設定視窗開啟「格子長度提示」時，格子寬度對應答案長度；關閉時，格子一律是 6 個字母的寬度。'],['每個格子只填一個字；片語會被拆成多個格子。','輸入的字比格子預設寬度長時，格子會跟著變長；刪除時會跟著變短，最短回到預設寬度。'],['輸入完一格後按空白鍵或 Enter，會跳到下一個尚未答對的格子；在最後一格按下，會自動檢查。'],['也可以隨時按右下角「檢查」。'],['不確定時按「看答案」，所有未答對的格子會顯示正確答案，這題會記為答錯。']]],
 ['h','批改結果的顏色'],
 ['l',[[dm('awake').replace('class=dm','class="dm ok"'),'綠底格子：這格答對了，會自動鎖定，不能再修改。'],[dm(gl('awak','g')),'藍色字：你輸入對的字母。'],[dm(gl('e','r')),'紅色字：正確答案中，你寫錯或漏掉的字母，這裡顯示的是正確字母。']]],
 ['p','綜合範例：'],
 ['l',[[dm(gl('awa','g')+gl('k','r')+gl('e','g')),'答案 awake，你輸入 awaje：k 寫錯，顯示紅色的正確字母 k。'],[dm(gl('kept','g')),'答案 kept，你輸入 kepts：多打的 s 不會顯示，會直接被刪除，只留下正確答案的字母。']]],
 ['t','答錯的格子不用手動刪除，直接點進去重新輸入即可，舊內容會自動全選並被取代。全部答對後，下方會顯示這題的單字/片語與筆記，按「繼續」進入下一題。'],
 ['h','單字題的作答'],
-['s',[['單字題的格子寬度都一樣，格子最前端是字首提示、最後端是字尾提示（依「單字提示」設定）。'],['開始輸入時提示會消失；把格子清空，提示會再次出現。'],['單字題作答時，卡片上只有英文句子，不會顯示句子翻譯；顯示答案時（填對後或按「看答案」），若題目有填句子翻譯，會出現在英文句子下方；填對後再顯示單字解釋，以及搭配詞／片語與筆記。']]],
+['s',[['格子最前端是字首提示、最後端是字尾提示（依「單字提示」設定）；格子寬度依「格子長度提示」決定。'],['開啟「填空提示（顯示單字解釋）」時，題目下方會直接顯示單字解釋（白色框）；答對後不會再重複顯示。'],['開始輸入時提示會消失；把格子清空，提示會再次出現。'],['單字題作答時，卡片上只有英文句子，不會顯示句子翻譯；顯示答案時（填對後或按「看答案」），若題目有填句子翻譯，會出現在英文句子下方；填對後再顯示單字解釋，以及搭配詞／片語與筆記。']]],
 ['h','進度怎麼算'],
 ['s',[['整題一次就全部答對，圓點才會多亮一顆；圓點全亮代表這題已學會。有答錯或使用「看答案」，這次不加點。'],
 ['出題順序：先讓每一題都拿到第 1 次答對，再拿第 2 次、第 3 次……。','每 5 題為一組：先依序出這 5 題，再複習這組還沒答對的題目，然後才出下一組新題目。'],
@@ -797,7 +840,7 @@ app.addEventListener('click',e=>{if(lpDone){lpDone=false;return}const b=e.target
    fadeOut(rows,()=>flip($('#list'),()=>{E.cards=E.cards.filter(c=>!ids.has(c.id));rows.forEach(r=>r.remove());selMode(false);renum();emp()}))})}return}
  if(a=='tog'){const f=S.folders.find(x=>x.id==id);f.open=f.open===false;b.parentNode.classList.toggle('open',f.open);save()}
  else if(a=='home')home();else if(a=='back')back();else if(a=='new')newDeck();else if(a=='edit')edit(id);else if(a=='start')start(id);
- else if(a=='dmore')dmore(id);else if(a=='fmore')fmore(id);else if(a=='io')io(view=='profile'?profile:home);else if(a=='iback')IOB();else if(a=='multi')multi();else if(a=='msall')msall();else if(a=='mgo')mgo();else if(a=='cfg')cfg();
+ else if(a=='dmore')dmore(id);else if(a=='fmore')fmore(id);else if(a=='io')io(view=='profile'?profile:home);else if(a=='iback')IOB();else if(a=='multi')multi();else if(a=='msall')msall();else if(a=='mgo')mgo();else if(a=='theme'){S.cfg.theme=b.dataset.t;applyTheme();save();app.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b))}
  else if(a=='prof')profile();else if(a=='help')guideList();else if(a=='gopen')guideDoc(+id);else if(a=='gback')guideList();else if(a=='gcp')gcopy(b);else if(a=='orec')records();else if(a=='oerr')errors();else if(a=='emake')errPick([]);else if(a=='ostar')stars();else if(a=='smake')starPick([]);else if(a=='pkback'){PK&&PK.back()}else if(a=='edet')detail(b.dataset.cid);
  else if(a=='orep'){const r=S.reports.find(x=>x.id==id);showReport(r,false,records)}else if(a=='rback')RB();
  else if(a=='nf')ask('資料夾名稱','',v=>hlUpdate(()=>{S.folders.push({id:uid(),name:v,open:true});save()}));
