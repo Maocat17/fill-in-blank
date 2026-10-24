@@ -135,6 +135,13 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:2px s
 .bk .hp{left:.55em}.bk .hs{right:.55em}
 .bk.typed .hp,.bk.typed .hs,.bk.ok .hp,.bk.ok .hs,.bk.bad .hp,.bk.bad .hs{opacity:0}
 .mb .rt{position:sticky;bottom:-20px;background:var(--card);padding:12px 0 0;margin-top:8px;z-index:2}
+.hl{color:#d9822b;font-weight:700}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .hl{color:#f2a65e}}:root[data-theme=dark] .hl{color:#f2a65e}
+.hed{margin:6px 0 2px}.hlab{font-size:12px;color:var(--sub);margin:4px 0}.hrow{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0}
+.lb{min-width:32px;height:36px;padding:0 6px;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--tx);font:600 17px "Alegreya",Georgia,serif}
+.lb.on{background:#d9822b;border-color:#d9822b;color:#fff}.lb.ig{border-style:dashed;border-color:#d9822b;color:#d9822b}
+.hbar{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px}.hpv{color:var(--tx);line-height:1.7}.hhint{font-size:12px;color:var(--sub)}
+.lnk{border:0;background:none;color:var(--fg);text-decoration:underline;font-size:13px;white-space:nowrap;padding:0}
 .stn{display:flex;gap:6px;margin:0 0 10px}.stn span{flex:1;display:flex;align-items:center;gap:6px;justify-content:center;padding:6px 4px;border-radius:10px;background:var(--bg);color:var(--sub);font-size:13px;white-space:nowrap}
 .stn span b{width:18px;height:18px;border-radius:50%;background:var(--line);color:var(--fg);font:600 11px system-ui;display:flex;align-items:center;justify-content:center}
 .stn span.on{background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--fg);font-weight:600}.stn span.on b{background:var(--pri);color:var(--priT)}
@@ -187,7 +194,7 @@ function fixObj(o){o.decks=Array.isArray(o.decks)?o.decks.filter(d=>d&&typeof d=
  for(const k of['prog','reps','sess'])if(!o[k]||typeof o[k]!='object'||Array.isArray(o[k]))o[k]={};
  o.reports=Array.isArray(o.reports)?o.reports.filter(r=>r&&typeof r=='object'):[];o.cfg=o.cfg&&typeof o.cfg=='object'?o.cfg:{};if(o.cfg.hint===undefined)o.cfg.hint=true;o.cfg.theme=o.cfg.theme||'auto';
  o.decks.forEach(d=>{d.id=d.id||uid();d.title=d.title==null?'':String(d.title);d.type=d.type=='vocab'||d.type=='mix'?d.type:'col';d.cards=Array.isArray(d.cards)?d.cards.filter(c=>c&&typeof c=='object'):[];
-  d.cards.forEach(c=>{c.id=c.id||uid();['en','zh','phrase','phraseZh','note'].forEach(k=>c[k]=c[k]==null?'':String(c[k]));c.star=!!c.star;if(c.k==='v'){c.def=c.def==null?'':String(c.def);c.base=c.base==null?'':String(c.base)}else delete c.k});if(d.type=='col'&&d.cards.some(c=>c.k==='v'))d.type='mix'});
+  d.cards.forEach(c=>{c.id=c.id||uid();['en','zh','phrase','phraseZh','note'].forEach(k=>c[k]=c[k]==null?'':String(c[k]));c.star=!!c.star;if(c.k==='v'){c.def=c.def==null?'':String(c.def);c.base=c.base==null?'':String(c.base);if(c.hi&&(typeof c.hi!='object'||Array.isArray(c.hi)))delete c.hi}else{delete c.k;delete c.hi}});if(d.type=='col'&&d.cards.some(c=>c.k==='v'))d.type='mix'});
  o.reports.forEach(r=>{r.id=r.id||uid();r.items=(Array.isArray(r.items)?r.items:[]).filter(i=>i&&i.cid);r.items.forEach(i=>{i.att=+i.att||0;i.wrong=+i.wrong||0})});
  if(!o.cs||typeof o.cs!='object'){o.cs={};let t=0;o.reports.forEach(r=>r.items.forEach(i=>{const k=o.cs[i.cid]||(o.cs[i.cid]={att:0,wrong:0});k.att+=i.att;k.wrong+=i.wrong;t+=i.att}));o.total=t}
  o.total=+o.total||0;
@@ -248,6 +255,22 @@ function vHint(w,mode,base){const n=w.length;if(!n)return['',''];const pre=w[0];
  if(1+suf.length>=n)suf='';return[pre,suf]}
 const DCF=()=>({zc:true,lc:true,vh:'a',vd:false,vz:true,lv:false}),mixK=d=>d.cards.some(isV)&&d.cards.some(c=>!isV(c)),
 getCf=x=>x.cf||{zc:x.zhHint!==false,lc:S.cfg.hint!==false,vh:x.vh||'a',vd:false,vz:x.zhHint!==false,lv:false};
+/* 單字題：手動設定提示字母（c.hi = {單字: [被選字母的位置]}）。依位置判定：從第一個字母連續選到的是字首，連續選到最後一個字母的是字尾 */
+const hintIdx=(w,sel)=>{const n=w.length,S=new Set(sel);let p=0;while(p<n&&S.has(p))p++;let t=0;while(t<n-p&&S.has(n-1-t))t++;return[p,t]};
+const baseOf=c=>c.base||((c.def||'').match(/^([A-Za-z][A-Za-z'’\-]*)\s*(?:[\(（]|\s[\u4e00-\u9fff])/)||[])[1]||'',
+defTail=c=>{const b=baseOf(c),d=(c.def||'').trim(),m=d.match(/^([A-Za-z][A-Za-z'’\-]*)\s*(?=[\(（]|\s[\u4e00-\u9fff])/);return m&&m[1].toLowerCase()==b.toLowerCase()?d.slice(m[0].length).trim():d};
+function selOf(c,w){const man=c.hi&&c.hi[w.toLowerCase()];if(man)return new Set(man);const[p,t]=vHint(w,'a',baseOf(c)),S=new Set();for(let i=0;i<p.length;i++)S.add(i);for(let i=0;i<t.length;i++)S.add(w.length-1-i);return S}
+function hintOf(c,w,mode){const man=c.hi&&c.hi[w.toLowerCase()];if(mode=='a'&&man){const[p,t]=hintIdx(w,man);return[w.slice(0,p),t?w.slice(w.length-t):'']}return vHint(w,mode,baseOf(c))}
+const hlWord=(c,w)=>{const[p,t]=hintOf(c,w,'a'),n=w.length;return `<span class=hl>${esc(p)}</span>${esc(w.slice(p.length,n-t.length))}<span class=hl>${esc(t)}</span>`},
+vBold=c=>parse(c.en).map(k=>k.t=='t'?esc(k.s):`<b class=u>${hlWord(c,k.a)}</b>`).join(''),enBold=c=>isV(c)?vBold(c):boldEn(c.en);
+function hedHTML(c){const seen=new Set(),bl=parse(c.en).filter(k=>k.t!='t'&&!seen.has(k.a.toLowerCase())&&seen.add(k.a.toLowerCase()));
+ if(!bl.length)return '<div class=hhint>用 [ ] 框住單字後，可在這裡設定提示的字首與字尾</div>';
+ return `<div class=hlab>提示字母（點字母設定字首／字尾）</div>`+bl.map(k=>{const w=k.a,sel=selOf(c,w),[p,t]=hintIdx(w,[...sel]),n=w.length;
+  return `<div class=hrow>${[...w].map((ch,i)=>`<button type=button class="lb ${sel.has(i)?(i<p||i>=n-t?'on':'ig'):''}" data-act=hl data-w="${esc(w)}" data-i=${i}>${esc(ch)}</button>`).join('')}</div>`}).join('')+
+  `<div class=hbar><span class=hpv>預覽：${vBold(c)}</span>${c.hi&&Object.keys(c.hi).length?'<button type=button class=lnk data-act=hauto>恢復自動</button>':''}</div>`}
+function refreshHed(r,c){const h=r.querySelector('.hed');if(h)h.innerHTML=hedHTML(c);r.querySelector('.pv span:last-child').innerHTML=enBold(c)||'（空白題目）'}
+const hiStr=c=>c.hi?Object.entries(c.hi).map(([w,a])=>w+'='+a.join(',')).join('|'):'',
+hiParse=t=>{const o={};(t||'').split('|').forEach(x=>{const m=x.match(/^(.+)=([\d,]*)$/);if(m)o[m[1]]=m[2]?m[2].split(',').map(Number):[]});return Object.keys(o).length?o:undefined};
 const ZR=/\[([^\[\]]+)\]/g,zhPlain=t=>(t||'').replace(ZR,'$1'),zhHTML=(t,on)=>on?esc(t||'').replace(ZR,'<u class=zu>$1</u>'):esc(zhPlain(t));
 const qkey=c=>norm(plain(c.en)).replace(/\s+/g,' '),dupsOf=c=>{const k=qkey(c);return k&&E?E.cards.filter(x=>x.id!==c.id&&qkey(x)==k):[]},hasB=s=>/\[[^\]]*\S[^\]]*\]/.test(s),probs=c=>{const p=[];if(!c.en.trim())p.push('未填英文句子');else if(!hasB(c.en))p.push('英文句子尚未用 [ ] 標示挖空');if(isV(c)){if(!(c.def||'').trim())p.push('未填單字解釋')}else if(!zhPlain(c.zh).trim())p.push('未填中文句子');if(dupsOf(c).length)p.push('與同題庫其他題目重複');return p},bad=c=>probs(c).length>0;
 function parse(en){const T=[];en.split(/(\[[^\]]*\])/).forEach((p,i)=>{
@@ -366,14 +389,14 @@ const pct=()=>{const t=P.ids.length*P.reps,d=P.ids.reduce((s,i)=>s+Math.min(P.pr
 const starBtn=c=>`<button class="ic st sbtn ${c.star?'on':''}" data-act=pstar>${I('star',24)}</button>`;
 function nextCard(){const id=qNext(P.Q);if(!id)return finish();view='practice';P.id=id;const c=P.d.cards.find(x=>x.id==id);
  setView(`<div class=wrap><div class=row>${B('home','back')}<h3 class=lt>${esc(P.d.title)}</h3></div>
- ${mixK(P.d)?`<div style="margin:2px 4px 8px"><span class=ktag>${isV(c)?'單字題':'搭配詞題'}</span></div>`:''}<div class=card>${starBtn(c)}<div class=en id=en></div>${isV(c)?'<div class=zh id=zh style="display:none"></div>':`<div class=zh>${zhHTML(c.zh,P.cf.zc)}</div>`}</div>${isV(c)&&P.cf.vd&&c.def?`<div class="info dk"><div class=p>${esc(c.def)}</div></div>`:''}
+ ${mixK(P.d)?`<div style="margin:2px 4px 8px"><span class=ktag>${isV(c)?'單字題':'搭配詞題'}</span></div>`:''}<div class=card>${starBtn(c)}<div class=en id=en></div>${isV(c)?'<div class=zh id=zh style="display:none"></div>':`<div class=zh>${zhHTML(c.zh,P.cf.zc)}</div>`}</div>${isV(c)&&P.cf.vd&&c.def?`<div class="info dk"><div class=p>${esc(defTail(c))}</div></div>`:''}
  <div class=row2><div class=pg><div class=pgb><i id=pgi style="width:${pct()}%"></i></div><b id=pgt>${pct()}%</b></div><span id=dots>${dots(P.pr[id]||0,P.reps,-1)}</span></div>
  <div id=info></div><div id=act><button class=sec data-act=show>看答案</button><button class=pri data-act=chk>檢查</button></div></div>`,true);buildQ(c,true)}
 const cvx=document.createElement('canvas').getContext('2d');
 function buildQ(c,focus){P.taint=false;P.fin=false;P.id=c.id;const en=$('#en');en.innerHTML='';const V=isV(c),vm=P.cf.vh;
  parse(c.en).forEach(k=>{if(k.t=='t')return en.append(document.createTextNode(k.s));
   const w=document.createElement('span');w.className='bk';
-  const[hp,hs]=V?vHint(k.a,vm,c.base):['',''],ln=V?P.cf.lv:P.cf.lc,hl=hp.length+hs.length;
+  const[hp,hs]=V?hintOf(c,k.a,vm):['',''],ln=V?P.cf.lv:P.cf.lc,hl=hp.length+hs.length;
   w.style.width=`calc(${ln?Math.max(k.a.length,V?hl+1:0):Math.max(6,V?hl+2:0)}ch + 1.4em)`;
   w.innerHTML=`<input type=text inputmode=text ${NOSUG} name="f${uid()}">${V?`<span class=hp>${esc(hp)}</span><span class=hs>${esc(hs)}</span>`:''}<span class=ov></span>`;en.append(w);w._a=k.a;
   const inp=w.firstChild,ov=w.lastChild,nxt=()=>{const all=[...app.querySelectorAll('.bk')],i=all.indexOf(w),nx=all.slice(i+1).find(b=>!b.classList.contains('ok'));nx?nx.firstChild.focus():checkAll()};
@@ -387,7 +410,7 @@ function buildQ(c,focus){P.taint=false;P.fin=false;P.id=c.id;const en=$('#en');e
   inp.addEventListener('focus',()=>setTimeout(sel,0));inp.addEventListener('pointerup',()=>setTimeout(sel,0))});
  en.querySelectorAll('.bk').forEach(w=>w._w0=w.offsetWidth);
  if(focus){const f=app.querySelector('.bk input');if(f)f.focus()}}
-function revealZh(c){const z=$('#zh');if(z&&isV(c)&&zhPlain(c.zh).trim()){z.innerHTML=zhHTML(c.zh,P.rand||P.cf.vz);z.style.display=''}}
+function revealZh(c){const dk=document.querySelector('.info.dk .p');if(dk&&isV(c)&&c.def)dk.textContent=c.def;const z=$('#zh');if(z&&isV(c)&&zhPlain(c.zh).trim()){z.innerHTML=zhHTML(c.zh,P.rand||P.cf.vz);z.style.display=''}}
 const stat=()=>P.stats[P.id]||(P.stats[P.id]={att:0,wrong:0,bw:{}});
 function checkAll(){if(P.fin)return;const bs=[...app.querySelectorAll('.bk:not(.ok)')],e=bs.find(b=>!b.firstChild.value.trim());if(e){e.firstChild.focus();return}
  let bd=null;bs.forEach(w=>{const inp=w.firstChild,v=inp.value.trim(),a=w._a;
@@ -518,14 +541,14 @@ function edit(id,type){const d=S.decks.find(x=>x.id==id);E=d?JSON.parse(JSON.str
 const flag=c=>bad(c)&&E.chk.has(c.id),WARN=c=>`${I('warn',14)}${probs(c).join('、')}`;
 const chipOf=c=>E.type=='mix'?`<span class=tchip>${isV(c)?'單字':'搭配詞'}</span>`:'';
 function rowHTML(c,i,isNew){const V=isV(c);
- const body=V?`<label>英文句子（必填，用 [ ] 框住要考的單字）</label><textarea rows=2 data-k=en placeholder="例：Kiwi birds are [unique] to New Zealand.">${esc(c.en)}</textarea>
- <label>單字解釋（必填）</label><textarea rows=1 data-k=def placeholder="例：(adj.) 獨有的">${esc(c.def||'')}</textarea>
+ const body=V?`<label>英文句子（必填，用 [ ] 框住要考的單字）</label><textarea rows=2 data-k=en placeholder="例：Kiwi birds are [unique] to New Zealand.">${esc(c.en)}</textarea><div class=hed>${hedHTML(c)}</div>
+ <label>單字解釋（必填）</label><textarea rows=1 data-k=def placeholder="例：unique (adj.) 獨有的">${esc(c.def||'')}</textarea>
  <label>句子翻譯（選填，顯示答案時才會出現；可用 [ ] 標底線）</label><textarea rows=2 data-k=zh placeholder="例：奇異鳥[為]紐西蘭[所獨有]。">${esc(c.zh)}</textarea>
  <div class=g2><div><label>搭配詞/片語（選填）</label><textarea rows=1 data-k=phrase>${esc(c.phrase)}</textarea></div><div><label>搭配詞/片語 翻譯（選填）</label><textarea rows=1 data-k=phraseZh>${esc(c.phraseZh)}</textarea></div></div>`
  :`<label>英文句子（用 [ ] 框住要挖空的字）</label><textarea rows=2 data-k=en>${esc(c.en)}</textarea>
  <label>中文句子（可用 [ ] 框住要提示的詞）</label><textarea rows=2 data-k=zh placeholder="例：Kyle 對於沒有贏得第一名感到非常[難過]。">${esc(c.zh)}</textarea>
  <div class=g2><div><label>單字/片語（選填）</label><textarea rows=1 data-k=phrase>${esc(c.phrase)}</textarea></div><div><label>翻譯（選填）</label><textarea rows=1 data-k=phraseZh>${esc(c.phraseZh)}</textarea></div></div>`;
- return `<div class="er ${isNew?'new':''} ${flag(c)?'inv':''}" data-cid=${c.id} data-k=${c.id}><div class=eh data-act=tg><span class=sk>${I('check',14)}</span><span class=n>${i+1}</span><span class=pv>${flag(c)?I('warn',14):''}${chipOf(c)}<span>${boldEn(c.en)||'（空白題目）'}</span></span><button class="ic st ${c.star?'on':''}" data-act=estar>${I('star',20)}</button><button class=ic data-act=rm>${I('trash',20)}</button></div>
+ return `<div class="er ${isNew?'new':''} ${flag(c)?'inv':''}" data-cid=${c.id} data-k=${c.id}><div class=eh data-act=tg><span class=sk>${I('check',14)}</span><span class=n>${i+1}</span><span class=pv>${flag(c)?I('warn',14):''}${chipOf(c)}<span>${enBold(c)||'（空白題目）'}</span></span><button class="ic st ${c.star?'on':''}" data-act=estar>${I('star',20)}</button><button class=ic data-act=rm>${I('trash',20)}</button></div>
  <div class=eb><div class=ebi>${body}
  <label>筆記（選填）</label><textarea rows=1 data-k=note>${esc(c.note)}</textarea><div class=warn>${flag(c)?WARN(c):''}</div></div></div></div>`}
 const BH_C='The loud music ______ the whole family ______ all night.（鄰居派對太吵，[讓]這家人整夜[睡不著]。）｜答案：kept awake（keep... awake 讓……睡不著）',BH_V='Kiwi birds are [unique] to New Zealand. Nowhere else you can find them.（奇異鳥[為]紐西蘭[所獨有]，其他地方都找不到。）｜unique (adj.) 獨有的｜be unique to + 地方（為某地方所獨有）';
@@ -546,12 +569,12 @@ function drawEdit(newIds=[],enter){view='edit';E.sel=null;
  <div id=list>${E.cards.map((c,i)=>rowHTML(c,i,newIds.includes(c.id))).join('')}</div></div>`,enter)}
 const rowOf=t=>t.closest('.er'),cardOf=r=>E.cards.find(c=>c.id==r.dataset.cid);
 const renum=()=>app.querySelectorAll('.er .n').forEach((n,i)=>n.textContent=i+1),emp=()=>{$('#emp').style.display=E.cards.length?'none':''};
-function refreshRow(r){const c=cardOf(r);if(!c)return;const b=flag(c);r.classList.toggle('inv',b);r.querySelector('.pv').innerHTML=(b?I('warn',14):'')+chipOf(c)+`<span>${boldEn(c.en)||'（空白題目）'}</span>`;r.querySelector('.warn').innerHTML=b?WARN(c):''}
+function refreshRow(r){const c=cardOf(r);if(!c)return;const b=flag(c);r.classList.toggle('inv',b);r.querySelector('.pv').innerHTML=(b?I('warn',14):'')+chipOf(c)+`<span>${enBold(c)||'（空白題目）'}</span>`;r.querySelector('.warn').innerHTML=b?WARN(c):''}
 function touch(cid){if(E.cur&&E.cur!=cid){E.chk.add(E.cur);const c0=E.cards.find(x=>x.id==E.cur),ids=[E.cur].concat(c0?dupsOf(c0).map(x=>x.id):[]);ids.forEach(id=>{E.chk.add(id);const r=app.querySelector(`.er[data-cid="${id}"]`);r&&refreshRow(r)})}E.cur=cid}
 app.addEventListener('input',e=>{const t=e.target;if(view=='home'&&t.id=='hq'){HQ=t.value;renderHL();return}if(view=='multi'&&t.id=='mq'){MQ=t.value;mdraw();return}
  if(view!='edit')return;if(t.id=='ti'){E.title=t.value;return}
  const r=rowOf(t);if(!r||!t.dataset.k)return;touch(r.dataset.cid);cardOf(r)[t.dataset.k]=t.value;
- if(t.dataset.k=='en')r.querySelector('.pv span:last-child').innerHTML=boldEn(t.value)||'（空白題目）';if(t.dataset.k=='en'||t.dataset.k=='zh'||t.dataset.k=='def')app.querySelectorAll('.er').forEach(x=>{if(E.chk.has(x.dataset.cid))refreshRow(x)})});
+ if(t.dataset.k=='en')refreshHed(r,cardOf(r));if(t.dataset.k=='en'||t.dataset.k=='zh'||t.dataset.k=='def')app.querySelectorAll('.er').forEach(x=>{if(E.chk.has(x.dataset.cid))refreshRow(x)})});
 /* 長按／選取 */
 let lpT=null,lpDone=false;
 function selUpdate(){$('#sc').textContent=`已選 ${E.sel.size} 項`}
@@ -589,13 +612,13 @@ function findBase(sent,base){const b=base.toLowerCase().replace(/[^a-z'’\-]/g,
  return hit?sent.slice(0,hit.index)+'['+hit[0]+']'+sent.slice(hit.index+hit[0].length):sent}
 /* 單字題：英文句子（中文句子）｜單字 (詞性) 解釋｜搭配詞（翻譯） */
 function parseVocab(m){let left=m[0].trim(),zh='';const zm=left.match(/[（(]([^（()）]*[\u4e00-\u9fff][^（()）]*)[）)]\s*$/);if(zm){zh=zm[1].trim();left=left.slice(0,zm.index).trim()}
- const p2=(m[1]||'').trim(),p3=m.slice(2).join('|').trim();let base='',def=p2;const hm=p2.match(/^([A-Za-z][A-Za-z'’\-]*)\s+(.+)$/);if(hm){base=hm[1];def=hm[2].trim()}
+ const p2=(m[1]||'').trim(),p3=m.slice(2).join('|').trim();let base='',def=p2;const hm=p2.match(/^([A-Za-z][A-Za-z'’\-]*)\s+(.+)$/);if(hm)base=hm[1];def=p2
  let phrase='',phraseZh='';const am=p3.match(/^(.*?)[（(](.*)[）)]\s*$/);
  if(am){phrase=am[1].trim();phraseZh=am[2].trim()}else if(p3){const ci=p3.search(/[\u4e00-\u9fff]/);if(ci>0){phrase=p3.slice(0,ci).trim();phraseZh=p3.slice(ci).trim()}else if(ci==0)phraseZh=p3;else phrase=p3}
  const en=hasB(left)?left:(base?findBase(left,base):left);
  return{id:uid(),k:'v',en,def,zh,phrase,phraseZh,note:'',star:false,base}}
 function localParse(line,type){let L=line.trim();if(!L||L[0]=='#')return null;
- if(L.includes('\t')){const p=L.split('\t');const c={id:uid(),en:p[0]||'',zh:unesc(p[1]),phrase:p[2]||'',phraseZh:p[3]||'',note:unesc(p[4]),star:p[5]=='1'};if(p[6]=='v'){c.k='v';c.def=unesc(p[7]);c.base=p[8]||''}return c}
+ if(L.includes('\t')){const p=L.split('\t');const c={id:uid(),en:p[0]||'',zh:unesc(p[1]),phrase:p[2]||'',phraseZh:p[3]||'',note:unesc(p[4]),star:p[5]=='1'};if(p[6]=='v'){c.k='v';c.def=unesc(p[7]);c.base=p[8]||'';const h=hiParse(p[9]);if(h)c.hi=h}return c}
  const m=L.split(/[｜|]/);const vp=type=='vocab'||((type=='mix'||type=='auto')&&m.length>=2&&(/^\s*([A-Za-z][A-Za-z'’\-]*\s*)?[（(][a-z]{1,6}\.?[）)]/i.test(m[1])||(m.length>=3&&!/^\s*(答案|answer)/i.test(m[1]))));if(vp)return parseVocab(m);let left=m[0].trim(),right=m.slice(1).join('|').trim(),zh='';
  const zm=left.match(/[（(]([^（()）]*[\u4e00-\u9fff][^（()）]*)[）)]\s*$/);if(zm){zh=zm[1].trim();left=left.slice(0,zm.index).trim()}
  if(right&&!/^(答案|answer)/i.test(right)&&!zh&&/[\u4e00-\u9fff]/.test(right)){zh=right;right=''}
@@ -612,7 +635,7 @@ function bulk(){const txt=$('#bulk').value.trim();if(!txt)return;let out=txt.spl
  E.cards=E.cards.filter(c=>c.en.trim()||c.zh.trim()||(c.def||'').trim()).concat(out);E.open=-1;drawEdit(out.map(c=>c.id));toast(`已加入 ${out.length} 題`+(drop?`，已自動刪除 ${drop} 題（不符合規則或重複）`:'，請檢查'))}
 /* ===== 匯入／匯出 ===== */
 const cell=x=>(x||'').replace(/\t/g,' ').replace(/\r?\n/g,'\\n');
-const toTxt=ds=>ds.map(d=>({vocab:'#單字題庫 ',mix:'#混搭題庫 '}[d.type]||'#題庫 ')+d.title+'\n'+d.cards.map(c=>(isV(c)?[c.en,c.zh,c.phrase,c.phraseZh,c.note,c.star?'1':'','v',c.def,c.base||'']:[c.en,c.zh,c.phrase,c.phraseZh,c.note,c.star?'1':'']).map(cell).join('\t')).join('\n')).join('\n\n')+'\n';
+const toTxt=ds=>ds.map(d=>({vocab:'#單字題庫 ',mix:'#混搭題庫 '}[d.type]||'#題庫 ')+d.title+'\n'+d.cards.map(c=>(isV(c)?[c.en,c.zh,c.phrase,c.phraseZh,c.note,c.star?'1':'','v',c.def,c.base||'',hiStr(c)]:[c.en,c.zh,c.phrase,c.phraseZh,c.note,c.star?'1':'']).map(cell).join('\t')).join('\n')).join('\n\n')+'\n';
 function importTxt(text,name){let n=0,cur=null;const decks=[],add=(t,ty)=>{cur={id:uid(),title:t,folder:null,cards:[],type:ty};decks.push(cur)};
  text.split(/\r?\n/).forEach(l=>{const h=l.match(/^#(題庫|單字題庫|混搭題庫)\s*(.*)$/);if(h){add(h[2].trim()||name,h[1]=='單字題庫'?'vocab':h[1]=='混搭題庫'?'mix':'col');return}
   const c=localParse(l,cur?cur.type:'auto');if(!c||!c.en)return;if(!cur)add(name,'auto');cur.cards.push(c);n++});
@@ -699,22 +722,27 @@ const GD=[
 ['h','新增單字題庫'],
 ['s',[['在首頁左上角按「題庫」，選擇「單字題庫」。','如果想把搭配詞題和單字題放在同一個題庫，請選「混搭題庫」。'],['在最上方「題庫標題」輸入名稱，按「新增」新增一題。'],
 ['「英文句子」（必填）：輸入句子，用 `[ ]` 框住要考的單字。','框住的是句子裡實際出現的形式，例如 realized、presented、messages。'],
-['「單字解釋」（必填）：寫詞性與中文意思，例如 `(adj.) 獨有的`。','答對後，這段會顯示在原本「單字/片語」的位置。'],
+['「單字解釋」（必填）：建議寫成「單字原形 (詞性) 中文意思」，例如 `unique (adj.) 獨有的`。','答對後，這段會顯示在原本「單字/片語」的位置；開頭的英文原形也會當作字首、字尾提示的判斷依據（沒寫原形也可以）。'],
 ['「句子翻譯」（選填）：可以用 `[ ]` 框住對應的中文詞，顯示答案時會加底線標出。','作答時不會顯示句子翻譯；顯示答案時（答對後，或按「看答案」），有填才會出現在英文句子下方，沒填就不顯示。'],
 ['「搭配詞/片語」、「搭配詞/片語 翻譯」、「筆記」都是選填。'],['全部完成後，按右上角「儲存」。']]],
 ['c','範例 1：一般單字題（沒有搭配詞與筆記）',['英文句子：Every person’s fingerprints are [unique]. No two people’s are alike.','單字解釋：(adj.) 與眾不同的','句子翻譯：每個人的指紋都是[獨一無二的]。沒有人是相同的。','搭配詞/片語：（無）','搭配詞/片語 翻譯：（無）','筆記：（無）'].join('\n')],
 ['c','範例 2：含搭配詞與筆記',['英文句子：Kiwi birds are [unique] to New Zealand. Nowhere else you can find them.','單字解釋：(adj.) 獨有的','句子翻譯：奇異鳥[為]紐西蘭[所獨有]，其他地方都找不到。','搭配詞/片語：be unique to + 地方','搭配詞/片語 翻譯：為某地方所獨有','筆記：=be native to + 地方'].join('\n')],
+['h','設定提示的字首與字尾'],
+['p','在單字題的編輯區，英文句子下方會把 [ ] 裡的單字拆成一顆顆字母按鈕。系統會自動偵測並設好字首與字尾（變色的字母），你也可以自己點字母調整。'],
+['s',[['用 `[ ]` 框住單字，例如 `[items]`，下方會出現 i、t、e、m、s 五顆按鈕。'],['點一下字母就選取／取消。例如選了 i、m、s：系統依位置判定，i 在最前面是字首，m、s 連到最後面是字尾，所以字首是 i、字尾是 ms。'],
+['被選為提示的字母會變色；題目列的預覽和編輯區的「預覽」，也會用同樣的顏色標出字首和字尾。'],['不在最前面或最後面連續位置的字母（例如只選中間的 t）不會成為提示，按鈕只會顯示虛線框。'],['想回到自動偵測，按「恢復自動」。']]],
+['t','手動設定的字母，會在開始練習選擇「字首＋字尾（完整提示）」時使用；選「一字提示」或「僅提示字首」時，仍依該選項的規則（只給第一個與最後一個字母，或只給第一個）。'],
 ['h','貼上文字自動生成'],
-['s',[['在單字題庫的編輯頁按「自動生成題庫」展開輸入區。'],['每行貼上一題，用「｜」分成三段（格式見下方範例）。'],['按「判定並加入」，系統會自動分出英文句子、單字解釋、句子翻譯、搭配詞與搭配詞翻譯。'],['檢查加入的題目後按「儲存」。']]],
+['s',[['在單字題庫的編輯頁按「自動生成題庫」展開輸入區。'],['每行貼上一題，用「｜」分成三段（格式見下方範例）。'],['按「判定並加入」，系統會自動分出英文句子、單字解釋、句子翻譯、搭配詞與搭配詞翻譯。','自動判定出的「單字解釋」會連原形單字一起放進去，例如第二段 `unique (adj.) 獨有的`，單字解釋就是 `unique (adj.) 獨有的`。'],['檢查加入的題目後按「儲存」。']]],
 ['c','自動生成輸入範例（每行一題）',['Kiwi birds are [unique] to New Zealand. Nowhere else you can find them.（奇異鳥[為]紐西蘭[所獨有]，其他地方都找不到。）｜unique (adj.) 獨有的｜be unique to + 地方（為某地方所獨有）','She realized that she had left her wallet at home.（她發覺自己把錢包忘在家裡了。）｜realize (v.) 了解'].join('\n')],
-['p','三段依序是：「英文句子（句子翻譯）」、「單字原形 (詞性) 解釋」、「搭配詞（翻譯）」；第三段沒有可以省略。句子翻譯使用全形或半形括號都可以。'],
+['p','三段依序是：「英文句子（句子翻譯）」、「單字原形 (詞性) 解釋」、「搭配詞（翻譯）」；第三段沒有可以省略。句子翻譯使用全形或半形括號都可以。第二段會完整放進「單字解釋」（含英文原形，如 `unique (adj.) 獨有的`），原形也會當作字尾提示的判斷依據。'],
 ['t','英文句子不一定要先用 [ ] 框好：系統會用第二段的單字原形，在句子裡找出對應的字（含三單、過去式、複數、-ing 等變化，如上例的 realized）並自動加上 [ ]。找不到的題目會被自動刪除，並顯示刪除題數。'],
 ['h','單字提示（開始練習時選擇）'],
 ['p','開始練習時，設定視窗會出現「單字提示」，有三種可選。提示會顯示在格子的最前端與最後端；開始輸入時提示會消失，格子清空後會再次出現。'],
 ['l',[[hd('字','尾'),'字首＋字尾（完整提示）：字首給一個字母，字尾通常也給一個字母；如果單字有 es、ies、ed、ied 的變化結尾，會完整顯示變化結尾，有時再多顯示一個字母。'],
 [hd('m','es'),'messages（名詞複數）→ 字首 m、字尾 es'],[hd('p','ted'),'presented（動詞過去式）→ 字首 p、字尾 ted'],[hd('r','ed'),'realized（原形字尾是 e，只加 d）→ 字首 r、字尾 ed'],[hd('r','lied'),'replied（去 y 加 ied）→ 字首 r、字尾 lied'],
 [hd('字','尾'),'字首＋字尾（一字提示）：不管有沒有變化，都只提示字首與字尾各一個字母。'],[hd('字',''),'僅提示字首：只顯示字首一個字母。']]],
-['t','字尾提示是依單字的外型判斷：自動生成的單字題會記住第二段的「單字原形」，判斷最準確；手動新增的題目則依 es／ed 等結尾的常見規則推測，少數不規則的字可能和預期不同。'],
+['t','字尾提示是依單字的外型判斷：有英文原形（自動生成時的第二段，或手動輸入時單字解釋開頭寫的原形）判斷最準確；沒有原形的題目則依 es／ed 等結尾的常見規則推測，少數不規則的字可能和預期不同，這時可以手動設定提示字母。'],
 ['h','混搭題庫'],
 ['s',[['按「題庫」選擇「混搭題庫」。'],['在編輯頁按「新增」時，會先問你要新增「搭配詞題」還是「單字題」。'],['按「混編」可以從所有題庫加入題目，搭配詞題與單字題都可以。'],['開始練習時，設定視窗會分成「通用」、「搭配詞題」、「單字題」三個分頁，依序設定、按「下一步」換頁；作答時題目上方會標示這題的題型。']]],
 ['t','「混搭題庫」和「混編」不同：混搭題庫是一種題庫類型，可同時放兩種題目；「混編」是把其他題庫的題目複製進來，但搭配詞題庫只能加搭配詞題、單字題庫只能加單字題。']]},
@@ -742,7 +770,7 @@ const GD=[
 ['c','題庫 TXT 的內容格式（每題一行，欄位之間用 Tab 分隔）',['#題庫 第三課 單字測試','Kyle [was] deeply [upset about] not winning first place.\tKyle 對於沒有贏得第一名感到非常難過。\tbe upset about\t對……感到難過\tabout 後面接名詞或動名詞\t1'].join('\n')],
 ['p','欄位依序為：英文句子、中文句子、單字/片語、翻譯、筆記、是否有星號（1 代表有星號）。後面欄位可以省略。此外，匯入也能直接讀取「使用AI提示詞來生成題庫」裡的格式。'],
 ['h','單字題庫與混搭題庫的 TXT'],
-['p','標題行會標示題庫類型：`#題庫`（搭配詞）、`#單字題庫`、`#混搭題庫`。單字題的每一行在原本 6 欄後面多 3 欄：第 7 欄固定是 `v`（代表單字題）、第 8 欄是單字解釋、第 9 欄是單字原形（供字尾提示使用）。'],
+['p','標題行會標示題庫類型：`#題庫`（搭配詞）、`#單字題庫`、`#混搭題庫`。單字題的每一行在原本 6 欄後面多 4 欄：第 7 欄固定是 `v`（代表單字題）、第 8 欄是單字解釋、第 9 欄是單字原形（供字尾提示使用），第 10 欄是手動設定的提示字母（可省略）。'],
 ['c','單字題庫 TXT 範例（欄位之間用 Tab 分隔）',['#單字題庫 Lesson 5','Kiwi birds are [unique] to New Zealand.\t奇異鳥[為]紐西蘭[所獨有]。\tbe unique to + 地方\t為某地方所獨有\t=be native to + 地方\t\tv\t(adj.) 獨有的\tunique'].join('\n')],
 ['t','舊版匯出的檔案不需要任何修改，可直接匯入；匯入的題庫會依內容自動判定為搭配詞、單字或混搭題庫。']]},
 {t:'如何製作星號或錯題題庫',ic:'star',d:'把重點題或常錯的題目挑出來，另存成新題庫',b:[
@@ -777,7 +805,7 @@ const GD=[
 ['l',[[dm(gl('awa','g')+gl('k','r')+gl('e','g')),'答案 awake，你輸入 awaje：k 寫錯，顯示紅色的正確字母 k。'],[dm(gl('kept','g')),'答案 kept，你輸入 kepts：多打的 s 不會顯示，會直接被刪除，只留下正確答案的字母。']]],
 ['t','答錯的格子不用手動刪除，直接點進去重新輸入即可，舊內容會自動全選並被取代。全部答對後，下方會顯示這題的單字/片語與筆記，按「繼續」進入下一題。'],
 ['h','單字題的作答'],
-['s',[['格子最前端是字首提示、最後端是字尾提示（依「單字提示」設定）；格子寬度依「格子長度提示」決定。'],['開啟「填空提示（顯示單字解釋）」時，題目下方會直接顯示單字解釋（白色框）；答對後不會再重複顯示。'],['開始輸入時提示會消失；把格子清空，提示會再次出現。'],['單字題作答時，卡片上只有英文句子，不會顯示句子翻譯；顯示答案時（填對後或按「看答案」），若題目有填句子翻譯，會出現在英文句子下方；填對後再顯示單字解釋，以及搭配詞／片語與筆記。']]],
+['s',[['格子最前端是字首提示、最後端是字尾提示（依「單字提示」設定）；格子寬度依「格子長度提示」決定。'],['開啟「填空提示（顯示單字解釋）」時，題目下方會直接顯示單字解釋（白色框），開頭的英文原形會先隱去以免洩漏答案；答對後不會再重複顯示。'],['開始輸入時提示會消失；把格子清空，提示會再次出現。'],['單字題作答時，卡片上只有英文句子，不會顯示句子翻譯；顯示答案時（填對後或按「看答案」），若題目有填句子翻譯，會出現在英文句子下方；填對後再顯示單字解釋，以及搭配詞／片語與筆記。']]],
 ['h','進度怎麼算'],
 ['s',[['整題一次就全部答對，圓點才會多亮一顆；圓點全亮代表這題已學會。有答錯或使用「看答案」，這次不加點。'],
 ['出題順序：先讓每一題都拿到第 1 次答對，再拿第 2 次、第 3 次……。','每 5 題為一組：先依序出這 5 題，再複習這組還沒答對的題目，然後才出下一組新題目。'],
@@ -847,6 +875,8 @@ app.addEventListener('click',e=>{if(lpDone){lpDone=false;return}const b=e.target
  else if(a=='next')nextCard();else if(a=='rnext')profile(false);else if(a=='chk')checkAll();else if(a=='show')showAns();
  else if(a=='pstar'){const c=P.d.cards.find(x=>x.id==P.id);c.star=!c.star;save();b.classList.toggle('on',c.star)}
  else if(a=='rstar'){const c=S.decks.find(x=>x.id==b.dataset.d).cards.find(x=>x.id==b.dataset.c);c.star=!c.star;save();b.classList.toggle('on',c.star)}
+ else if(a=='hl'){const r=rowOf(b),c=cardOf(r),w=b.dataset.w,i=+b.dataset.i,S=selOf(c,w);S.has(i)?S.delete(i):S.add(i);c.hi=c.hi||{};c.hi[w.toLowerCase()]=[...S].sort((x,y)=>x-y);touch(c.id);refreshHed(r,c)}
+ else if(a=='hauto'){const r=rowOf(b),c=cardOf(r);delete c.hi;refreshHed(r,c)}
  else if(a=='estar'){const c=cardOf(rowOf(b));c.star=!c.star;b.classList.toggle('on',c.star)}
  else if(a=='tg'){const r=b.closest('.er'),o=r.classList.contains('open');app.querySelectorAll('.er.open').forEach(x=>x.classList.remove('open'));if(!o){r.classList.add('open');touch(r.dataset.cid)}}
  else if(a=='mix')mix();else if(a=='selb')selMode(true);
