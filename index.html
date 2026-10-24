@@ -142,7 +142,7 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:2px s
 .lb.on{background:#d9822b;border-color:#d9822b;color:#fff}.lb.ig{border-style:dashed;border-color:#d9822b;color:#d9822b}
 .hbar{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px}.hpv{color:var(--tx);line-height:1.7}.hhint{font-size:12px;color:var(--sub)}
 .lnk{border:0;background:none;color:var(--fg);text-decoration:underline;font-size:13px;white-space:nowrap;padding:0}
-.rcb{padding:6px 12px;font-size:13px;white-space:nowrap;flex:none;margin-left:6px;position:relative;z-index:1}
+.rcb{padding:6px 12px;font-size:13px;white-space:nowrap;flex:none;position:relative;z-index:1}.rr.rec{padding-right:16px}.rr.rec .pc{flex:none;width:64px;min-width:0}
 .stn{display:flex;gap:6px;margin:0 0 10px}.stn span{flex:1;display:flex;align-items:center;gap:6px;justify-content:center;padding:6px 4px;border-radius:10px;background:var(--bg);color:var(--sub);font-size:13px;white-space:nowrap}
 .stn span b{width:18px;height:18px;border-radius:50%;background:var(--line);color:var(--fg);font:600 11px system-ui;display:flex;align-items:center;justify-content:center}
 .stn span.on{background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--fg);font-weight:600}.stn span.on b{background:var(--pri);color:var(--priT)}
@@ -200,6 +200,7 @@ function fixObj(o){o.decks=Array.isArray(o.decks)?o.decks.filter(d=>d&&typeof d=
  if(!o.cs||typeof o.cs!='object'){o.cs={};let t=0;o.reports.forEach(r=>r.items.forEach(i=>{const k=o.cs[i.cid]||(o.cs[i.cid]={att:0,wrong:0});k.att+=i.att;k.wrong+=i.wrong;t+=i.att}));o.total=t}
  o.total=+o.total||0;
  for(const k of Object.keys(o.sess)){const x=o.sess[k];if(!x||!x.Q||!Array.isArray(x.ids)||!Array.isArray(x.Q.order))delete o.sess[k]}
+ for(const k of Object.keys(o.sess))if(k.startsWith('multi:')&&!o.prog[k]){const pm=o.prog[k]={};(o.sess[k].ids||[]).forEach(cid=>{for(const d of o.decks)if(d.cards.some(c=>c.id==cid)){const v=(o.prog[d.id]||{})[cid];if(v)pm[cid]=v;break}})}
  const un={};o.reports.forEach(r=>{if(!r.deckId||String(r.deckId).startsWith('multi:'))return;if(r.fin===false&&!r.abandoned)un[r.deckId]=r;else delete un[r.deckId]});
  Object.values(un).forEach(r=>{const d=o.decks.find(x=>x.id==r.deckId);if(!d||o.sess[d.id])return;const reps=+r.reps||2,md=r.mode||'all',pr=o.prog[d.id]||{},
   sel=d.cards.filter(c=>md=='all'||(md=='star')==!!c.star),ord=sel.filter(c=>(pr[c.id]||0)<reps).map(c=>c.id);if(!ord.length)return;
@@ -326,7 +327,7 @@ function startFlow(d,prA){const s=S.sess[d.id];if(!s)return startDlg(d,prA);
  const ok=new Set(d.cards.map(c=>c.id)),ids=(s.ids||[]).filter(i=>ok.has(i));if(!ids.length){delete S.sess[d.id];save();return startDlg(d,prA)}
  const pr=prA||S.prog[d.id]||{},t=ids.length*s.reps,dn=ids.reduce((a,i)=>a+Math.min(pr[i]||0,s.reps),0),p=t?Math.floor(dn/t*100):0,lr=ids.filter(i=>(pr[i]||0)>=s.reps).length,
  MD={all:'所有題目',star:'僅標註星號的題目',unstar:'僅未標註星號的題目'};
- const m=modal(`<h3>有未完成的練習</h3><div style="font-size:13px;color:var(--sub);margin-bottom:8px">上次練習：${new Date(s.ts).toLocaleString()}</div>
+ const m=modal(`<h3>有未完成的練習</h3><div style="font-size:13px;color:var(--sub);margin-bottom:8px">上次練習：${new Date(s.ts).toLocaleString()}</div>${d.parts?`<div class=kv style="display:block"><span>結合題庫</span><div style="margin-top:3px;font-weight:600;line-height:1.5;word-break:break-word">${esc(mTitle(d.parts))}</div></div>`:''}
  <div class=kv><span>完成度</span><b>${p}%</b></div><div class=pgb style="margin:4px 0 6px"><i style="width:${p}%"></i></div>
  <div class=kv><span>已學會題數</span><b>${lr} / ${ids.length}</b></div><div class=kv><span>練習範圍</span><b>${MD[s.md]||MD.all}</b></div><div class=kv><span>打亂順序</span><b>${s.shuf?'是':'否'}</b></div><div class=kv><span>每題需答對次數</span><b>${s.reps} 次</b></div>${cfRows(d,getCf(s)).map((r,i,a)=>`<div class=kv ${i==a.length-1?'style="border:0"':''}><span>${r[0]}</span><b>${r[1]}</b></div>`).join('')}
  <div class=rt><button class=sec id=c>取消</button><button class=sec id=n>重新開始</button><button class=pri id=r>接續上次</button></div>`);
@@ -375,7 +376,7 @@ function sessSave(){if(!P||P.rand||!P.Q)return;S.sess[P.d.id]=JSON.parse(JSON.st
 function begin(d,opt,m,prA,reset){const{md,shuf,reps}=opt;const sel=d.cards.filter(c=>md=='all'||(md=='star')==!!c.star);if(!sel.length)return toast('這個範圍沒有題目');m.close();
  const pr=prA||S.prog[d.id]||(S.prog[d.id]={});(d.parts||[d]).forEach(x=>S.reps[x.id]=reps);
  const old=S.sess[d.id];if(old){const r=S.reports.find(x=>x.id==old.repId);if(r)r.abandoned=true;delete S.sess[d.id]}
- if(reset||sel.every(c=>(pr[c.id]||0)>=reps)){sel.forEach(c=>delete pr[c.id]);if(!reset)toast('這個範圍已全部學會，重新開始')}
+ if(reset||d.parts||sel.every(c=>(pr[c.id]||0)>=reps)){sel.forEach(c=>delete pr[c.id]);if(!reset&&!d.parts)toast('這個範圍已全部學會，重新開始')}
  const o=sel.filter(c=>(pr[c.id]||0)<reps).map(c=>c.id);
  if(shuf)for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}
  P={d,pr,reps,shuf,md,cf:opt.cf,ids:sel.map(c=>c.id),stats:{},rep:null,Q:qInit(o,reps)};sessSave();save();nextCard()}
@@ -453,7 +454,7 @@ const MDL={all:'所有題目',star:'僅星號題目',unstar:'僅未星號題目'
 function showReport(r,fresh,back){view='report';RB=back||home;const d=S.decks.find(x=>x.id==r.deckId),
  it=r.items.filter(x=>x.att).sort((a,b)=>b.wrong/b.att-a.wrong/a.att||b.wrong-a.wrong||b.att-a.att),A=it.reduce((s,x)=>s+x.att,0),W=it.reduce((s,x)=>s+x.wrong,0);
  setView(`<div class=wrap><div class=top><div class=row>${B('rback','back')}<h3 class=lt>${fresh?'練習完成・':''}練習報告${r.fin===false?'（未完成 '+r.pct+'%）':''}</h3></div></div>
- <div class=card style="padding:16px 20px"><div style="font-size:15px">${esc(r.deckTitle)}</div><div class=zh style="margin-top:6px">${new Date(r.time).toLocaleString()}・${it.length} 題・共作答 ${A} 次・整體答對率 ${A?Math.round((A-W)/A*100):0}%</div>${setTxt(r)?`<div class=zh style="margin-top:4px;font-size:13px">${setTxt(r)}</div>`:''}${canResume(r)?`<div style="margin-top:12px"><button class=pri data-act=rcont data-id=${r.id}>${I('play',16)}繼續完成</button></div>`:''}</div>
+ <div class=card style="padding:16px 20px"><div style="font-size:15px">${esc(rTitle(r))}</div><div class=zh style="margin-top:6px">${new Date(r.time).toLocaleString()}・${it.length} 題・共作答 ${A} 次・整體答對率 ${A?Math.round((A-W)/A*100):0}%</div>${setTxt(r)?`<div class=zh style="margin-top:4px;font-size:13px">${setTxt(r)}</div>`:''}${canResume(r)?`<div style="margin-top:12px"><button class=pri data-act=rcont data-id=${r.id}>${I('play',16)}繼續練習</button></div>`:''}</div>
  <div>${it.map(x=>{const f=findCard(x.cid);return rrHTML({...x,card:f&&f.c,did:f&&f.d.id,act:`data-act=edet data-cid=${x.cid} style="cursor:pointer"`})}).join('')||'<div class=center>還沒有作答紀錄</div>'}</div>
  ${fresh?`<div style="display:flex;justify-content:center;margin-top:18px"><button class=pri data-act=home>回題庫</button></div>`:''}</div>`,true)}
 /* ===== 個人檔案 ===== */
@@ -467,7 +468,7 @@ function profile(enter=true){view='profile';P=null;const all=S.decks.flatMap(d=>
  syUpd();if(pk){P={rand:true,d:pk.d,pr:{},reps:1,cf:DCF(),stats:{},ids:[],q:[]};buildQ(pk.c,false)}}
 function records(){view='records';const L=[...S.reports].reverse();
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有練習紀錄</h3></div></div><div>${L.map(r=>{const p=r.pct??100,f=r.fin!==false;
-  return `<div class=rr style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=orep data-id=${r.id}><div class=fill></div><div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(r.deckTitle)}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題${r.zhHint===undefined?'':r.zhHint?'・提示開':'・提示關'}</div></div><div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div>${canResume(r)?`<button class="pri rcb" data-act=rcont data-id=${r.id}>繼續完成</button>`:'<span style="width:14px"></span>'}</div>`}).join('')||'<div class=center>還沒有練習紀錄</div>'}</div></div>`,true)}
+  return `<div class="rr rec" style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=orep data-id=${r.id}><div class=fill></div><div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(rTitle(r))}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題${r.zhHint===undefined?'':r.zhHint?'・提示開':'・提示關'}</div></div>${canResume(r)?`<button class="pri rcb" data-act=rcont data-id=${r.id}>繼續練習</button>`:''}<div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div></div>`}).join('')||'<div class=center>還沒有練習紀錄</div>'}</div></div>`,true)}
 function errList(){const o=[];S.decks.forEach(d=>d.cards.forEach(c=>{const k=S.cs[c.id];if(k&&k.att&&k.wrong)o.push({card:c,deck:d,att:k.att,wrong:k.wrong,rate:(k.att-k.wrong)/k.att})}));return o.sort((a,b)=>a.rate-b.rate||a.att-b.att)}
 function errors(){view='errors';const L=errList();
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有錯題</h3><span class=grow></span><button class=sec data-act=emake>${I('plus',16)}製作錯題題庫</button></div></div><div>${L.map(x=>rrHTML({...x,did:x.deck.id,deck:x.deck.title,act:`data-act=edet data-cid=${x.card.id} style="cursor:pointer"`})).join('')||'<div class=center>目前沒有錯題</div>'}</div></div>`,true)}
@@ -672,11 +673,13 @@ const mlist=()=>{const q=MQ.trim().toLowerCase();return S.decks.filter(d=>d.card
 function mdraw(){$('#ml').innerHTML=mlist().map(d=>{const f=S.folders.find(f=>f.id==d.folder);return `<label class="ck rr" style="padding:12px 16px;cursor:pointer"><input type=checkbox data-d=${d.id} ${MS.has(d.id)?'checked':''}><span style="flex:1;font-size:16px">${esc(d.title)}<br><small style="color:var(--sub);font-size:12px">${f?esc(f.name)+'・':''}${d.cards.length} 題</small></span></label>`}).join('')||'<div class=center>找不到符合的題庫</div>';$('#mc').textContent=`已選 ${MS.size} 個題庫`}
 app.addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.d;if(view=='multi'&&id){e.target.checked?MS.add(id):MS.delete(id);$('#mc').textContent=`已選 ${MS.size} 個題庫`}});
 function msall(){const L=mlist(),all=L.length&&L.every(d=>MS.has(d.id));L.forEach(d=>all?MS.delete(d.id):MS.add(d.id));mdraw()}
-function multiOf(ds){const own={};ds.forEach(d=>d.cards.forEach(c=>own[c.id]=d.id));
- const pr=new Proxy({},{get:(t,k)=>(S.prog[own[k]]||{})[k],set:(t,k,v)=>{if(own[k])(S.prog[own[k]]||(S.prog[own[k]]={}))[k]=v;return true},deleteProperty:(t,k)=>{if(S.prog[own[k]])delete S.prog[own[k]][k];return true}});
- return{d:{id:'multi:'+ds.map(d=>d.id).sort().join(','),title:`多題庫練習（${ds.length} 個題庫）`,cards:ds.flatMap(d=>d.cards),parts:ds},pr}}
+const mTitle=ds=>ds.map(d=>d.title).join(' + ');
+/* 多題庫練習有自己獨立的進度（存在 S.prog['multi:…']），每次新開始都從 0 計算，不沿用、也不更動原本各題庫的進度 */
+function multiOf(ds){const id='multi:'+ds.map(d=>d.id).sort().join(','),pr=S.prog[id]||(S.prog[id]={});
+ return{d:{id,title:mTitle(ds),cards:ds.flatMap(d=>d.cards),parts:ds},pr}}
 function mgo(){const ds=S.decks.filter(d=>MS.has(d.id)&&d.cards.length);if(!ds.length)return toast('請先選擇題庫');const m=multiOf(ds);startFlow(m.d,m.pr)}
 /* 未完成的練習紀錄 → 繼續完成 */
+const rTitle=r=>{if(String(r.deckId).startsWith('multi:')){const ds=r.deckId.slice(6).split(',').map(i=>S.decks.find(d=>d.id==i));if(ds.length&&ds.every(Boolean))return mTitle(ds)}return r.deckTitle};
 const canResume=r=>!!r&&r.fin===false&&!r.abandoned&&!!S.sess[r.deckId]&&S.sess[r.deckId].repId==r.id;
 function resumeReport(r){if(!canResume(r))return toast('這份紀錄已無法繼續');
  if(String(r.deckId).startsWith('multi:')){const ids=r.deckId.slice(6).split(','),ds=S.decks.filter(d=>ids.includes(d.id)&&d.cards.length);if(!ds.length)return toast('找不到原本的題庫');const m=multiOf(ds);m.d.id=r.deckId;return resume(m.d,m.pr)}
@@ -762,7 +765,7 @@ const GD=[
 ['t','加入的是「複本」，原題庫不會改變。如果加入後與本題庫既有題目重複，該題會標紅，刪除其一才能儲存。'],
 ['h','做法 B：多題庫練習（不複製、直接練）'],
 ['s',[['在首頁按「多題庫練習」。'],['可用「搜尋題庫」找題庫，勾選要一起練的題庫；「全選目前篩選結果」可一次全選。'],['按「開始練習」，在設定視窗選擇是否打亂順序、每題需答對次數，再按「開始」。']]],
-['t','多題庫練習的進度仍記在各題原本的題庫裡，不會另外產生新題庫。']]},
+['t','多題庫練習有自己獨立的進度：每次重新開始都從 0% 計算，不會加上原本各題庫的進度，也不會更動原本題庫的進度。名稱會顯示是哪些題庫結合的，例如「ABC + Happy」。未完成時，再選同一組題庫按「開始練習」，會顯示結合了哪些題庫並可接續上次。']]},
 {t:'如何匯出及匯入紀錄或題庫',ic:'swap',d:'備份題庫、轉移到別的裝置、還原學習紀錄',b:[
 ['p','「題庫」匯出成 TXT 檔，只包含題目；「學習記錄」匯出成 JSON 檔，包含題庫、資料夾、練習進度、報告與設定。入口有兩個：首頁的「匯入／匯出」，或「個人檔案」裡的「匯出／匯入學習記錄」，進去後是同一個頁面。'],
 ['h','匯出題庫（TXT）'],
@@ -820,7 +823,7 @@ const GD=[
 ['最後一輪結束後，會輪流複習剩下還沒達標的題目，全部達標就結束並顯示報告。'],
 ['中途按左上角返回也沒關係，進度與出題順序都會保留，下次按「開始練習」可選擇「接續上次」或「重新開始」。']]],
 ['h','練習報告'],
-['s',[['報告依答對率由低到高排列，「最常答錯」會標出最常答錯的字。'],['色條顏色：紅色（50% 以下）、橘色（51%～99%）、綠色（100%）。'],['輕點某題可看完整內容。','過往報告可從題庫卡片的「⋯」或「個人檔案」→「檢視所有練習紀錄」查看。'],['想看某個題庫「所有練習」合併後的答題情形，點題庫卡片的「⋯」→「整體報告」。'],['練習紀錄標示「未完成」時，清單每一條的右側會有「繼續完成」按鈕；點進報告後，上方總覽裡也有。按下去會回到離開時的進度繼續練習。']]],
+['s',[['報告依答對率由低到高排列，「最常答錯」會標出最常答錯的字。'],['色條顏色：紅色（50% 以下）、橘色（51%～99%）、綠色（100%）。'],['輕點某題可看完整內容。','過往報告可從題庫卡片的「⋯」或「個人檔案」→「檢視所有練習紀錄」查看。'],['想看某個題庫「所有練習」合併後的答題情形，點題庫卡片的「⋯」→「整體報告」。'],['練習紀錄標示「未完成」時，清單每一條百分比的左側會有「繼續練習」按鈕；點進報告後，上方總覽裡也有。按下去會回到離開時的進度繼續練習。']]],
 ['p','想隨時小練習一下，可到「個人檔案」最下方的「隨機練習一題」。']]},
 {t:'使用AI提示詞來生成題庫',ic:'spark',d:'把文字、PDF、Word、圖片交給AI整理成可匯入的題庫',b:[
 ['p','如果你有一份還沒整理的完整資料（文字、PDF、Word、圖片都可以），可以交給 AI（例如 ChatGPT、Claude、Gemini）整理。關鍵是用下面這份提示詞，讓 AI 輸出本系統能直接讀取的格式。'],
