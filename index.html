@@ -142,6 +142,7 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:2px s
 .lb.on{background:#d9822b;border-color:#d9822b;color:#fff}.lb.ig{border-style:dashed;border-color:#d9822b;color:#d9822b}
 .hbar{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px}.hpv{color:var(--tx);line-height:1.7}.hhint{font-size:12px;color:var(--sub)}
 .lnk{border:0;background:none;color:var(--fg);text-decoration:underline;font-size:13px;white-space:nowrap;padding:0}
+.rcb{padding:6px 12px;font-size:13px;white-space:nowrap;flex:none;margin-left:6px;position:relative;z-index:1}
 .stn{display:flex;gap:6px;margin:0 0 10px}.stn span{flex:1;display:flex;align-items:center;gap:6px;justify-content:center;padding:6px 4px;border-radius:10px;background:var(--bg);color:var(--sub);font-size:13px;white-space:nowrap}
 .stn span b{width:18px;height:18px;border-radius:50%;background:var(--line);color:var(--fg);font:600 11px system-ui;display:flex;align-items:center;justify-content:center}
 .stn span.on{background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--fg);font-weight:600}.stn span.on b{background:var(--pri);color:var(--priT)}
@@ -171,7 +172,7 @@ code{background:color-mix(in srgb,var(--pri) 10%,transparent);padding:1px 5px;bo
 const $=s=>document.querySelector(s),app=$('#app'),uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 /* ===== 圖示 ===== */
-const IC={back:'<path d="m15 18-6-6 6-6"/>',right:'<path d="m9 18 6-6-6-6"/>',up:'<path d="m6 15 6-6 6 6"/>',down:'<path d="m6 9 6 6 6-6"/>',
+const IC={back:'<path d="m15 18-6-6 6-6"/>',right:'<path d="m9 18 6-6-6-6"/>',play:'<path d="M7 5v14l11-7z"/>',up:'<path d="m6 15 6-6 6 6"/>',down:'<path d="m6 9 6 6 6-6"/>',
 gear:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',star:'<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.3-6.2 3.3L8 14.2 3 9.3l6.9-1z"/>',
 trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/>',plus:'<path d="M12 5v14M5 12h14"/>',
 folder:'<path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',more:'<path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3"/>',
@@ -452,7 +453,7 @@ const MDL={all:'所有題目',star:'僅星號題目',unstar:'僅未星號題目'
 function showReport(r,fresh,back){view='report';RB=back||home;const d=S.decks.find(x=>x.id==r.deckId),
  it=r.items.filter(x=>x.att).sort((a,b)=>b.wrong/b.att-a.wrong/a.att||b.wrong-a.wrong||b.att-a.att),A=it.reduce((s,x)=>s+x.att,0),W=it.reduce((s,x)=>s+x.wrong,0);
  setView(`<div class=wrap><div class=top><div class=row>${B('rback','back')}<h3 class=lt>${fresh?'練習完成・':''}練習報告${r.fin===false?'（未完成 '+r.pct+'%）':''}</h3></div></div>
- <div class=card style="padding:16px 20px"><div style="font-size:15px">${esc(r.deckTitle)}</div><div class=zh style="margin-top:6px">${new Date(r.time).toLocaleString()}・${it.length} 題・共作答 ${A} 次・整體答對率 ${A?Math.round((A-W)/A*100):0}%</div>${setTxt(r)?`<div class=zh style="margin-top:4px;font-size:13px">${setTxt(r)}</div>`:''}</div>
+ <div class=card style="padding:16px 20px"><div style="font-size:15px">${esc(r.deckTitle)}</div><div class=zh style="margin-top:6px">${new Date(r.time).toLocaleString()}・${it.length} 題・共作答 ${A} 次・整體答對率 ${A?Math.round((A-W)/A*100):0}%</div>${setTxt(r)?`<div class=zh style="margin-top:4px;font-size:13px">${setTxt(r)}</div>`:''}${canResume(r)?`<div style="margin-top:12px"><button class=pri data-act=rcont data-id=${r.id}>${I('play',16)}繼續完成</button></div>`:''}</div>
  <div>${it.map(x=>{const f=findCard(x.cid);return rrHTML({...x,card:f&&f.c,did:f&&f.d.id,act:`data-act=edet data-cid=${x.cid} style="cursor:pointer"`})}).join('')||'<div class=center>還沒有作答紀錄</div>'}</div>
  ${fresh?`<div style="display:flex;justify-content:center;margin-top:18px"><button class=pri data-act=home>回題庫</button></div>`:''}</div>`,true)}
 /* ===== 個人檔案 ===== */
@@ -466,7 +467,7 @@ function profile(enter=true){view='profile';P=null;const all=S.decks.flatMap(d=>
  syUpd();if(pk){P={rand:true,d:pk.d,pr:{},reps:1,cf:DCF(),stats:{},ids:[],q:[]};buildQ(pk.c,false)}}
 function records(){view='records';const L=[...S.reports].reverse();
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有練習紀錄</h3></div></div><div>${L.map(r=>{const p=r.pct??100,f=r.fin!==false;
-  return `<div class=rr style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=orep data-id=${r.id}><div class=fill></div><div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(r.deckTitle)}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題${r.zhHint===undefined?'':r.zhHint?'・提示開':'・提示關'}</div></div><div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div><span style="width:14px"></span></div>`}).join('')||'<div class=center>還沒有練習紀錄</div>'}</div></div>`,true)}
+  return `<div class=rr style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=orep data-id=${r.id}><div class=fill></div><div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(r.deckTitle)}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題${r.zhHint===undefined?'':r.zhHint?'・提示開':'・提示關'}</div></div><div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div>${canResume(r)?`<button class="pri rcb" data-act=rcont data-id=${r.id}>繼續完成</button>`:'<span style="width:14px"></span>'}</div>`}).join('')||'<div class=center>還沒有練習紀錄</div>'}</div></div>`,true)}
 function errList(){const o=[];S.decks.forEach(d=>d.cards.forEach(c=>{const k=S.cs[c.id];if(k&&k.att&&k.wrong)o.push({card:c,deck:d,att:k.att,wrong:k.wrong,rate:(k.att-k.wrong)/k.att})}));return o.sort((a,b)=>a.rate-b.rate||a.att-b.att)}
 function errors(){view='errors';const L=errList();
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有錯題</h3><span class=grow></span><button class=sec data-act=emake>${I('plus',16)}製作錯題題庫</button></div></div><div>${L.map(x=>rrHTML({...x,did:x.deck.id,deck:x.deck.title,act:`data-act=edet data-cid=${x.card.id} style="cursor:pointer"`})).join('')||'<div class=center>目前沒有錯題</div>'}</div></div>`,true)}
@@ -671,9 +672,15 @@ const mlist=()=>{const q=MQ.trim().toLowerCase();return S.decks.filter(d=>d.card
 function mdraw(){$('#ml').innerHTML=mlist().map(d=>{const f=S.folders.find(f=>f.id==d.folder);return `<label class="ck rr" style="padding:12px 16px;cursor:pointer"><input type=checkbox data-d=${d.id} ${MS.has(d.id)?'checked':''}><span style="flex:1;font-size:16px">${esc(d.title)}<br><small style="color:var(--sub);font-size:12px">${f?esc(f.name)+'・':''}${d.cards.length} 題</small></span></label>`}).join('')||'<div class=center>找不到符合的題庫</div>';$('#mc').textContent=`已選 ${MS.size} 個題庫`}
 app.addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.d;if(view=='multi'&&id){e.target.checked?MS.add(id):MS.delete(id);$('#mc').textContent=`已選 ${MS.size} 個題庫`}});
 function msall(){const L=mlist(),all=L.length&&L.every(d=>MS.has(d.id));L.forEach(d=>all?MS.delete(d.id):MS.add(d.id));mdraw()}
-function mgo(){const ds=S.decks.filter(d=>MS.has(d.id)&&d.cards.length);if(!ds.length)return toast('請先選擇題庫');const own={};ds.forEach(d=>d.cards.forEach(c=>own[c.id]=d.id));
+function multiOf(ds){const own={};ds.forEach(d=>d.cards.forEach(c=>own[c.id]=d.id));
  const pr=new Proxy({},{get:(t,k)=>(S.prog[own[k]]||{})[k],set:(t,k,v)=>{if(own[k])(S.prog[own[k]]||(S.prog[own[k]]={}))[k]=v;return true},deleteProperty:(t,k)=>{if(S.prog[own[k]])delete S.prog[own[k]][k];return true}});
- startFlow({id:'multi:'+ds.map(d=>d.id).sort().join(','),title:`多題庫練習（${ds.length} 個題庫）`,cards:ds.flatMap(d=>d.cards),parts:ds},pr)}
+ return{d:{id:'multi:'+ds.map(d=>d.id).sort().join(','),title:`多題庫練習（${ds.length} 個題庫）`,cards:ds.flatMap(d=>d.cards),parts:ds},pr}}
+function mgo(){const ds=S.decks.filter(d=>MS.has(d.id)&&d.cards.length);if(!ds.length)return toast('請先選擇題庫');const m=multiOf(ds);startFlow(m.d,m.pr)}
+/* 未完成的練習紀錄 → 繼續完成 */
+const canResume=r=>!!r&&r.fin===false&&!r.abandoned&&!!S.sess[r.deckId]&&S.sess[r.deckId].repId==r.id;
+function resumeReport(r){if(!canResume(r))return toast('這份紀錄已無法繼續');
+ if(String(r.deckId).startsWith('multi:')){const ids=r.deckId.slice(6).split(','),ds=S.decks.filter(d=>ids.includes(d.id)&&d.cards.length);if(!ds.length)return toast('找不到原本的題庫');const m=multiOf(ds);m.d.id=r.deckId;return resume(m.d,m.pr)}
+ const d=S.decks.find(x=>x.id==r.deckId);if(!d)return toast('找不到原本的題庫');resume(d)}
 /* ===== 操作說明 ===== */
 const fm=t=>esc(t).replace(/「([^」]+)」/g,'<span class=kb>「$1」</span>').replace(/`([^`]+)`/g,'<code>$1</code>');
 const gl=(t,c)=>[...t].map(ch=>`<b class=${c}>${esc(ch)}</b>`).join(''),dm=h=>`<span class=dm>${h}</span>`;
@@ -813,7 +820,7 @@ const GD=[
 ['最後一輪結束後，會輪流複習剩下還沒達標的題目，全部達標就結束並顯示報告。'],
 ['中途按左上角返回也沒關係，進度與出題順序都會保留，下次按「開始練習」可選擇「接續上次」或「重新開始」。']]],
 ['h','練習報告'],
-['s',[['報告依答對率由低到高排列，「最常答錯」會標出最常答錯的字。'],['色條顏色：紅色（50% 以下）、橘色（51%～99%）、綠色（100%）。'],['輕點某題可看完整內容。','過往報告可從題庫卡片的「⋯」或「個人檔案」→「檢視所有練習紀錄」查看。'],['想看某個題庫「所有練習」合併後的答題情形，點題庫卡片的「⋯」→「整體報告」。']]],
+['s',[['報告依答對率由低到高排列，「最常答錯」會標出最常答錯的字。'],['色條顏色：紅色（50% 以下）、橘色（51%～99%）、綠色（100%）。'],['輕點某題可看完整內容。','過往報告可從題庫卡片的「⋯」或「個人檔案」→「檢視所有練習紀錄」查看。'],['想看某個題庫「所有練習」合併後的答題情形，點題庫卡片的「⋯」→「整體報告」。'],['練習紀錄標示「未完成」時，清單每一條的右側會有「繼續完成」按鈕；點進報告後，上方總覽裡也有。按下去會回到離開時的進度繼續練習。']]],
 ['p','想隨時小練習一下，可到「個人檔案」最下方的「隨機練習一題」。']]},
 {t:'使用AI提示詞來生成題庫',ic:'spark',d:'把文字、PDF、Word、圖片交給AI整理成可匯入的題庫',b:[
 ['p','如果你有一份還沒整理的完整資料（文字、PDF、Word、圖片都可以），可以交給 AI（例如 ChatGPT、Claude、Gemini）整理。關鍵是用下面這份提示詞，讓 AI 輸出本系統能直接讀取的格式。'],
@@ -870,7 +877,7 @@ app.addEventListener('click',e=>{if(lpDone){lpDone=false;return}const b=e.target
  else if(a=='home')home();else if(a=='back')back();else if(a=='new')newDeck();else if(a=='edit')edit(id);else if(a=='start')start(id);
  else if(a=='dmore')dmore(id);else if(a=='fmore')fmore(id);else if(a=='io')io(view=='profile'?profile:home);else if(a=='iback')IOB();else if(a=='multi')multi();else if(a=='msall')msall();else if(a=='mgo')mgo();else if(a=='theme'){S.cfg.theme=b.dataset.t;applyTheme();save();app.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b))}
  else if(a=='prof')profile();else if(a=='help')guideList();else if(a=='gopen')guideDoc(+id);else if(a=='gback')guideList();else if(a=='gcp')gcopy(b);else if(a=='orec')records();else if(a=='oerr')errors();else if(a=='emake')errPick([]);else if(a=='ostar')stars();else if(a=='smake')starPick([]);else if(a=='pkback'){PK&&PK.back()}else if(a=='edet')detail(b.dataset.cid);
- else if(a=='orep'){const r=S.reports.find(x=>x.id==id);showReport(r,false,records)}else if(a=='rback')RB();
+ else if(a=='orep'){const r=S.reports.find(x=>x.id==id);showReport(r,false,records)}else if(a=='rback')RB();else if(a=='rcont')resumeReport(S.reports.find(x=>x.id==id));
  else if(a=='nf')ask('資料夾名稱','',v=>hlUpdate(()=>{S.folders.push({id:uid(),name:v,open:true});save()}));
  else if(a=='next')nextCard();else if(a=='rnext')profile(false);else if(a=='chk')checkAll();else if(a=='show')showAns();
  else if(a=='pstar'){const c=P.d.cards.find(x=>x.id==P.id);c.star=!c.star;save();b.classList.toggle('on',c.star)}
