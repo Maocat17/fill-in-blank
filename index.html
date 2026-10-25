@@ -142,7 +142,8 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:2px s
 .lb.on{background:#d9822b;border-color:#d9822b;color:#fff}.lb.ig{border-style:dashed;border-color:#d9822b;color:#d9822b}
 .hbar{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px}.hpv{color:var(--tx);line-height:1.7}.hhint{font-size:12px;color:var(--sub)}
 .lnk{border:0;background:none;color:var(--fg);text-decoration:underline;font-size:13px;white-space:nowrap;padding:0}
-.rcb{padding:6px 12px;font-size:13px;white-space:nowrap;flex:none;position:relative;z-index:1}.rr.rec{padding-right:16px}
+.rcb{padding:6px 12px;font-size:13px;white-space:nowrap;flex:none;position:relative;z-index:1}.rr.rec{padding-right:16px}.bk input{ime-mode:disabled}
+.rck{flex:none;width:22px;height:22px;border:2px solid var(--sub);border-radius:7px;display:inline-flex;align-items:center;justify-content:center;color:var(--priT)}.rck.on{background:var(--pri);border-color:var(--pri)}.rbar{position:sticky;bottom:14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px;padding:10px 12px;background:var(--card);border-radius:14px;box-shadow:0 2px 12px #0003}.rbar .cnt{font-size:14px;color:var(--sub)}.rbar .dl{background:var(--r);color:#fff;border:0;border-radius:12px;padding:10px 18px;font-size:16px}.rbar .dl:disabled{opacity:.4}
 .pgn{display:flex;flex-direction:column;align-items:center;gap:10px;margin:20px 0 10px}.pgn .nums{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}.pgn button{min-width:38px;height:38px;padding:0 8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--tx);font:inherit;font-size:15px;cursor:pointer}.pgn button.on{background:var(--pri);border-color:var(--pri);color:var(--priT);font-weight:600}.pgn button:disabled{opacity:.35;cursor:default}.pgn .dd{color:var(--sub);padding:0 2px}.pgn .inf{font-size:13px;color:var(--sub);text-align:center}.rr.rec .pc{flex:none;width:64px;min-width:0}
 .stn{display:flex;gap:6px;margin:0 0 10px}.stn span{flex:1;display:flex;align-items:center;gap:6px;justify-content:center;padding:6px 4px;border-radius:10px;background:var(--bg);color:var(--sub);font-size:13px;white-space:nowrap}
 .stn span b{width:18px;height:18px;border-radius:50%;background:var(--line);color:var(--fg);font:600 11px system-ui;display:flex;align-items:center;justify-content:center}
@@ -404,7 +405,7 @@ function buildQ(c,focus){P.taint=false;P.fin=false;P.id=c.id;const en=$('#en');e
   const w=document.createElement('span');w.className='bk';
   const[hp,hs]=V?hintOf(c,k.a,vm):['',''],ln=V?P.cf.lv:P.cf.lc,hl=hp.length+hs.length;
   w.style.width=`calc(${ln?Math.max(k.a.length,V?hl+1:0):Math.max(6,V?hl+2:0)}ch + 1.4em)`;
-  w.innerHTML=`<input type=text inputmode=text ${NOSUG} name="f${uid()}">${V?`<span class=hp>${esc(hp)}</span><span class=hs>${esc(hs)}</span>`:''}<span class=ov></span>`;en.append(w);w._a=k.a;
+  w.innerHTML=`<input type=text inputmode=email lang=en ${NOSUG} name="f${uid()}">${V?`<span class=hp>${esc(hp)}</span><span class=hs>${esc(hs)}</span>`:''}<span class=ov></span>`;en.append(w);w._a=k.a;
   const inp=w.firstChild,ov=w.lastChild,nxt=()=>{const all=[...app.querySelectorAll('.bk')],i=all.indexOf(w),nx=all.slice(i+1).find(b=>!b.classList.contains('ok'));nx?nx.firstChild.focus():checkAll()};
   /* 輸入的字比預設寬度長時，格子跟著變長；刪除時跟著變短，最短回到預設寬度 */
   const fitT=t=>{const cs=getComputedStyle(inp);cvx.font=`${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;w.style.width=Math.max(w._w0||0,cvx.measureText(t).width+parseFloat(cs.fontSize)*1.4)+'px';w.classList.toggle('typed',!!inp.value)},fit=()=>fitT(inp.value);
@@ -412,7 +413,7 @@ function buildQ(c,focus){P.taint=false;P.fin=false;P.id=c.id;const en=$('#en');e
   const sel=()=>{if(w.classList.contains('bad'))inp.select()};
   inp.addEventListener('beforeinput',e=>{if(e.data==' '){e.preventDefault();nxt();return}
    if(w.classList.contains('bad')){inp.select();w.classList.remove('bad');ov.innerHTML=''}});
-  inp.addEventListener('keydown',e=>{if(e.key=='Enter'||e.key==' '){e.preventDefault();nxt()}});
+  inp.addEventListener('keydown',e=>{if(e.isComposing||e.keyCode==229)return;if(e.key=='Enter'||e.key==' '){e.preventDefault();nxt()}});
   inp.addEventListener('focus',()=>setTimeout(sel,0));inp.addEventListener('pointerup',()=>setTimeout(sel,0))});
  en.querySelectorAll('.bk').forEach(w=>w._w0=w.offsetWidth);
  if(focus){const f=app.querySelector('.bk input');if(f)f.focus()}}
@@ -481,18 +482,24 @@ function pagerHTML(k,tot,pg){if(tot<=PGN)return'';const n=Math.ceil(tot/PGN),a=(
  return `<div class=pgn><div class=nums>${bt(pg-1,'‹',false,pg<=1,'上一頁')}${h}${bt(pg+1,'›',false,pg>=n,'下一頁')}</div><div class=inf>共 ${tot} 筆・本頁顯示第 ${a}～${b} 筆（第 ${pg} / ${n} 頁）</div></div>`}
 function pgGo(k,p){lsGet(k).pg=p;if(k=='home')renderHL();else lstDraw(k);window.scrollTo(0,0)}
 const SRCH=(k,ph)=>`<input class=ti id=lq type=search placeholder="${ph}" ${NOSUG} value="${esc(lsGet(k).q)}" style="margin-top:8px">`;
-const recRow=r=>{const p=r.pct??100,f=r.fin!==false;
- return `<div class="rr rec" style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=orep data-id=${r.id}><div class=fill></div><div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(rTitle(r))}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題${r.zhHint===undefined?'':r.zhHint?'・提示開':'・提示關'}</div></div>${canResume(r)?`<button class="pri rcb" data-act=rcont data-id=${r.id}>繼續練習</button>`:''}<div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div></div>`};
+let RE={on:false,sel:new Set()};
+const recRow=r=>{const p=r.pct??100,f=r.fin!==false,ed=RE.on,on=RE.sel.has(r.id);
+ return `<div class="rr rec" style="--w:${p}%;--c:${f?'var(--ok)':'#e8a33d'};cursor:pointer" data-act=${ed?'rsel':'orep'} data-id=${r.id}><div class=fill></div>${ed?`<span class="rck ${on?'on':''}">${on?I('check',14):''}</span>`:''}<div class=rl><div class=t style="font-family:inherit;font-size:16px">${esc(rTitle(r))}</div><div class=d>${new Date(r.time).toLocaleString()}・${r.items.length} 題${r.zhHint===undefined?'':r.zhHint?'・提示開':'・提示關'}</div></div>${canResume(r)&&!ed?`<button class="pri rcb" data-act=rcont data-id=${r.id}>繼續練習</button>`:''}<div class=pc style="color:${f?'var(--ok)':'#e8a33d'}">${p}%<small>${f?'已完成':'未完成'}</small></div></div>`};
 const cardRow=x=>rrHTML({...x,did:x.deck.id,deck:x.deck.title,act:`data-act=edet data-cid=${x.card.id} style="cursor:pointer"`}),
  cardTxt=x=>[x.card.en,x.card.zh,x.card.def,x.card.phrase,x.card.phraseZh,x.card.note,x.deck.title].join(' ');
 const LCFG={records:()=>({all:[...S.reports].reverse(),txt:r=>rTitle(r)+' '+new Date(r.time).toLocaleString()+' '+(r.fin===false?'未完成':'已完成'),row:recRow,empty:'還沒有練習紀錄',none:'找不到符合的練習紀錄'}),
  errors:()=>({all:errList(),txt:cardTxt,row:cardRow,empty:'目前沒有錯題',none:'找不到符合的錯題'}),
  stars:()=>({all:starList(),txt:cardTxt,row:cardRow,empty:'目前沒有星號題目',none:'找不到符合的星號題目'})};
-function lstDraw(k){const el=$('#xl');if(!el)return;const c=LCFG[k](),st=lsGet(k),ts=sq(st.q).split(/\s+/).filter(Boolean),
- L=ts.length?c.all.filter(x=>{const t=sq(c.txt(x));return ts.every(w=>t.includes(w))}):c.all,pp=pageOf(k,L);
- el.innerHTML=(pp.L.map(c.row).join('')||`<div class=center>${ts.length?c.none:c.empty}</div>`)+pagerHTML(k,L.length,st.pg)}
+function lstFilter(k){const c=LCFG[k](),ts=sq(lsGet(k).q).split(/\s+/).filter(Boolean);return{c,ts,L:ts.length?c.all.filter(x=>{const t=sq(c.txt(x));return ts.every(w=>t.includes(w))}):c.all}}
+function rbarUpd(){const b=$('#rbar');if(!b)return;const n=RE.sel.size,L=lstFilter('records').L,all=L.length&&L.every(r=>RE.sel.has(r.id));b.querySelector('.cnt').textContent=`已選 ${n} 筆`;b.querySelector('#rall').textContent=all?'取消全選':'全選目前篩選結果';b.querySelector('.dl').disabled=!n}
+function lstDraw(k){const el=$('#xl');if(!el)return;const{c,ts,L}=lstFilter(k),st=lsGet(k),pp=pageOf(k,L);
+ el.innerHTML=(pp.L.map(c.row).join('')||`<div class=center>${ts.length?c.none:c.empty}</div>`)+pagerHTML(k,L.length,st.pg);if(k=='records')rbarUpd()}
 function records(){view='records';
- setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有練習紀錄</h3></div>${SRCH('records','搜尋題庫名稱、日期')}</div><div id=xl></div></div>`,true);lstDraw('records')}
+ setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有練習紀錄</h3><span class=grow></span>${S.reports.length?`<button class=sec data-act=redit>${RE.on?'完成':I('edit',16)+'編輯'}</button>`:''}</div>${SRCH('records','搜尋題庫名稱、日期')}</div><div id=xl></div>${RE.on?`<div class=rbar id=rbar><button class=sec id=rall data-act=rall>全選目前篩選結果</button><span class=cnt></span><button class=dl data-act=rdel>${I('trash',16)}刪除</button></div>`:''}</div>`,true);lstDraw('records')}
+function recDel(){const n=RE.sel.size;if(!n)return toast('請先選擇要刪除的紀錄');const un=S.reports.filter(r=>RE.sel.has(r.id)&&canResume(r)).length;
+ yes(`刪除選取的 ${n} 筆練習紀錄？${un?`<br><small>其中 ${un} 筆是未完成的練習，刪除後就無法再按「繼續練習」接續。</small>`:''}<br><small>這個動作無法復原。</small>`,()=>{
+  S.reports.forEach(r=>{if(RE.sel.has(r.id)&&canResume(r))delete S.sess[r.deckId]});
+  S.reports=S.reports.filter(r=>!RE.sel.has(r.id));RE.on=false;RE.sel.clear();save();toast(`已刪除 ${n} 筆練習紀錄`);records()})}
 function errList(){const o=[];S.decks.forEach(d=>d.cards.forEach(c=>{const k=S.cs[c.id];if(k&&k.att&&k.wrong)o.push({card:c,deck:d,att:k.att,wrong:k.wrong,rate:(k.att-k.wrong)/k.att})}));return o.sort((a,b)=>a.rate-b.rate||a.att-b.att)}
 function errors(){view='errors';
  setView(`<div class=wrap><div class=top><div class=row>${B('prof','back')}<h3 class=lt>所有錯題</h3><span class=grow></span><button class=sec data-act=emake>${I('plus',16)}製作錯題題庫</button></div>${SRCH('errors','搜尋題目、題庫')}</div><div id=xl></div></div>`,true);lstDraw('errors')}
@@ -832,7 +839,7 @@ const GD=[
 ['h','中文句子的底線提示'],
 ['l',[['<span class=zu style="font-size:17px">難過</span>','中文句子裡有底線的字，就是對應英文挖空的詞，提示這格要填什麼。需要在開始練習的設定視窗開啟「填空提示」，題目也要有用 [ ] 框住的中文詞。']]],
 ['h','如何輸入'],
-['s',[['點一下格子輸入答案，不分大小寫。','在開始練習的設定視窗開啟「格子長度提示」時，格子寬度對應答案長度；關閉時，格子一律是 6 個字母的寬度。'],['每個格子只填一個字；片語會被拆成多個格子。','輸入的字比格子預設寬度長時，格子會跟著變長；刪除時會跟著變短，最短回到預設寬度。按「看答案」時，如果答案比預設寬度長，格子也會跟著變長。'],['輸入完一格後按空白鍵或 Enter，會跳到下一個尚未答對的格子；在最後一格按下，會自動檢查。'],['也可以隨時按右下角「檢查」。'],['不確定時按「看答案」，所有未答對的格子會顯示正確答案，這題會記為答錯。']]],
+['s',[['點一下格子輸入答案，不分大小寫。','在開始練習的設定視窗開啟「格子長度提示」時，格子寬度對應答案長度；關閉時，格子一律是 6 個字母的寬度。'],['每個格子只填一個字；片語會被拆成多個格子。','輸入的字比格子預設寬度長時，格子會跟著變長；刪除時會跟著變短，最短回到預設寬度。按「看答案」時，如果答案比預設寬度長，格子也會跟著變長。填空格子會要求手機使用英文鍵盤；電腦版的輸入法無法由網頁自動切換（網頁沒有這個權限），請先自行切到英文再作答。'],['輸入完一格後按空白鍵或 Enter，會跳到下一個尚未答對的格子；在最後一格按下，會自動檢查。'],['也可以隨時按右下角「檢查」。'],['不確定時按「看答案」，所有未答對的格子會顯示正確答案，這題會記為答錯。']]],
 ['h','批改結果的顏色'],
 ['l',[[dm('awake').replace('class=dm','class="dm ok"'),'綠底格子：這格答對了，會自動鎖定，不能再修改。'],[dm(gl('awak','g')),'藍色字：你輸入對的字母。'],[dm(gl('e','r')),'紅色字：正確答案中，你寫錯或漏掉的字母，這裡顯示的是正確字母。']]],
 ['p','綜合範例：'],
@@ -850,6 +857,7 @@ const GD=[
 ['s',[['報告依答對率由低到高排列，「最常答錯」會標出最常答錯的字。'],['色條顏色：紅色（50% 以下）、橘色（51%～99%）、綠色（100%）。'],['輕點某題可看完整內容。','過往報告可從題庫卡片的「⋯」或「個人檔案」→「檢視所有練習紀錄」查看。'],['想看某個題庫「所有練習」合併後的答題情形，點題庫卡片的「⋯」→「整體報告」。'],['練習紀錄標示「未完成」時，清單每一條百分比的左側會有「繼續練習」按鈕；點進報告後，上方總覽裡也有。按下去會回到離開時的進度繼續練習。']]],
 ['t','「首頁的題庫」「檢視所有練習紀錄」「檢視所有星號題目」「檢視所有錯題」每頁顯示 15 筆；超過 15 筆時，頁面下方會出現頁數可以切換，並標註總共幾筆、本頁顯示第幾筆到第幾筆。'],
 ['t','「檢視所有練習紀錄」「檢視所有星號題目」「檢視所有錯題」上方有搜尋框：練習紀錄可搜尋題庫名稱與日期，星號題目與錯題可搜尋題目、翻譯、單字解釋、搭配詞／片語、筆記與題庫名稱。可輸入多個關鍵字（用空白隔開），需全部符合；搜尋後會從第 1 頁開始顯示。'],
+['t','「檢視所有練習紀錄」右上角有「編輯」按鈕：按下後每條紀錄前面會出現勾選框，點紀錄即可勾選（可跨頁、搭配搜尋，也可用「全選目前篩選結果」），再按下方的「刪除」並確認即可一次刪除多筆；按「完成」離開編輯。刪除練習紀錄不會影響各題的答對率統計與題庫進度；如果刪掉的是未完成的紀錄，就無法再用「繼續練習」接續。'],
 ['p','想隨時小練習一下，可到「個人檔案」最下方的「隨機練習一題」。']]},
 {t:'使用AI提示詞來生成題庫',ic:'spark',d:'把文字、PDF、Word、圖片交給AI整理成可匯入的題庫',b:[
 ['p','如果你有一份還沒整理的完整資料（文字、PDF、Word、圖片都可以），可以交給 AI（例如 ChatGPT、Claude、Gemini）整理。關鍵是用下面這份提示詞，讓 AI 輸出本系統能直接讀取的格式。'],
@@ -905,7 +913,7 @@ app.addEventListener('click',e=>{if(lpDone){lpDone=false;return}const b=e.target
  if(a=='tog'){const f=S.folders.find(x=>x.id==id);f.open=f.open===false;b.parentNode.classList.toggle('open',f.open);save()}
  else if(a=='home')home();else if(a=='back')back();else if(a=='new')newDeck();else if(a=='edit')edit(id);else if(a=='start')start(id);
  else if(a=='dmore')dmore(id);else if(a=='fmore')fmore(id);else if(a=='io')io(view=='profile'?profile:home);else if(a=='iback')IOB();else if(a=='multi')multi();else if(a=='msall')msall();else if(a=='mgo')mgo();else if(a=='theme'){S.cfg.theme=b.dataset.t;applyTheme();save();app.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b))}
- else if(a=='prof')profile();else if(a=='help')guideList();else if(a=='gopen')guideDoc(+id);else if(a=='gback')guideList();else if(a=='gcp')gcopy(b);else if(a=='pg')pgGo(b.dataset.lk,+b.dataset.p);else if(a=='orec'){delete LS.records;records()}else if(a=='oerr'){delete LS.errors;errors()}else if(a=='emake')errPick([]);else if(a=='ostar'){delete LS.stars;stars()}else if(a=='smake')starPick([]);else if(a=='pkback'){PK&&PK.back()}else if(a=='edet')detail(b.dataset.cid);
+ else if(a=='prof')profile();else if(a=='help')guideList();else if(a=='gopen')guideDoc(+id);else if(a=='gback')guideList();else if(a=='gcp')gcopy(b);else if(a=='pg')pgGo(b.dataset.lk,+b.dataset.p);else if(a=='redit'){RE.on=!RE.on;RE.sel.clear();records()}else if(a=='rsel'){RE.sel.has(id)?RE.sel.delete(id):RE.sel.add(id);lstDraw('records')}else if(a=='rall'){const L=lstFilter('records').L,all=L.length&&L.every(r=>RE.sel.has(r.id));L.forEach(r=>all?RE.sel.delete(r.id):RE.sel.add(r.id));lstDraw('records')}else if(a=='rdel')recDel();else if(a=='orec'){delete LS.records;RE.on=false;RE.sel.clear();records()}else if(a=='oerr'){delete LS.errors;errors()}else if(a=='emake')errPick([]);else if(a=='ostar'){delete LS.stars;stars()}else if(a=='smake')starPick([]);else if(a=='pkback'){PK&&PK.back()}else if(a=='edet')detail(b.dataset.cid);
  else if(a=='orep'){const r=S.reports.find(x=>x.id==id);showReport(r,false,records)}else if(a=='rback')RB();else if(a=='rcont')resumeReport(S.reports.find(x=>x.id==id));
  else if(a=='nf')ask('資料夾名稱','',v=>hlUpdate(()=>{S.folders.push({id:uid(),name:v,open:true});save()}));
  else if(a=='next')nextCard();else if(a=='rnext')profile(false);else if(a=='chk')checkAll();else if(a=='show')showAns();
